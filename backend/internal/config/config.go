@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"go-backend-template/internal/api"
+	coreApi "go-backend-template/internal/core/api"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -21,6 +22,7 @@ func InitApp() {
 
 	client := databseConfigs()
 	api.InitializeApiRoutes(app, client)
+	coreApi.InitializeCoreRoutes(app, client)
 
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -3,6 +3,8 @@
 package ent
 
 import (
+	"go-backend-template/ent/actionmodel"
+	"go-backend-template/ent/auditrecord"
 	"go-backend-template/ent/schema"
 	"go-backend-template/ent/user"
 )
@@ -11,6 +13,18 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	actionmodelFields := schema.ActionModel{}.Fields()
+	_ = actionmodelFields
+	// actionmodelDescVersion is the schema descriptor for version field.
+	actionmodelDescVersion := actionmodelFields[6].Descriptor()
+	// actionmodel.DefaultVersion holds the default value on creation for the version field.
+	actionmodel.DefaultVersion = actionmodelDescVersion.Default.(int)
+	auditrecordFields := schema.AuditRecord{}.Fields()
+	_ = auditrecordFields
+	// auditrecordDescValidated is the schema descriptor for validated field.
+	auditrecordDescValidated := auditrecordFields[4].Descriptor()
+	// auditrecord.DefaultValidated holds the default value on creation for the validated field.
+	auditrecord.DefaultValidated = auditrecordDescValidated.Default.(bool)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescFirstname is the schema descriptor for firstname field.

@@ -8,6 +8,39 @@ import (
 )
 
 var (
+	// ActionModelsColumns holds the columns for the "action_models" table.
+	ActionModelsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "project_id", Type: field.TypeString},
+		{Name: "name", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "parameters", Type: field.TypeJSON},
+		{Name: "rules", Type: field.TypeJSON},
+		{Name: "required_feature", Type: field.TypeString, Nullable: true},
+		{Name: "version", Type: field.TypeInt, Default: 1},
+	}
+	// ActionModelsTable holds the schema information for the "action_models" table.
+	ActionModelsTable = &schema.Table{
+		Name:       "action_models",
+		Columns:    ActionModelsColumns,
+		PrimaryKey: []*schema.Column{ActionModelsColumns[0]},
+	}
+	// AuditRecordsColumns holds the columns for the "audit_records" table.
+	AuditRecordsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "project_id", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeString},
+		{Name: "prompt", Type: field.TypeString, Size: 2147483647},
+		{Name: "proposed_action", Type: field.TypeJSON, Nullable: true},
+		{Name: "validated", Type: field.TypeBool, Default: false},
+		{Name: "final_response", Type: field.TypeJSON, Nullable: true},
+	}
+	// AuditRecordsTable holds the schema information for the "audit_records" table.
+	AuditRecordsTable = &schema.Table{
+		Name:       "audit_records",
+		Columns:    AuditRecordsColumns,
+		PrimaryKey: []*schema.Column{AuditRecordsColumns[0]},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -24,6 +57,8 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		ActionModelsTable,
+		AuditRecordsTable,
 		UsersTable,
 	}
 )

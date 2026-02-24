@@ -6,6 +6,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"go-backend-template/ent/actionmodel"
+	"go-backend-template/ent/auditrecord"
 	"go-backend-template/ent/user"
 	"reflect"
 	"sync"
@@ -73,7 +75,9 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			user.Table: user.ValidColumn,
+			actionmodel.Table: actionmodel.ValidColumn,
+			auditrecord.Table: auditrecord.ValidColumn,
+			user.Table:        user.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

@@ -1,0 +1,110 @@
+{
+  "info": {
+    "_postman_id": "ea7a2d6b-9e4a-4b1a-8c1a-1a2b3c4d5e6f",
+    "name": "EAC API Collection",
+    "description": "API collection for the Embedded Agent Controller (EAC) project.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health-check",
+          "host": ["{{base_url}}"],
+          "path": ["health-check"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"firstname\": \"John\",\n    \"lastname\": \"Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Core",
+      "item": [
+        {
+          "name": "Engine",
+          "item": [
+            {
+              "name": "Process Intent",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"project_id\": \"test-project\",\n    \"prompt\": \"I want to buy milk\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/core/engine/process",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "core", "engine", "process"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    }
+  ]
+}

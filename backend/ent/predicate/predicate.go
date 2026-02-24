@@ -6,5 +6,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// ActionModel is the predicate function for actionmodel builders.
+type ActionModel func(*sql.Selector)
+
+// AuditRecord is the predicate function for auditrecord builders.
+type AuditRecord func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

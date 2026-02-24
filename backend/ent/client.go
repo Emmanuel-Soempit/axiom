@@ -11,6 +11,8 @@ import (
 
 	"go-backend-template/ent/migrate"
 
+	"go-backend-template/ent/actionmodel"
+	"go-backend-template/ent/auditrecord"
 	"go-backend-template/ent/user"
 
 	"entgo.io/ent"
@@ -23,6 +25,10 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// ActionModel is the client for interacting with the ActionModel builders.
+	ActionModel *ActionModelClient
+	// AuditRecord is the client for interacting with the AuditRecord builders.
+	AuditRecord *AuditRecordClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -36,6 +42,8 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.ActionModel = NewActionModelClient(c.config)
+	c.AuditRecord = NewAuditRecordClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -127,9 +135,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		User:   NewUserClient(cfg),
+		ctx:         ctx,
+		config:      cfg,
+		ActionModel: NewActionModelClient(cfg),
+		AuditRecord: NewAuditRecordClient(cfg),
+		User:        NewUserClient(cfg),
 	}, nil
 }
 
@@ -147,16 +157,18 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		User:   NewUserClient(cfg),
+		ctx:         ctx,
+		config:      cfg,
+		ActionModel: NewActionModelClient(cfg),
+		AuditRecord: NewAuditRecordClient(cfg),
+		User:        NewUserClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		User.
+//		ActionModel.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -178,22 +190,296 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.ActionModel.Use(hooks...)
+	c.AuditRecord.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.ActionModel.Intercept(interceptors...)
+	c.AuditRecord.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *ActionModelMutation:
+		return c.ActionModel.mutate(ctx, m)
+	case *AuditRecordMutation:
+		return c.AuditRecord.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// ActionModelClient is a client for the ActionModel schema.
+type ActionModelClient struct {
+	config
+}
+
+// NewActionModelClient returns a client for the ActionModel from the given config.
+func NewActionModelClient(c config) *ActionModelClient {
+	return &ActionModelClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `actionmodel.Hooks(f(g(h())))`.
+func (c *ActionModelClient) Use(hooks ...Hook) {
+	c.hooks.ActionModel = append(c.hooks.ActionModel, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `actionmodel.Intercept(f(g(h())))`.
+func (c *ActionModelClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ActionModel = append(c.inters.ActionModel, interceptors...)
+}
+
+// Create returns a builder for creating a ActionModel entity.
+func (c *ActionModelClient) Create() *ActionModelCreate {
+	mutation := newActionModelMutation(c.config, OpCreate)
+	return &ActionModelCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ActionModel entities.
+func (c *ActionModelClient) CreateBulk(builders ...*ActionModelCreate) *ActionModelCreateBulk {
+	return &ActionModelCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ActionModelClient) MapCreateBulk(slice any, setFunc func(*ActionModelCreate, int)) *ActionModelCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ActionModelCreateBulk{err: fmt.Errorf("calling to ActionModelClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ActionModelCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ActionModelCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ActionModel.
+func (c *ActionModelClient) Update() *ActionModelUpdate {
+	mutation := newActionModelMutation(c.config, OpUpdate)
+	return &ActionModelUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ActionModelClient) UpdateOne(_m *ActionModel) *ActionModelUpdateOne {
+	mutation := newActionModelMutation(c.config, OpUpdateOne, withActionModel(_m))
+	return &ActionModelUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ActionModelClient) UpdateOneID(id int) *ActionModelUpdateOne {
+	mutation := newActionModelMutation(c.config, OpUpdateOne, withActionModelID(id))
+	return &ActionModelUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ActionModel.
+func (c *ActionModelClient) Delete() *ActionModelDelete {
+	mutation := newActionModelMutation(c.config, OpDelete)
+	return &ActionModelDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ActionModelClient) DeleteOne(_m *ActionModel) *ActionModelDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ActionModelClient) DeleteOneID(id int) *ActionModelDeleteOne {
+	builder := c.Delete().Where(actionmodel.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ActionModelDeleteOne{builder}
+}
+
+// Query returns a query builder for ActionModel.
+func (c *ActionModelClient) Query() *ActionModelQuery {
+	return &ActionModelQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeActionModel},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ActionModel entity by its id.
+func (c *ActionModelClient) Get(ctx context.Context, id int) (*ActionModel, error) {
+	return c.Query().Where(actionmodel.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ActionModelClient) GetX(ctx context.Context, id int) *ActionModel {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ActionModelClient) Hooks() []Hook {
+	return c.hooks.ActionModel
+}
+
+// Interceptors returns the client interceptors.
+func (c *ActionModelClient) Interceptors() []Interceptor {
+	return c.inters.ActionModel
+}
+
+func (c *ActionModelClient) mutate(ctx context.Context, m *ActionModelMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ActionModelCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ActionModelUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ActionModelUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ActionModelDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ActionModel mutation op: %q", m.Op())
+	}
+}
+
+// AuditRecordClient is a client for the AuditRecord schema.
+type AuditRecordClient struct {
+	config
+}
+
+// NewAuditRecordClient returns a client for the AuditRecord from the given config.
+func NewAuditRecordClient(c config) *AuditRecordClient {
+	return &AuditRecordClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `auditrecord.Hooks(f(g(h())))`.
+func (c *AuditRecordClient) Use(hooks ...Hook) {
+	c.hooks.AuditRecord = append(c.hooks.AuditRecord, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `auditrecord.Intercept(f(g(h())))`.
+func (c *AuditRecordClient) Intercept(interceptors ...Interceptor) {
+	c.inters.AuditRecord = append(c.inters.AuditRecord, interceptors...)
+}
+
+// Create returns a builder for creating a AuditRecord entity.
+func (c *AuditRecordClient) Create() *AuditRecordCreate {
+	mutation := newAuditRecordMutation(c.config, OpCreate)
+	return &AuditRecordCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AuditRecord entities.
+func (c *AuditRecordClient) CreateBulk(builders ...*AuditRecordCreate) *AuditRecordCreateBulk {
+	return &AuditRecordCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AuditRecordClient) MapCreateBulk(slice any, setFunc func(*AuditRecordCreate, int)) *AuditRecordCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AuditRecordCreateBulk{err: fmt.Errorf("calling to AuditRecordClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AuditRecordCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AuditRecordCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AuditRecord.
+func (c *AuditRecordClient) Update() *AuditRecordUpdate {
+	mutation := newAuditRecordMutation(c.config, OpUpdate)
+	return &AuditRecordUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AuditRecordClient) UpdateOne(_m *AuditRecord) *AuditRecordUpdateOne {
+	mutation := newAuditRecordMutation(c.config, OpUpdateOne, withAuditRecord(_m))
+	return &AuditRecordUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AuditRecordClient) UpdateOneID(id int) *AuditRecordUpdateOne {
+	mutation := newAuditRecordMutation(c.config, OpUpdateOne, withAuditRecordID(id))
+	return &AuditRecordUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AuditRecord.
+func (c *AuditRecordClient) Delete() *AuditRecordDelete {
+	mutation := newAuditRecordMutation(c.config, OpDelete)
+	return &AuditRecordDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AuditRecordClient) DeleteOne(_m *AuditRecord) *AuditRecordDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AuditRecordClient) DeleteOneID(id int) *AuditRecordDeleteOne {
+	builder := c.Delete().Where(auditrecord.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AuditRecordDeleteOne{builder}
+}
+
+// Query returns a query builder for AuditRecord.
+func (c *AuditRecordClient) Query() *AuditRecordQuery {
+	return &AuditRecordQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAuditRecord},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a AuditRecord entity by its id.
+func (c *AuditRecordClient) Get(ctx context.Context, id int) (*AuditRecord, error) {
+	return c.Query().Where(auditrecord.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AuditRecordClient) GetX(ctx context.Context, id int) *AuditRecord {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *AuditRecordClient) Hooks() []Hook {
+	return c.hooks.AuditRecord
+}
+
+// Interceptors returns the client interceptors.
+func (c *AuditRecordClient) Interceptors() []Interceptor {
+	return c.inters.AuditRecord
+}
+
+func (c *AuditRecordClient) mutate(ctx context.Context, m *AuditRecordMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AuditRecordCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AuditRecordUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AuditRecordUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AuditRecordDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown AuditRecord mutation op: %q", m.Op())
 	}
 }
 
@@ -333,9 +619,9 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		User []ent.Hook
+		ActionModel, AuditRecord, User []ent.Hook
 	}
 	inters struct {
-		User []ent.Interceptor
+		ActionModel, AuditRecord, User []ent.Interceptor
 	}
 )

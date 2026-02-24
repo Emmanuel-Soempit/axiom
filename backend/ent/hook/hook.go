@@ -8,6 +8,30 @@ import (
 	"go-backend-template/ent"
 )
 
+// The ActionModelFunc type is an adapter to allow the use of ordinary
+// function as ActionModel mutator.
+type ActionModelFunc func(context.Context, *ent.ActionModelMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ActionModelFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ActionModelMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ActionModelMutation", m)
+}
+
+// The AuditRecordFunc type is an adapter to allow the use of ordinary
+// function as AuditRecord mutator.
+type AuditRecordFunc func(context.Context, *ent.AuditRecordMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AuditRecordFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AuditRecordMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AuditRecordMutation", m)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *ent.UserMutation) (ent.Value, error)
