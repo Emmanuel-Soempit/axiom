@@ -7,11 +7,12 @@ import (
 	"go-backend-template/internal/core/llm"
 	"go-backend-template/internal/core/registry"
 	"go-backend-template/internal/core/validation"
+	"go-backend-template/internal/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterEngineRoutes(router fiber.Router, registry registry.Registry, auditor audit.Auditor) {
+func RegisterEngineRoutes(router fiber.Router, registry registry.Registry, auditor audit.Auditor, apiKeyAuth middleware.ApiKeyAuthMiddleware) {
 	// Initialize Engine dependencies
 	llmProvider := llm.NewGroqProvider()
 	validator := validation.NewValidator()
@@ -20,5 +21,7 @@ func RegisterEngineRoutes(router fiber.Router, registry registry.Registry, audit
 	h := handler.NewEngineHandler(eng)
 
 	engineGroup := router.Group("/engine")
+
+	engineGroup.Use(apiKeyAuth.ApiKeyAuth)
 	engineGroup.Post("/process", h.ProcessIntent)
 }

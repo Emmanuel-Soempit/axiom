@@ -11,57 +11,227 @@ var (
 	// ActionModelsColumns holds the columns for the "action_models" table.
 	ActionModelsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "project_id", Type: field.TypeString},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString},
 		{Name: "parameters", Type: field.TypeJSON},
 		{Name: "rules", Type: field.TypeJSON},
 		{Name: "required_feature", Type: field.TypeString, Nullable: true},
 		{Name: "version", Type: field.TypeInt, Default: 1},
+		{Name: "project_id", Type: field.TypeString},
 	}
 	// ActionModelsTable holds the schema information for the "action_models" table.
 	ActionModelsTable = &schema.Table{
 		Name:       "action_models",
 		Columns:    ActionModelsColumns,
 		PrimaryKey: []*schema.Column{ActionModelsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "action_models_projects_actions",
+				Columns:    []*schema.Column{ActionModelsColumns[9]},
+				RefColumns: []*schema.Column{ProjectsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// APIKeysColumns holds the columns for the "api_keys" table.
+	APIKeysColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "name", Type: field.TypeString},
+		{Name: "key_prefix", Type: field.TypeString, Unique: true},
+		{Name: "key_hash", Type: field.TypeString},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "revoked"}, Default: "active"},
+		{Name: "last_used_at", Type: field.TypeTime, Nullable: true},
+		{Name: "expires_at", Type: field.TypeTime, Nullable: true},
+		{Name: "project_id", Type: field.TypeString},
+		{Name: "created_by", Type: field.TypeInt},
+	}
+	// APIKeysTable holds the schema information for the "api_keys" table.
+	APIKeysTable = &schema.Table{
+		Name:       "api_keys",
+		Columns:    APIKeysColumns,
+		PrimaryKey: []*schema.Column{APIKeysColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "api_keys_projects_api_keys",
+				Columns:    []*schema.Column{APIKeysColumns[9]},
+				RefColumns: []*schema.Column{ProjectsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "api_keys_users_created_api_keys",
+				Columns:    []*schema.Column{APIKeysColumns[10]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// AuditRecordsColumns holds the columns for the "audit_records" table.
 	AuditRecordsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "project_id", Type: field.TypeString},
-		{Name: "user_id", Type: field.TypeString},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "project_id", Type: field.TypeString, Nullable: true},
 		{Name: "prompt", Type: field.TypeString, Size: 2147483647},
 		{Name: "proposed_action", Type: field.TypeJSON, Nullable: true},
 		{Name: "validated", Type: field.TypeBool, Default: false},
 		{Name: "final_response", Type: field.TypeJSON, Nullable: true},
+		{Name: "action_id", Type: field.TypeInt, Nullable: true},
+		{Name: "user_id", Type: field.TypeInt, Nullable: true},
 	}
 	// AuditRecordsTable holds the schema information for the "audit_records" table.
 	AuditRecordsTable = &schema.Table{
 		Name:       "audit_records",
 		Columns:    AuditRecordsColumns,
 		PrimaryKey: []*schema.Column{AuditRecordsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "audit_records_action_models_audit_records",
+				Columns:    []*schema.Column{AuditRecordsColumns[8]},
+				RefColumns: []*schema.Column{ActionModelsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "audit_records_users_audit_records",
+				Columns:    []*schema.Column{AuditRecordsColumns[9]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// ProjectsColumns holds the columns for the "projects" table.
+	ProjectsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "name", Type: field.TypeString},
+		{Name: "public_id", Type: field.TypeString, Unique: true},
+		{Name: "user_projects", Type: field.TypeInt, Nullable: true},
+	}
+	// ProjectsTable holds the schema information for the "projects" table.
+	ProjectsTable = &schema.Table{
+		Name:       "projects",
+		Columns:    ProjectsColumns,
+		PrimaryKey: []*schema.Column{ProjectsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "projects_users_projects",
+				Columns:    []*schema.Column{ProjectsColumns[5]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// RolesColumns holds the columns for the "roles" table.
+	RolesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "name", Type: field.TypeEnum, Enums: []string{"client", "admin"}},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+	}
+	// RolesTable holds the schema information for the "roles" table.
+	RolesTable = &schema.Table{
+		Name:       "roles",
+		Columns:    RolesColumns,
+		PrimaryKey: []*schema.Column{RolesColumns[0]},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "firstname", Type: field.TypeString, Size: 20},
-		{Name: "lastname", Type: field.TypeString, Size: 20},
-		{Name: "email", Type: field.TypeString, Unique: true, Size: 20},
-		{Name: "password", Type: field.TypeString},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "first_name", Type: field.TypeString, Size: 100},
+		{Name: "last_name", Type: field.TypeString, Size: 100},
+		{Name: "email", Type: field.TypeString, Unique: true},
+		{Name: "email_verified", Type: field.TypeBool, Default: false},
+		{Name: "password", Type: field.TypeString, Nullable: true},
+		{Name: "sign_up_method", Type: field.TypeEnum, Enums: []string{"invite", "register"}, Default: "register"},
+		{Name: "role_users", Type: field.TypeInt, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "users_roles_users",
+				Columns:    []*schema.Column{UsersColumns[9]},
+				RefColumns: []*schema.Column{RolesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// UserInvitationsColumns holds the columns for the "user_invitations" table.
+	UserInvitationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "invite_url", Type: field.TypeString},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"activated", "pending", "expired"}, Default: "pending"},
+		{Name: "user_invitations", Type: field.TypeInt, Nullable: true},
+	}
+	// UserInvitationsTable holds the schema information for the "user_invitations" table.
+	UserInvitationsTable = &schema.Table{
+		Name:       "user_invitations",
+		Columns:    UserInvitationsColumns,
+		PrimaryKey: []*schema.Column{UserInvitationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_invitations_users_invitations",
+				Columns:    []*schema.Column{UserInvitationsColumns[5]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// UserPasswordSecretsColumns holds the columns for the "user_password_secrets" table.
+	UserPasswordSecretsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "secret", Type: field.TypeString},
+		{Name: "user_password_secret", Type: field.TypeInt, Unique: true},
+	}
+	// UserPasswordSecretsTable holds the schema information for the "user_password_secrets" table.
+	UserPasswordSecretsTable = &schema.Table{
+		Name:       "user_password_secrets",
+		Columns:    UserPasswordSecretsColumns,
+		PrimaryKey: []*schema.Column{UserPasswordSecretsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_password_secrets_users_password_secret",
+				Columns:    []*schema.Column{UserPasswordSecretsColumns[4]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ActionModelsTable,
+		APIKeysTable,
 		AuditRecordsTable,
+		ProjectsTable,
+		RolesTable,
 		UsersTable,
+		UserInvitationsTable,
+		UserPasswordSecretsTable,
 	}
 )
 
 func init() {
+	ActionModelsTable.ForeignKeys[0].RefTable = ProjectsTable
+	APIKeysTable.ForeignKeys[0].RefTable = ProjectsTable
+	APIKeysTable.ForeignKeys[1].RefTable = UsersTable
+	AuditRecordsTable.ForeignKeys[0].RefTable = ActionModelsTable
+	AuditRecordsTable.ForeignKeys[1].RefTable = UsersTable
+	ProjectsTable.ForeignKeys[0].RefTable = UsersTable
+	UsersTable.ForeignKeys[0].RefTable = RolesTable
+	UserInvitationsTable.ForeignKeys[0].RefTable = UsersTable
+	UserPasswordSecretsTable.ForeignKeys[0].RefTable = UsersTable
 }

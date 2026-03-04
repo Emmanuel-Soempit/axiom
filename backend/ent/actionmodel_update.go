@@ -7,7 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"go-backend-template/ent/actionmodel"
+	"go-backend-template/ent/auditrecord"
 	"go-backend-template/ent/predicate"
+	"go-backend-template/ent/project"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -24,6 +27,12 @@ type ActionModelUpdate struct {
 // Where appends a list predicates to the ActionModelUpdate builder.
 func (_u *ActionModelUpdate) Where(ps ...predicate.ActionModel) *ActionModelUpdate {
 	_u.mutation.Where(ps...)
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *ActionModelUpdate) SetUpdatedAt(v time.Time) *ActionModelUpdate {
+	_u.mutation.SetUpdatedAt(v)
 	return _u
 }
 
@@ -122,13 +131,61 @@ func (_u *ActionModelUpdate) AddVersion(v int) *ActionModelUpdate {
 	return _u
 }
 
+// SetProject sets the "project" edge to the Project entity.
+func (_u *ActionModelUpdate) SetProject(v *Project) *ActionModelUpdate {
+	return _u.SetProjectID(v.ID)
+}
+
+// AddAuditRecordIDs adds the "audit_records" edge to the AuditRecord entity by IDs.
+func (_u *ActionModelUpdate) AddAuditRecordIDs(ids ...int) *ActionModelUpdate {
+	_u.mutation.AddAuditRecordIDs(ids...)
+	return _u
+}
+
+// AddAuditRecords adds the "audit_records" edges to the AuditRecord entity.
+func (_u *ActionModelUpdate) AddAuditRecords(v ...*AuditRecord) *ActionModelUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddAuditRecordIDs(ids...)
+}
+
 // Mutation returns the ActionModelMutation object of the builder.
 func (_u *ActionModelUpdate) Mutation() *ActionModelMutation {
 	return _u.mutation
 }
 
+// ClearProject clears the "project" edge to the Project entity.
+func (_u *ActionModelUpdate) ClearProject() *ActionModelUpdate {
+	_u.mutation.ClearProject()
+	return _u
+}
+
+// ClearAuditRecords clears all "audit_records" edges to the AuditRecord entity.
+func (_u *ActionModelUpdate) ClearAuditRecords() *ActionModelUpdate {
+	_u.mutation.ClearAuditRecords()
+	return _u
+}
+
+// RemoveAuditRecordIDs removes the "audit_records" edge to AuditRecord entities by IDs.
+func (_u *ActionModelUpdate) RemoveAuditRecordIDs(ids ...int) *ActionModelUpdate {
+	_u.mutation.RemoveAuditRecordIDs(ids...)
+	return _u
+}
+
+// RemoveAuditRecords removes "audit_records" edges to AuditRecord entities.
+func (_u *ActionModelUpdate) RemoveAuditRecords(v ...*AuditRecord) *ActionModelUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveAuditRecordIDs(ids...)
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *ActionModelUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -154,7 +211,26 @@ func (_u *ActionModelUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *ActionModelUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := actionmodel.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *ActionModelUpdate) check() error {
+	if _u.mutation.ProjectCleared() && len(_u.mutation.ProjectIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "ActionModel.project"`)
+	}
+	return nil
+}
+
 func (_u *ActionModelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(actionmodel.Table, actionmodel.Columns, sqlgraph.NewFieldSpec(actionmodel.FieldID, field.TypeInt))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -163,8 +239,8 @@ func (_u *ActionModelUpdate) sqlSave(ctx context.Context) (_node int, err error)
 			}
 		}
 	}
-	if value, ok := _u.mutation.ProjectID(); ok {
-		_spec.SetField(actionmodel.FieldProjectID, field.TypeString, value)
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(actionmodel.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(actionmodel.FieldName, field.TypeString, value)
@@ -190,6 +266,80 @@ func (_u *ActionModelUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.AddedVersion(); ok {
 		_spec.AddField(actionmodel.FieldVersion, field.TypeInt, value)
 	}
+	if _u.mutation.ProjectCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   actionmodel.ProjectTable,
+			Columns: []string{actionmodel.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ProjectIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   actionmodel.ProjectTable,
+			Columns: []string{actionmodel.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AuditRecordsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   actionmodel.AuditRecordsTable,
+			Columns: []string{actionmodel.AuditRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auditrecord.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedAuditRecordsIDs(); len(nodes) > 0 && !_u.mutation.AuditRecordsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   actionmodel.AuditRecordsTable,
+			Columns: []string{actionmodel.AuditRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auditrecord.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AuditRecordsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   actionmodel.AuditRecordsTable,
+			Columns: []string{actionmodel.AuditRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auditrecord.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{actionmodel.Label}
@@ -208,6 +358,12 @@ type ActionModelUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *ActionModelMutation
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *ActionModelUpdateOne) SetUpdatedAt(v time.Time) *ActionModelUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetProjectID sets the "project_id" field.
@@ -305,9 +461,56 @@ func (_u *ActionModelUpdateOne) AddVersion(v int) *ActionModelUpdateOne {
 	return _u
 }
 
+// SetProject sets the "project" edge to the Project entity.
+func (_u *ActionModelUpdateOne) SetProject(v *Project) *ActionModelUpdateOne {
+	return _u.SetProjectID(v.ID)
+}
+
+// AddAuditRecordIDs adds the "audit_records" edge to the AuditRecord entity by IDs.
+func (_u *ActionModelUpdateOne) AddAuditRecordIDs(ids ...int) *ActionModelUpdateOne {
+	_u.mutation.AddAuditRecordIDs(ids...)
+	return _u
+}
+
+// AddAuditRecords adds the "audit_records" edges to the AuditRecord entity.
+func (_u *ActionModelUpdateOne) AddAuditRecords(v ...*AuditRecord) *ActionModelUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddAuditRecordIDs(ids...)
+}
+
 // Mutation returns the ActionModelMutation object of the builder.
 func (_u *ActionModelUpdateOne) Mutation() *ActionModelMutation {
 	return _u.mutation
+}
+
+// ClearProject clears the "project" edge to the Project entity.
+func (_u *ActionModelUpdateOne) ClearProject() *ActionModelUpdateOne {
+	_u.mutation.ClearProject()
+	return _u
+}
+
+// ClearAuditRecords clears all "audit_records" edges to the AuditRecord entity.
+func (_u *ActionModelUpdateOne) ClearAuditRecords() *ActionModelUpdateOne {
+	_u.mutation.ClearAuditRecords()
+	return _u
+}
+
+// RemoveAuditRecordIDs removes the "audit_records" edge to AuditRecord entities by IDs.
+func (_u *ActionModelUpdateOne) RemoveAuditRecordIDs(ids ...int) *ActionModelUpdateOne {
+	_u.mutation.RemoveAuditRecordIDs(ids...)
+	return _u
+}
+
+// RemoveAuditRecords removes "audit_records" edges to AuditRecord entities.
+func (_u *ActionModelUpdateOne) RemoveAuditRecords(v ...*AuditRecord) *ActionModelUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveAuditRecordIDs(ids...)
 }
 
 // Where appends a list predicates to the ActionModelUpdate builder.
@@ -325,6 +528,7 @@ func (_u *ActionModelUpdateOne) Select(field string, fields ...string) *ActionMo
 
 // Save executes the query and returns the updated ActionModel entity.
 func (_u *ActionModelUpdateOne) Save(ctx context.Context) (*ActionModel, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -350,7 +554,26 @@ func (_u *ActionModelUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *ActionModelUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := actionmodel.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *ActionModelUpdateOne) check() error {
+	if _u.mutation.ProjectCleared() && len(_u.mutation.ProjectIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "ActionModel.project"`)
+	}
+	return nil
+}
+
 func (_u *ActionModelUpdateOne) sqlSave(ctx context.Context) (_node *ActionModel, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(actionmodel.Table, actionmodel.Columns, sqlgraph.NewFieldSpec(actionmodel.FieldID, field.TypeInt))
 	id, ok := _u.mutation.ID()
 	if !ok {
@@ -376,8 +599,8 @@ func (_u *ActionModelUpdateOne) sqlSave(ctx context.Context) (_node *ActionModel
 			}
 		}
 	}
-	if value, ok := _u.mutation.ProjectID(); ok {
-		_spec.SetField(actionmodel.FieldProjectID, field.TypeString, value)
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(actionmodel.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(actionmodel.FieldName, field.TypeString, value)
@@ -402,6 +625,80 @@ func (_u *ActionModelUpdateOne) sqlSave(ctx context.Context) (_node *ActionModel
 	}
 	if value, ok := _u.mutation.AddedVersion(); ok {
 		_spec.AddField(actionmodel.FieldVersion, field.TypeInt, value)
+	}
+	if _u.mutation.ProjectCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   actionmodel.ProjectTable,
+			Columns: []string{actionmodel.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ProjectIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   actionmodel.ProjectTable,
+			Columns: []string{actionmodel.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AuditRecordsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   actionmodel.AuditRecordsTable,
+			Columns: []string{actionmodel.AuditRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auditrecord.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedAuditRecordsIDs(); len(nodes) > 0 && !_u.mutation.AuditRecordsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   actionmodel.AuditRecordsTable,
+			Columns: []string{actionmodel.AuditRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auditrecord.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AuditRecordsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   actionmodel.AuditRecordsTable,
+			Columns: []string{actionmodel.AuditRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auditrecord.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &ActionModel{config: _u.config}
 	_spec.Assign = _node.assignValues

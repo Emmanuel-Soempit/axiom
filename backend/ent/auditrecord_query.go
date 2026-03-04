@@ -5,8 +5,10 @@ package ent
 import (
 	"context"
 	"fmt"
+	"go-backend-template/ent/actionmodel"
 	"go-backend-template/ent/auditrecord"
 	"go-backend-template/ent/predicate"
+	"go-backend-template/ent/user"
 	"math"
 
 	"entgo.io/ent"
@@ -22,6 +24,8 @@ type AuditRecordQuery struct {
 	order      []auditrecord.OrderOption
 	inters     []Interceptor
 	predicates []predicate.AuditRecord
+	withUser   *UserQuery
+	withAction *ActionModelQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -56,6 +60,50 @@ func (_q *AuditRecordQuery) Unique(unique bool) *AuditRecordQuery {
 func (_q *AuditRecordQuery) Order(o ...auditrecord.OrderOption) *AuditRecordQuery {
 	_q.order = append(_q.order, o...)
 	return _q
+}
+
+// QueryUser chains the current query on the "user" edge.
+func (_q *AuditRecordQuery) QueryUser() *UserQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(auditrecord.Table, auditrecord.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, auditrecord.UserTable, auditrecord.UserColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAction chains the current query on the "action" edge.
+func (_q *AuditRecordQuery) QueryAction() *ActionModelQuery {
+	query := (&ActionModelClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(auditrecord.Table, auditrecord.FieldID, selector),
+			sqlgraph.To(actionmodel.Table, actionmodel.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, auditrecord.ActionTable, auditrecord.ActionColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first AuditRecord entity from the query.
@@ -250,10 +298,34 @@ func (_q *AuditRecordQuery) Clone() *AuditRecordQuery {
 		order:      append([]auditrecord.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
 		predicates: append([]predicate.AuditRecord{}, _q.predicates...),
+		withUser:   _q.withUser.Clone(),
+		withAction: _q.withAction.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
+}
+
+// WithUser tells the query-builder to eager-load the nodes that are connected to
+// the "user" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *AuditRecordQuery) WithUser(opts ...func(*UserQuery)) *AuditRecordQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withUser = query
+	return _q
+}
+
+// WithAction tells the query-builder to eager-load the nodes that are connected to
+// the "action" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *AuditRecordQuery) WithAction(opts ...func(*ActionModelQuery)) *AuditRecordQuery {
+	query := (&ActionModelClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withAction = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -262,12 +334,12 @@ func (_q *AuditRecordQuery) Clone() *AuditRecordQuery {
 // Example:
 //
 //	var v []struct {
-//		ProjectID string `json:"project_id,omitempty"`
+//		CreatedAt time.Time `json:"created_at,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.AuditRecord.Query().
-//		GroupBy(auditrecord.FieldProjectID).
+//		GroupBy(auditrecord.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *AuditRecordQuery) GroupBy(field string, fields ...string) *AuditRecordGroupBy {
@@ -285,11 +357,11 @@ func (_q *AuditRecordQuery) GroupBy(field string, fields ...string) *AuditRecord
 // Example:
 //
 //	var v []struct {
-//		ProjectID string `json:"project_id,omitempty"`
+//		CreatedAt time.Time `json:"created_at,omitempty"`
 //	}
 //
 //	client.AuditRecord.Query().
-//		Select(auditrecord.FieldProjectID).
+//		Select(auditrecord.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (_q *AuditRecordQuery) Select(fields ...string) *AuditRecordSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
@@ -332,8 +404,12 @@ func (_q *AuditRecordQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *AuditRecordQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*AuditRecord, error) {
 	var (
-		nodes = []*AuditRecord{}
-		_spec = _q.querySpec()
+		nodes       = []*AuditRecord{}
+		_spec       = _q.querySpec()
+		loadedTypes = [2]bool{
+			_q.withUser != nil,
+			_q.withAction != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*AuditRecord).scanValues(nil, columns)
@@ -341,6 +417,7 @@ func (_q *AuditRecordQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &AuditRecord{config: _q.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -352,7 +429,78 @@ func (_q *AuditRecordQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withUser; query != nil {
+		if err := _q.loadUser(ctx, query, nodes, nil,
+			func(n *AuditRecord, e *User) { n.Edges.User = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withAction; query != nil {
+		if err := _q.loadAction(ctx, query, nodes, nil,
+			func(n *AuditRecord, e *ActionModel) { n.Edges.Action = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (_q *AuditRecordQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*AuditRecord, init func(*AuditRecord), assign func(*AuditRecord, *User)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*AuditRecord)
+	for i := range nodes {
+		fk := nodes[i].UserID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(user.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *AuditRecordQuery) loadAction(ctx context.Context, query *ActionModelQuery, nodes []*AuditRecord, init func(*AuditRecord), assign func(*AuditRecord, *ActionModel)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*AuditRecord)
+	for i := range nodes {
+		fk := nodes[i].ActionID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(actionmodel.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "action_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (_q *AuditRecordQuery) sqlCount(ctx context.Context) (int, error) {
@@ -379,6 +527,12 @@ func (_q *AuditRecordQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != auditrecord.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withUser != nil {
+			_spec.Node.AddColumnOnce(auditrecord.FieldUserID)
+		}
+		if _q.withAction != nil {
+			_spec.Node.AddColumnOnce(auditrecord.FieldActionID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

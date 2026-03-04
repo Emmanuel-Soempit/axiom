@@ -4,39 +4,165 @@ package ent
 
 import (
 	"go-backend-template/ent/actionmodel"
+	"go-backend-template/ent/apikey"
 	"go-backend-template/ent/auditrecord"
+	"go-backend-template/ent/project"
+	"go-backend-template/ent/role"
 	"go-backend-template/ent/schema"
 	"go-backend-template/ent/user"
+	"go-backend-template/ent/userinvitation"
+	"go-backend-template/ent/userpasswordsecret"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	actionmodelMixin := schema.ActionModel{}.Mixin()
+	actionmodelMixinFields0 := actionmodelMixin[0].Fields()
+	_ = actionmodelMixinFields0
 	actionmodelFields := schema.ActionModel{}.Fields()
 	_ = actionmodelFields
+	// actionmodelDescCreatedAt is the schema descriptor for created_at field.
+	actionmodelDescCreatedAt := actionmodelMixinFields0[0].Descriptor()
+	// actionmodel.DefaultCreatedAt holds the default value on creation for the created_at field.
+	actionmodel.DefaultCreatedAt = actionmodelDescCreatedAt.Default.(func() time.Time)
+	// actionmodelDescUpdatedAt is the schema descriptor for updated_at field.
+	actionmodelDescUpdatedAt := actionmodelMixinFields0[1].Descriptor()
+	// actionmodel.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	actionmodel.DefaultUpdatedAt = actionmodelDescUpdatedAt.Default.(func() time.Time)
+	// actionmodel.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	actionmodel.UpdateDefaultUpdatedAt = actionmodelDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// actionmodelDescVersion is the schema descriptor for version field.
 	actionmodelDescVersion := actionmodelFields[6].Descriptor()
 	// actionmodel.DefaultVersion holds the default value on creation for the version field.
 	actionmodel.DefaultVersion = actionmodelDescVersion.Default.(int)
+	apikeyMixin := schema.ApiKey{}.Mixin()
+	apikeyMixinFields0 := apikeyMixin[0].Fields()
+	_ = apikeyMixinFields0
+	apikeyFields := schema.ApiKey{}.Fields()
+	_ = apikeyFields
+	// apikeyDescCreatedAt is the schema descriptor for created_at field.
+	apikeyDescCreatedAt := apikeyMixinFields0[0].Descriptor()
+	// apikey.DefaultCreatedAt holds the default value on creation for the created_at field.
+	apikey.DefaultCreatedAt = apikeyDescCreatedAt.Default.(func() time.Time)
+	// apikeyDescUpdatedAt is the schema descriptor for updated_at field.
+	apikeyDescUpdatedAt := apikeyMixinFields0[1].Descriptor()
+	// apikey.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	apikey.DefaultUpdatedAt = apikeyDescUpdatedAt.Default.(func() time.Time)
+	// apikey.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	apikey.UpdateDefaultUpdatedAt = apikeyDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// apikeyDescID is the schema descriptor for id field.
+	apikeyDescID := apikeyFields[0].Descriptor()
+	// apikey.DefaultID holds the default value on creation for the id field.
+	apikey.DefaultID = apikeyDescID.Default.(func() uuid.UUID)
+	auditrecordMixin := schema.AuditRecord{}.Mixin()
+	auditrecordMixinFields0 := auditrecordMixin[0].Fields()
+	_ = auditrecordMixinFields0
 	auditrecordFields := schema.AuditRecord{}.Fields()
 	_ = auditrecordFields
+	// auditrecordDescCreatedAt is the schema descriptor for created_at field.
+	auditrecordDescCreatedAt := auditrecordMixinFields0[0].Descriptor()
+	// auditrecord.DefaultCreatedAt holds the default value on creation for the created_at field.
+	auditrecord.DefaultCreatedAt = auditrecordDescCreatedAt.Default.(func() time.Time)
+	// auditrecordDescUpdatedAt is the schema descriptor for updated_at field.
+	auditrecordDescUpdatedAt := auditrecordMixinFields0[1].Descriptor()
+	// auditrecord.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	auditrecord.DefaultUpdatedAt = auditrecordDescUpdatedAt.Default.(func() time.Time)
+	// auditrecord.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	auditrecord.UpdateDefaultUpdatedAt = auditrecordDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// auditrecordDescValidated is the schema descriptor for validated field.
-	auditrecordDescValidated := auditrecordFields[4].Descriptor()
+	auditrecordDescValidated := auditrecordFields[5].Descriptor()
 	// auditrecord.DefaultValidated holds the default value on creation for the validated field.
 	auditrecord.DefaultValidated = auditrecordDescValidated.Default.(bool)
+	projectMixin := schema.Project{}.Mixin()
+	projectMixinFields0 := projectMixin[0].Fields()
+	_ = projectMixinFields0
+	projectFields := schema.Project{}.Fields()
+	_ = projectFields
+	// projectDescCreatedAt is the schema descriptor for created_at field.
+	projectDescCreatedAt := projectMixinFields0[0].Descriptor()
+	// project.DefaultCreatedAt holds the default value on creation for the created_at field.
+	project.DefaultCreatedAt = projectDescCreatedAt.Default.(func() time.Time)
+	// projectDescUpdatedAt is the schema descriptor for updated_at field.
+	projectDescUpdatedAt := projectMixinFields0[1].Descriptor()
+	// project.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	project.DefaultUpdatedAt = projectDescUpdatedAt.Default.(func() time.Time)
+	// project.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	project.UpdateDefaultUpdatedAt = projectDescUpdatedAt.UpdateDefault.(func() time.Time)
+	roleMixin := schema.Role{}.Mixin()
+	roleMixinFields0 := roleMixin[0].Fields()
+	_ = roleMixinFields0
+	roleFields := schema.Role{}.Fields()
+	_ = roleFields
+	// roleDescCreatedAt is the schema descriptor for created_at field.
+	roleDescCreatedAt := roleMixinFields0[0].Descriptor()
+	// role.DefaultCreatedAt holds the default value on creation for the created_at field.
+	role.DefaultCreatedAt = roleDescCreatedAt.Default.(func() time.Time)
+	// roleDescUpdatedAt is the schema descriptor for updated_at field.
+	roleDescUpdatedAt := roleMixinFields0[1].Descriptor()
+	// role.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	role.DefaultUpdatedAt = roleDescUpdatedAt.Default.(func() time.Time)
+	// role.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	role.UpdateDefaultUpdatedAt = roleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	userMixin := schema.User{}.Mixin()
+	userMixinFields0 := userMixin[0].Fields()
+	_ = userMixinFields0
 	userFields := schema.User{}.Fields()
 	_ = userFields
-	// userDescFirstname is the schema descriptor for firstname field.
-	userDescFirstname := userFields[0].Descriptor()
-	// user.FirstnameValidator is a validator for the "firstname" field. It is called by the builders before save.
-	user.FirstnameValidator = userDescFirstname.Validators[0].(func(string) error)
-	// userDescLastname is the schema descriptor for lastname field.
-	userDescLastname := userFields[1].Descriptor()
-	// user.LastnameValidator is a validator for the "lastname" field. It is called by the builders before save.
-	user.LastnameValidator = userDescLastname.Validators[0].(func(string) error)
-	// userDescEmail is the schema descriptor for email field.
-	userDescEmail := userFields[2].Descriptor()
-	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
-	user.EmailValidator = userDescEmail.Validators[0].(func(string) error)
+	// userDescCreatedAt is the schema descriptor for created_at field.
+	userDescCreatedAt := userMixinFields0[0].Descriptor()
+	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
+	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
+	// userDescUpdatedAt is the schema descriptor for updated_at field.
+	userDescUpdatedAt := userMixinFields0[1].Descriptor()
+	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
+	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// userDescFirstName is the schema descriptor for first_name field.
+	userDescFirstName := userFields[0].Descriptor()
+	// user.FirstNameValidator is a validator for the "first_name" field. It is called by the builders before save.
+	user.FirstNameValidator = userDescFirstName.Validators[0].(func(string) error)
+	// userDescLastName is the schema descriptor for last_name field.
+	userDescLastName := userFields[1].Descriptor()
+	// user.LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
+	user.LastNameValidator = userDescLastName.Validators[0].(func(string) error)
+	// userDescEmailVerified is the schema descriptor for email_verified field.
+	userDescEmailVerified := userFields[3].Descriptor()
+	// user.DefaultEmailVerified holds the default value on creation for the email_verified field.
+	user.DefaultEmailVerified = userDescEmailVerified.Default.(bool)
+	userinvitationMixin := schema.UserInvitation{}.Mixin()
+	userinvitationMixinFields0 := userinvitationMixin[0].Fields()
+	_ = userinvitationMixinFields0
+	userinvitationFields := schema.UserInvitation{}.Fields()
+	_ = userinvitationFields
+	// userinvitationDescCreatedAt is the schema descriptor for created_at field.
+	userinvitationDescCreatedAt := userinvitationMixinFields0[0].Descriptor()
+	// userinvitation.DefaultCreatedAt holds the default value on creation for the created_at field.
+	userinvitation.DefaultCreatedAt = userinvitationDescCreatedAt.Default.(func() time.Time)
+	// userinvitationDescUpdatedAt is the schema descriptor for updated_at field.
+	userinvitationDescUpdatedAt := userinvitationMixinFields0[1].Descriptor()
+	// userinvitation.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	userinvitation.DefaultUpdatedAt = userinvitationDescUpdatedAt.Default.(func() time.Time)
+	// userinvitation.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	userinvitation.UpdateDefaultUpdatedAt = userinvitationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	userpasswordsecretMixin := schema.UserPasswordSecret{}.Mixin()
+	userpasswordsecretMixinFields0 := userpasswordsecretMixin[0].Fields()
+	_ = userpasswordsecretMixinFields0
+	userpasswordsecretFields := schema.UserPasswordSecret{}.Fields()
+	_ = userpasswordsecretFields
+	// userpasswordsecretDescCreatedAt is the schema descriptor for created_at field.
+	userpasswordsecretDescCreatedAt := userpasswordsecretMixinFields0[0].Descriptor()
+	// userpasswordsecret.DefaultCreatedAt holds the default value on creation for the created_at field.
+	userpasswordsecret.DefaultCreatedAt = userpasswordsecretDescCreatedAt.Default.(func() time.Time)
+	// userpasswordsecretDescUpdatedAt is the schema descriptor for updated_at field.
+	userpasswordsecretDescUpdatedAt := userpasswordsecretMixinFields0[1].Descriptor()
+	// userpasswordsecret.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	userpasswordsecret.DefaultUpdatedAt = userpasswordsecretDescUpdatedAt.Default.(func() time.Time)
+	// userpasswordsecret.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	userpasswordsecret.UpdateDefaultUpdatedAt = userpasswordsecretDescUpdatedAt.UpdateDefault.(func() time.Time)
 }

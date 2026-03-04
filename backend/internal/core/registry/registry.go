@@ -10,5 +10,5 @@ type Registry interface {
 	LoadActions(ctx context.Context, projectID string) error
 	GetAction(name string) (*ent.ActionModel, bool)
 	ListActions() []*ent.ActionModel
-	CreateAction(ctx context.Context, action *ent.ActionModel) (*ent.ActionModel, error)
+	SyncAction(action *ent.ActionModel, deleted bool)
 }

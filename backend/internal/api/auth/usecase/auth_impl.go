@@ -41,9 +41,10 @@ func (u *authUseCase) Login(ctx context.Context, email string, password string) 
 
 	userDTO := dtos.UserDTO{
 		ID:        user.ID,
-		Firstname: user.Firstname,
-		Lastname:  user.Lastname,
+		Firstname: user.FirstName,
+		Lastname:  user.LastName,
 		Email:     user.Email,
+		Role:      string(user.Edges.Role.Name),
 	}
 
 	data := dtos.LoginResponse{
@@ -69,9 +70,10 @@ func (u *authUseCase) Register(ctx context.Context, user dtos.RegisterUserPayloa
 	}
 	userDTO := dtos.UserDTO{
 		ID:        newUser.ID,
-		Firstname: newUser.Firstname,
-		Lastname:  newUser.Lastname,
+		Firstname: newUser.FirstName,
+		Lastname:  newUser.LastName,
 		Email:     newUser.Email,
+		Role:      string(newUser.Edges.Role.Name),
 	}
 	log.Println("Register business logic - user registered successfully")
 	return &userDTO, nil

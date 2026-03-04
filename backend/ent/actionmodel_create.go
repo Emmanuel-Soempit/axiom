@@ -7,6 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"go-backend-template/ent/actionmodel"
+	"go-backend-template/ent/auditrecord"
+	"go-backend-template/ent/project"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -17,6 +20,34 @@ type ActionModelCreate struct {
 	config
 	mutation *ActionModelMutation
 	hooks    []Hook
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (_c *ActionModelCreate) SetCreatedAt(v time.Time) *ActionModelCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *ActionModelCreate) SetNillableCreatedAt(v *time.Time) *ActionModelCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *ActionModelCreate) SetUpdatedAt(v time.Time) *ActionModelCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *ActionModelCreate) SetNillableUpdatedAt(v *time.Time) *ActionModelCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
 }
 
 // SetProjectID sets the "project_id" field.
@@ -77,6 +108,26 @@ func (_c *ActionModelCreate) SetNillableVersion(v *int) *ActionModelCreate {
 	return _c
 }
 
+// SetProject sets the "project" edge to the Project entity.
+func (_c *ActionModelCreate) SetProject(v *Project) *ActionModelCreate {
+	return _c.SetProjectID(v.ID)
+}
+
+// AddAuditRecordIDs adds the "audit_records" edge to the AuditRecord entity by IDs.
+func (_c *ActionModelCreate) AddAuditRecordIDs(ids ...int) *ActionModelCreate {
+	_c.mutation.AddAuditRecordIDs(ids...)
+	return _c
+}
+
+// AddAuditRecords adds the "audit_records" edges to the AuditRecord entity.
+func (_c *ActionModelCreate) AddAuditRecords(v ...*AuditRecord) *ActionModelCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddAuditRecordIDs(ids...)
+}
+
 // Mutation returns the ActionModelMutation object of the builder.
 func (_c *ActionModelCreate) Mutation() *ActionModelMutation {
 	return _c.mutation
@@ -112,6 +163,14 @@ func (_c *ActionModelCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *ActionModelCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := actionmodel.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := actionmodel.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
 	if _, ok := _c.mutation.Version(); !ok {
 		v := actionmodel.DefaultVersion
 		_c.mutation.SetVersion(v)
@@ -120,6 +179,12 @@ func (_c *ActionModelCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ActionModelCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "ActionModel.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "ActionModel.updated_at"`)}
+	}
 	if _, ok := _c.mutation.ProjectID(); !ok {
 		return &ValidationError{Name: "project_id", err: errors.New(`ent: missing required field "ActionModel.project_id"`)}
 	}
@@ -137,6 +202,9 @@ func (_c *ActionModelCreate) check() error {
 	}
 	if _, ok := _c.mutation.Version(); !ok {
 		return &ValidationError{Name: "version", err: errors.New(`ent: missing required field "ActionModel.version"`)}
+	}
+	if len(_c.mutation.ProjectIDs()) == 0 {
+		return &ValidationError{Name: "project", err: errors.New(`ent: missing required edge "ActionModel.project"`)}
 	}
 	return nil
 }
@@ -164,9 +232,13 @@ func (_c *ActionModelCreate) createSpec() (*ActionModel, *sqlgraph.CreateSpec) {
 		_node = &ActionModel{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(actionmodel.Table, sqlgraph.NewFieldSpec(actionmodel.FieldID, field.TypeInt))
 	)
-	if value, ok := _c.mutation.ProjectID(); ok {
-		_spec.SetField(actionmodel.FieldProjectID, field.TypeString, value)
-		_node.ProjectID = value
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(actionmodel.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(actionmodel.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
 	}
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(actionmodel.FieldName, field.TypeString, value)
@@ -191,6 +263,39 @@ func (_c *ActionModelCreate) createSpec() (*ActionModel, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Version(); ok {
 		_spec.SetField(actionmodel.FieldVersion, field.TypeInt, value)
 		_node.Version = value
+	}
+	if nodes := _c.mutation.ProjectIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   actionmodel.ProjectTable,
+			Columns: []string{actionmodel.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.ProjectID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.AuditRecordsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   actionmodel.AuditRecordsTable,
+			Columns: []string{actionmodel.AuditRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auditrecord.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

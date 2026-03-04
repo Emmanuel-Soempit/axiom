@@ -14,10 +14,20 @@ type Tx struct {
 	config
 	// ActionModel is the client for interacting with the ActionModel builders.
 	ActionModel *ActionModelClient
+	// ApiKey is the client for interacting with the ApiKey builders.
+	ApiKey *ApiKeyClient
 	// AuditRecord is the client for interacting with the AuditRecord builders.
 	AuditRecord *AuditRecordClient
+	// Project is the client for interacting with the Project builders.
+	Project *ProjectClient
+	// Role is the client for interacting with the Role builders.
+	Role *RoleClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UserInvitation is the client for interacting with the UserInvitation builders.
+	UserInvitation *UserInvitationClient
+	// UserPasswordSecret is the client for interacting with the UserPasswordSecret builders.
+	UserPasswordSecret *UserPasswordSecretClient
 
 	// lazily loaded.
 	client     *Client
@@ -150,8 +160,13 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.ActionModel = NewActionModelClient(tx.config)
+	tx.ApiKey = NewApiKeyClient(tx.config)
 	tx.AuditRecord = NewAuditRecordClient(tx.config)
+	tx.Project = NewProjectClient(tx.config)
+	tx.Role = NewRoleClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.UserInvitation = NewUserInvitationClient(tx.config)
+	tx.UserPasswordSecret = NewUserPasswordSecretClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

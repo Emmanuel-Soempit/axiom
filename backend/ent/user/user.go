@@ -3,7 +3,11 @@
 package user
 
 import (
+	"fmt"
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -11,25 +15,97 @@ const (
 	Label = "user"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldFirstname holds the string denoting the firstname field in the database.
-	FieldFirstname = "firstname"
-	// FieldLastname holds the string denoting the lastname field in the database.
-	FieldLastname = "lastname"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldFirstName holds the string denoting the first_name field in the database.
+	FieldFirstName = "first_name"
+	// FieldLastName holds the string denoting the last_name field in the database.
+	FieldLastName = "last_name"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
+	// FieldEmailVerified holds the string denoting the email_verified field in the database.
+	FieldEmailVerified = "email_verified"
 	// FieldPassword holds the string denoting the password field in the database.
 	FieldPassword = "password"
+	// FieldSignUpMethod holds the string denoting the sign_up_method field in the database.
+	FieldSignUpMethod = "sign_up_method"
+	// EdgeRole holds the string denoting the role edge name in mutations.
+	EdgeRole = "role"
+	// EdgeInvitations holds the string denoting the invitations edge name in mutations.
+	EdgeInvitations = "invitations"
+	// EdgeAuditRecords holds the string denoting the audit_records edge name in mutations.
+	EdgeAuditRecords = "audit_records"
+	// EdgePasswordSecret holds the string denoting the password_secret edge name in mutations.
+	EdgePasswordSecret = "password_secret"
+	// EdgeProjects holds the string denoting the projects edge name in mutations.
+	EdgeProjects = "projects"
+	// EdgeCreatedAPIKeys holds the string denoting the created_api_keys edge name in mutations.
+	EdgeCreatedAPIKeys = "created_api_keys"
 	// Table holds the table name of the user in the database.
 	Table = "users"
+	// RoleTable is the table that holds the role relation/edge.
+	RoleTable = "users"
+	// RoleInverseTable is the table name for the Role entity.
+	// It exists in this package in order to avoid circular dependency with the "role" package.
+	RoleInverseTable = "roles"
+	// RoleColumn is the table column denoting the role relation/edge.
+	RoleColumn = "role_users"
+	// InvitationsTable is the table that holds the invitations relation/edge.
+	InvitationsTable = "user_invitations"
+	// InvitationsInverseTable is the table name for the UserInvitation entity.
+	// It exists in this package in order to avoid circular dependency with the "userinvitation" package.
+	InvitationsInverseTable = "user_invitations"
+	// InvitationsColumn is the table column denoting the invitations relation/edge.
+	InvitationsColumn = "user_invitations"
+	// AuditRecordsTable is the table that holds the audit_records relation/edge.
+	AuditRecordsTable = "audit_records"
+	// AuditRecordsInverseTable is the table name for the AuditRecord entity.
+	// It exists in this package in order to avoid circular dependency with the "auditrecord" package.
+	AuditRecordsInverseTable = "audit_records"
+	// AuditRecordsColumn is the table column denoting the audit_records relation/edge.
+	AuditRecordsColumn = "user_id"
+	// PasswordSecretTable is the table that holds the password_secret relation/edge.
+	PasswordSecretTable = "user_password_secrets"
+	// PasswordSecretInverseTable is the table name for the UserPasswordSecret entity.
+	// It exists in this package in order to avoid circular dependency with the "userpasswordsecret" package.
+	PasswordSecretInverseTable = "user_password_secrets"
+	// PasswordSecretColumn is the table column denoting the password_secret relation/edge.
+	PasswordSecretColumn = "user_password_secret"
+	// ProjectsTable is the table that holds the projects relation/edge.
+	ProjectsTable = "projects"
+	// ProjectsInverseTable is the table name for the Project entity.
+	// It exists in this package in order to avoid circular dependency with the "project" package.
+	ProjectsInverseTable = "projects"
+	// ProjectsColumn is the table column denoting the projects relation/edge.
+	ProjectsColumn = "user_projects"
+	// CreatedAPIKeysTable is the table that holds the created_api_keys relation/edge.
+	CreatedAPIKeysTable = "api_keys"
+	// CreatedAPIKeysInverseTable is the table name for the ApiKey entity.
+	// It exists in this package in order to avoid circular dependency with the "apikey" package.
+	CreatedAPIKeysInverseTable = "api_keys"
+	// CreatedAPIKeysColumn is the table column denoting the created_api_keys relation/edge.
+	CreatedAPIKeysColumn = "created_by"
 )
 
 // Columns holds all SQL columns for user fields.
 var Columns = []string{
 	FieldID,
-	FieldFirstname,
-	FieldLastname,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldFirstName,
+	FieldLastName,
 	FieldEmail,
+	FieldEmailVerified,
 	FieldPassword,
+	FieldSignUpMethod,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "users"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"role_users",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -39,17 +115,54 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
+			return true
+		}
+	}
 	return false
 }
 
 var (
-	// FirstnameValidator is a validator for the "firstname" field. It is called by the builders before save.
-	FirstnameValidator func(string) error
-	// LastnameValidator is a validator for the "lastname" field. It is called by the builders before save.
-	LastnameValidator func(string) error
-	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
-	EmailValidator func(string) error
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
+	// FirstNameValidator is a validator for the "first_name" field. It is called by the builders before save.
+	FirstNameValidator func(string) error
+	// LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
+	LastNameValidator func(string) error
+	// DefaultEmailVerified holds the default value on creation for the "email_verified" field.
+	DefaultEmailVerified bool
 )
+
+// SignUpMethod defines the type for the "sign_up_method" enum field.
+type SignUpMethod string
+
+// SignUpMethodRegister is the default value of the SignUpMethod enum.
+const DefaultSignUpMethod = SignUpMethodRegister
+
+// SignUpMethod values.
+const (
+	SignUpMethodInvite   SignUpMethod = "invite"
+	SignUpMethodRegister SignUpMethod = "register"
+)
+
+func (sum SignUpMethod) String() string {
+	return string(sum)
+}
+
+// SignUpMethodValidator is a validator for the "sign_up_method" field enum values. It is called by the builders before save.
+func SignUpMethodValidator(sum SignUpMethod) error {
+	switch sum {
+	case SignUpMethodInvite, SignUpMethodRegister:
+		return nil
+	default:
+		return fmt.Errorf("user: invalid enum value for sign_up_method field: %q", sum)
+	}
+}
 
 // OrderOption defines the ordering options for the User queries.
 type OrderOption func(*sql.Selector)
@@ -59,14 +172,24 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByFirstname orders the results by the firstname field.
-func ByFirstname(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldFirstname, opts...).ToFunc()
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
 }
 
-// ByLastname orders the results by the lastname field.
-func ByLastname(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLastname, opts...).ToFunc()
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByFirstName orders the results by the first_name field.
+func ByFirstName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFirstName, opts...).ToFunc()
+}
+
+// ByLastName orders the results by the last_name field.
+func ByLastName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastName, opts...).ToFunc()
 }
 
 // ByEmail orders the results by the email field.
@@ -74,7 +197,129 @@ func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
 }
 
+// ByEmailVerified orders the results by the email_verified field.
+func ByEmailVerified(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmailVerified, opts...).ToFunc()
+}
+
 // ByPassword orders the results by the password field.
 func ByPassword(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPassword, opts...).ToFunc()
+}
+
+// BySignUpMethod orders the results by the sign_up_method field.
+func BySignUpMethod(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSignUpMethod, opts...).ToFunc()
+}
+
+// ByRoleField orders the results by role field.
+func ByRoleField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRoleStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByInvitationsCount orders the results by invitations count.
+func ByInvitationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newInvitationsStep(), opts...)
+	}
+}
+
+// ByInvitations orders the results by invitations terms.
+func ByInvitations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newInvitationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByAuditRecordsCount orders the results by audit_records count.
+func ByAuditRecordsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAuditRecordsStep(), opts...)
+	}
+}
+
+// ByAuditRecords orders the results by audit_records terms.
+func ByAuditRecords(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAuditRecordsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByPasswordSecretField orders the results by password_secret field.
+func ByPasswordSecretField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPasswordSecretStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByProjectsCount orders the results by projects count.
+func ByProjectsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newProjectsStep(), opts...)
+	}
+}
+
+// ByProjects orders the results by projects terms.
+func ByProjects(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProjectsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByCreatedAPIKeysCount orders the results by created_api_keys count.
+func ByCreatedAPIKeysCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCreatedAPIKeysStep(), opts...)
+	}
+}
+
+// ByCreatedAPIKeys orders the results by created_api_keys terms.
+func ByCreatedAPIKeys(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCreatedAPIKeysStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newRoleStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RoleInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, RoleTable, RoleColumn),
+	)
+}
+func newInvitationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(InvitationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, InvitationsTable, InvitationsColumn),
+	)
+}
+func newAuditRecordsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AuditRecordsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AuditRecordsTable, AuditRecordsColumn),
+	)
+}
+func newPasswordSecretStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PasswordSecretInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, PasswordSecretTable, PasswordSecretColumn),
+	)
+}
+func newProjectsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProjectsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProjectsTable, ProjectsColumn),
+	)
+}
+func newCreatedAPIKeysStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CreatedAPIKeysInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CreatedAPIKeysTable, CreatedAPIKeysColumn),
+	)
 }

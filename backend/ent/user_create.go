@@ -6,10 +6,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"go-backend-template/ent/apikey"
+	"go-backend-template/ent/auditrecord"
+	"go-backend-template/ent/project"
+	"go-backend-template/ent/role"
 	"go-backend-template/ent/user"
+	"go-backend-template/ent/userinvitation"
+	"go-backend-template/ent/userpasswordsecret"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // UserCreate is the builder for creating a User entity.
@@ -19,15 +27,43 @@ type UserCreate struct {
 	hooks    []Hook
 }
 
-// SetFirstname sets the "firstname" field.
-func (_c *UserCreate) SetFirstname(v string) *UserCreate {
-	_c.mutation.SetFirstname(v)
+// SetCreatedAt sets the "created_at" field.
+func (_c *UserCreate) SetCreatedAt(v time.Time) *UserCreate {
+	_c.mutation.SetCreatedAt(v)
 	return _c
 }
 
-// SetLastname sets the "lastname" field.
-func (_c *UserCreate) SetLastname(v string) *UserCreate {
-	_c.mutation.SetLastname(v)
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *UserCreate) SetNillableCreatedAt(v *time.Time) *UserCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *UserCreate) SetUpdatedAt(v time.Time) *UserCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *UserCreate) SetNillableUpdatedAt(v *time.Time) *UserCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetFirstName sets the "first_name" field.
+func (_c *UserCreate) SetFirstName(v string) *UserCreate {
+	_c.mutation.SetFirstName(v)
+	return _c
+}
+
+// SetLastName sets the "last_name" field.
+func (_c *UserCreate) SetLastName(v string) *UserCreate {
+	_c.mutation.SetLastName(v)
 	return _c
 }
 
@@ -37,10 +73,144 @@ func (_c *UserCreate) SetEmail(v string) *UserCreate {
 	return _c
 }
 
+// SetEmailVerified sets the "email_verified" field.
+func (_c *UserCreate) SetEmailVerified(v bool) *UserCreate {
+	_c.mutation.SetEmailVerified(v)
+	return _c
+}
+
+// SetNillableEmailVerified sets the "email_verified" field if the given value is not nil.
+func (_c *UserCreate) SetNillableEmailVerified(v *bool) *UserCreate {
+	if v != nil {
+		_c.SetEmailVerified(*v)
+	}
+	return _c
+}
+
 // SetPassword sets the "password" field.
 func (_c *UserCreate) SetPassword(v string) *UserCreate {
 	_c.mutation.SetPassword(v)
 	return _c
+}
+
+// SetNillablePassword sets the "password" field if the given value is not nil.
+func (_c *UserCreate) SetNillablePassword(v *string) *UserCreate {
+	if v != nil {
+		_c.SetPassword(*v)
+	}
+	return _c
+}
+
+// SetSignUpMethod sets the "sign_up_method" field.
+func (_c *UserCreate) SetSignUpMethod(v user.SignUpMethod) *UserCreate {
+	_c.mutation.SetSignUpMethod(v)
+	return _c
+}
+
+// SetNillableSignUpMethod sets the "sign_up_method" field if the given value is not nil.
+func (_c *UserCreate) SetNillableSignUpMethod(v *user.SignUpMethod) *UserCreate {
+	if v != nil {
+		_c.SetSignUpMethod(*v)
+	}
+	return _c
+}
+
+// SetRoleID sets the "role" edge to the Role entity by ID.
+func (_c *UserCreate) SetRoleID(id int) *UserCreate {
+	_c.mutation.SetRoleID(id)
+	return _c
+}
+
+// SetNillableRoleID sets the "role" edge to the Role entity by ID if the given value is not nil.
+func (_c *UserCreate) SetNillableRoleID(id *int) *UserCreate {
+	if id != nil {
+		_c = _c.SetRoleID(*id)
+	}
+	return _c
+}
+
+// SetRole sets the "role" edge to the Role entity.
+func (_c *UserCreate) SetRole(v *Role) *UserCreate {
+	return _c.SetRoleID(v.ID)
+}
+
+// AddInvitationIDs adds the "invitations" edge to the UserInvitation entity by IDs.
+func (_c *UserCreate) AddInvitationIDs(ids ...int) *UserCreate {
+	_c.mutation.AddInvitationIDs(ids...)
+	return _c
+}
+
+// AddInvitations adds the "invitations" edges to the UserInvitation entity.
+func (_c *UserCreate) AddInvitations(v ...*UserInvitation) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddInvitationIDs(ids...)
+}
+
+// AddAuditRecordIDs adds the "audit_records" edge to the AuditRecord entity by IDs.
+func (_c *UserCreate) AddAuditRecordIDs(ids ...int) *UserCreate {
+	_c.mutation.AddAuditRecordIDs(ids...)
+	return _c
+}
+
+// AddAuditRecords adds the "audit_records" edges to the AuditRecord entity.
+func (_c *UserCreate) AddAuditRecords(v ...*AuditRecord) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddAuditRecordIDs(ids...)
+}
+
+// SetPasswordSecretID sets the "password_secret" edge to the UserPasswordSecret entity by ID.
+func (_c *UserCreate) SetPasswordSecretID(id int) *UserCreate {
+	_c.mutation.SetPasswordSecretID(id)
+	return _c
+}
+
+// SetNillablePasswordSecretID sets the "password_secret" edge to the UserPasswordSecret entity by ID if the given value is not nil.
+func (_c *UserCreate) SetNillablePasswordSecretID(id *int) *UserCreate {
+	if id != nil {
+		_c = _c.SetPasswordSecretID(*id)
+	}
+	return _c
+}
+
+// SetPasswordSecret sets the "password_secret" edge to the UserPasswordSecret entity.
+func (_c *UserCreate) SetPasswordSecret(v *UserPasswordSecret) *UserCreate {
+	return _c.SetPasswordSecretID(v.ID)
+}
+
+// AddProjectIDs adds the "projects" edge to the Project entity by IDs.
+func (_c *UserCreate) AddProjectIDs(ids ...string) *UserCreate {
+	_c.mutation.AddProjectIDs(ids...)
+	return _c
+}
+
+// AddProjects adds the "projects" edges to the Project entity.
+func (_c *UserCreate) AddProjects(v ...*Project) *UserCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddProjectIDs(ids...)
+}
+
+// AddCreatedAPIKeyIDs adds the "created_api_keys" edge to the ApiKey entity by IDs.
+func (_c *UserCreate) AddCreatedAPIKeyIDs(ids ...uuid.UUID) *UserCreate {
+	_c.mutation.AddCreatedAPIKeyIDs(ids...)
+	return _c
+}
+
+// AddCreatedAPIKeys adds the "created_api_keys" edges to the ApiKey entity.
+func (_c *UserCreate) AddCreatedAPIKeys(v ...*ApiKey) *UserCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddCreatedAPIKeyIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -50,6 +220,7 @@ func (_c *UserCreate) Mutation() *UserMutation {
 
 // Save creates the User in the database.
 func (_c *UserCreate) Save(ctx context.Context) (*User, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -75,34 +246,63 @@ func (_c *UserCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *UserCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := user.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := user.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.EmailVerified(); !ok {
+		v := user.DefaultEmailVerified
+		_c.mutation.SetEmailVerified(v)
+	}
+	if _, ok := _c.mutation.SignUpMethod(); !ok {
+		v := user.DefaultSignUpMethod
+		_c.mutation.SetSignUpMethod(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *UserCreate) check() error {
-	if _, ok := _c.mutation.Firstname(); !ok {
-		return &ValidationError{Name: "firstname", err: errors.New(`ent: missing required field "User.firstname"`)}
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "User.created_at"`)}
 	}
-	if v, ok := _c.mutation.Firstname(); ok {
-		if err := user.FirstnameValidator(v); err != nil {
-			return &ValidationError{Name: "firstname", err: fmt.Errorf(`ent: validator failed for field "User.firstname": %w`, err)}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "User.updated_at"`)}
+	}
+	if _, ok := _c.mutation.FirstName(); !ok {
+		return &ValidationError{Name: "first_name", err: errors.New(`ent: missing required field "User.first_name"`)}
+	}
+	if v, ok := _c.mutation.FirstName(); ok {
+		if err := user.FirstNameValidator(v); err != nil {
+			return &ValidationError{Name: "first_name", err: fmt.Errorf(`ent: validator failed for field "User.first_name": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.Lastname(); !ok {
-		return &ValidationError{Name: "lastname", err: errors.New(`ent: missing required field "User.lastname"`)}
+	if _, ok := _c.mutation.LastName(); !ok {
+		return &ValidationError{Name: "last_name", err: errors.New(`ent: missing required field "User.last_name"`)}
 	}
-	if v, ok := _c.mutation.Lastname(); ok {
-		if err := user.LastnameValidator(v); err != nil {
-			return &ValidationError{Name: "lastname", err: fmt.Errorf(`ent: validator failed for field "User.lastname": %w`, err)}
+	if v, ok := _c.mutation.LastName(); ok {
+		if err := user.LastNameValidator(v); err != nil {
+			return &ValidationError{Name: "last_name", err: fmt.Errorf(`ent: validator failed for field "User.last_name": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.Email(); !ok {
 		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "User.email"`)}
 	}
-	if v, ok := _c.mutation.Email(); ok {
-		if err := user.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
-		}
+	if _, ok := _c.mutation.EmailVerified(); !ok {
+		return &ValidationError{Name: "email_verified", err: errors.New(`ent: missing required field "User.email_verified"`)}
 	}
-	if _, ok := _c.mutation.Password(); !ok {
-		return &ValidationError{Name: "password", err: errors.New(`ent: missing required field "User.password"`)}
+	if _, ok := _c.mutation.SignUpMethod(); !ok {
+		return &ValidationError{Name: "sign_up_method", err: errors.New(`ent: missing required field "User.sign_up_method"`)}
+	}
+	if v, ok := _c.mutation.SignUpMethod(); ok {
+		if err := user.SignUpMethodValidator(v); err != nil {
+			return &ValidationError{Name: "sign_up_method", err: fmt.Errorf(`ent: validator failed for field "User.sign_up_method": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -130,21 +330,134 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_node = &User{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
 	)
-	if value, ok := _c.mutation.Firstname(); ok {
-		_spec.SetField(user.FieldFirstname, field.TypeString, value)
-		_node.Firstname = value
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
 	}
-	if value, ok := _c.mutation.Lastname(); ok {
-		_spec.SetField(user.FieldLastname, field.TypeString, value)
-		_node.Lastname = value
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.FirstName(); ok {
+		_spec.SetField(user.FieldFirstName, field.TypeString, value)
+		_node.FirstName = value
+	}
+	if value, ok := _c.mutation.LastName(); ok {
+		_spec.SetField(user.FieldLastName, field.TypeString, value)
+		_node.LastName = value
 	}
 	if value, ok := _c.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 		_node.Email = value
 	}
+	if value, ok := _c.mutation.EmailVerified(); ok {
+		_spec.SetField(user.FieldEmailVerified, field.TypeBool, value)
+		_node.EmailVerified = value
+	}
 	if value, ok := _c.mutation.Password(); ok {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
 		_node.Password = value
+	}
+	if value, ok := _c.mutation.SignUpMethod(); ok {
+		_spec.SetField(user.FieldSignUpMethod, field.TypeEnum, value)
+		_node.SignUpMethod = value
+	}
+	if nodes := _c.mutation.RoleIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.RoleTable,
+			Columns: []string{user.RoleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.role_users = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.InvitationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.InvitationsTable,
+			Columns: []string{user.InvitationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userinvitation.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.AuditRecordsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuditRecordsTable,
+			Columns: []string{user.AuditRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auditrecord.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.PasswordSecretIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.PasswordSecretTable,
+			Columns: []string{user.PasswordSecretColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userpasswordsecret.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ProjectsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ProjectsTable,
+			Columns: []string{user.ProjectsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.CreatedAPIKeysIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CreatedAPIKeysTable,
+			Columns: []string{user.CreatedAPIKeysColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -167,6 +480,7 @@ func (_c *UserCreateBulk) Save(ctx context.Context) ([]*User, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*UserMutation)
 				if !ok {

@@ -20,6 +20,18 @@ func (f ActionModelFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ActionModelMutation", m)
 }
 
+// The ApiKeyFunc type is an adapter to allow the use of ordinary
+// function as ApiKey mutator.
+type ApiKeyFunc func(context.Context, *ent.ApiKeyMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ApiKeyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ApiKeyMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ApiKeyMutation", m)
+}
+
 // The AuditRecordFunc type is an adapter to allow the use of ordinary
 // function as AuditRecord mutator.
 type AuditRecordFunc func(context.Context, *ent.AuditRecordMutation) (ent.Value, error)
@@ -32,6 +44,30 @@ func (f AuditRecordFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AuditRecordMutation", m)
 }
 
+// The ProjectFunc type is an adapter to allow the use of ordinary
+// function as Project mutator.
+type ProjectFunc func(context.Context, *ent.ProjectMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProjectFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProjectMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProjectMutation", m)
+}
+
+// The RoleFunc type is an adapter to allow the use of ordinary
+// function as Role mutator.
+type RoleFunc func(context.Context, *ent.RoleMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RoleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.RoleMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RoleMutation", m)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *ent.UserMutation) (ent.Value, error)
@@ -42,6 +78,30 @@ func (f UserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserMutation", m)
+}
+
+// The UserInvitationFunc type is an adapter to allow the use of ordinary
+// function as UserInvitation mutator.
+type UserInvitationFunc func(context.Context, *ent.UserInvitationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserInvitationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UserInvitationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserInvitationMutation", m)
+}
+
+// The UserPasswordSecretFunc type is an adapter to allow the use of ordinary
+// function as UserPasswordSecret mutator.
+type UserPasswordSecretFunc func(context.Context, *ent.UserPasswordSecretMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserPasswordSecretFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UserPasswordSecretMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserPasswordSecretMutation", m)
 }
 
 // Condition is a hook condition function.

@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -10,8 +11,8 @@ type AuditRecord struct {
 	ent.Schema
 }
 
-// Mixins of the AuditRecord.
-func (AuditRecord) Mixins() []ent.Mixin {
+// Mixin of the AuditRecord.
+func (AuditRecord) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		TimeMixin{},
 	}
@@ -20,8 +21,9 @@ func (AuditRecord) Mixins() []ent.Mixin {
 // Fields of the AuditRecord.
 func (AuditRecord) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("project_id"),
-		field.String("user_id"),
+		field.Int("user_id").Optional(),
+		field.Int("action_id").Optional(),
+		field.String("project_id").Optional(),
 		field.Text("prompt"),
 		field.JSON("proposed_action", map[string]interface{}{}).Optional(),
 		field.Bool("validated").Default(false),
@@ -31,5 +33,14 @@ func (AuditRecord) Fields() []ent.Field {
 
 // Edges of the AuditRecord.
 func (AuditRecord) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("user", User.Type).
+			Ref("audit_records").
+			Unique().
+			Field("user_id"),
+		edge.From("action", ActionModel.Type).
+			Ref("audit_records").
+			Unique().
+			Field("action_id"),
+	}
 }

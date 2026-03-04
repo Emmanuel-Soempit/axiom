@@ -13,6 +13,7 @@ import (
 func GenerateJwtToken(user *ent.User) (string, error) {
 	claims := jwt.MapClaims{
 		"user": user,
+		"role": user.Edges.Role.Name,
 		"exp":  time.Now().Add(time.Hour * 72).Unix(),
 	}
 

@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"go-backend-template/ent"
-	"go-backend-template/ent/actionmodel"
+	"go-backend-template/ent/role"
 	_ "go-backend-template/ent/runtime"
 
 	"github.com/joho/godotenv"
@@ -36,79 +36,34 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	seeds := []struct {
-		ProjectID       string
-		Name            string
-		Description     string
-		Parameters      map[string]interface{}
-		Rules           map[string]interface{}
-		RequiredFeature string
-	}{
-		{
-			ProjectID:   "system-core",
-			Name:        "create_task",
-			Description: "Creates a new task in the management system",
-			Parameters: map[string]interface{}{
-				"title":       "string",
-				"description": "string",
-				"priority":    "string",
-			},
-			Rules: map[string]interface{}{
-				"required": []string{"title", "priority"},
-				"enum": map[string]interface{}{
-					"priority": []string{"high", "medium", "low"},
-				},
-			},
-		},
-		{
-			ProjectID:   "system-core",
-			Name:        "update_invoice",
-			Description: "Updates an existing invoice status or details",
-			Parameters: map[string]interface{}{
-				"invoice_id": "integer",
-				"status":     "string",
-				"notes":      "string",
-			},
-			Rules: map[string]interface{}{
-				"required": []string{"invoice_id", "status"},
-				"enum": map[string]interface{}{
-					"status": []string{"paid", "unpaid", "void", "refunded"},
-				},
-			},
-		},
+	roles := []role.Name{
+		role.NameClient,
+		role.NameAdmin,
 	}
 
-	for _, s := range seeds {
-		// Idempotent seeding logic: Check if action already exists for the project
-		exists, err := client.ActionModel.
+	for _, name := range roles {
+		exists, err := client.Role.
 			Query().
-			Where(
-				actionmodel.ProjectID(s.ProjectID),
-				actionmodel.Name(s.Name),
-			).
+			Where(role.NameEQ(name)).
 			Exist(ctx)
 		if err != nil {
-			log.Printf("failed checking existence of %s: %v", s.Name, err)
+			log.Printf("failed checking existence of role %s: %v", name, err)
 			continue
 		}
 
 		if !exists {
-			_, err := client.ActionModel.
+			_, err := client.Role.
 				Create().
-				SetProjectID(s.ProjectID).
-				SetName(s.Name).
-				SetDescription(s.Description).
-				SetParameters(s.Parameters).
-				SetRules(s.Rules).
-				SetNillableRequiredFeature(&s.RequiredFeature).
+				SetName(name).
+				SetDescription(string(name) + " role").
 				Save(ctx)
 			if err != nil {
-				log.Printf("failed seeding action %s: %v", s.Name, err)
+				log.Printf("failed seeding role %s: %v", name, err)
 			} else {
-				log.Printf("successfully seeded action: %s", s.Name)
+				log.Printf("successfully seeded role: %s", name)
 			}
 		} else {
-			log.Printf("action %s already exists for project %s, skipping", s.Name, s.ProjectID)
+			log.Printf("role %s already exists, skipping", name)
 		}
 	}
 

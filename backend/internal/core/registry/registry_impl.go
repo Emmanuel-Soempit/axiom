@@ -58,24 +58,17 @@ func (r *actionRegistry) ListActions() []*ent.ActionModel {
 	return list
 }
 
-func (r *actionRegistry) CreateAction(ctx context.Context, action *ent.ActionModel) (*ent.ActionModel, error) {
-	newAction, err := r.client.ActionModel.
-		Create().
-		SetProjectID(action.ProjectID).
-		SetName(action.Name).
-		SetDescription(action.Description).
-		SetParameters(action.Parameters).
-		SetRules(action.Rules).
-		SetNillableRequiredFeature(&action.RequiredFeature).
-		SetVersion(action.Version).
-		Save(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create action: %w", err)
-	}
+// CRUD operations
 
+// CRUD operations handled by usecase now, Registry focuses on cache
+
+func (r *actionRegistry) SyncAction(action *ent.ActionModel, deleted bool) {
 	r.mu.Lock()
-	r.actions[newAction.Name] = newAction
-	r.mu.Unlock()
+	defer r.mu.Unlock()
 
-	return newAction, nil
+	if deleted {
+		delete(r.actions, action.Name)
+	} else {
+		r.actions[action.Name] = action
+	}
 }

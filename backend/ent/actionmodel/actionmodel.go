@@ -3,7 +3,10 @@
 package actionmodel
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -11,6 +14,10 @@ const (
 	Label = "action_model"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
 	// FieldProjectID holds the string denoting the project_id field in the database.
 	FieldProjectID = "project_id"
 	// FieldName holds the string denoting the name field in the database.
@@ -25,13 +32,33 @@ const (
 	FieldRequiredFeature = "required_feature"
 	// FieldVersion holds the string denoting the version field in the database.
 	FieldVersion = "version"
+	// EdgeProject holds the string denoting the project edge name in mutations.
+	EdgeProject = "project"
+	// EdgeAuditRecords holds the string denoting the audit_records edge name in mutations.
+	EdgeAuditRecords = "audit_records"
 	// Table holds the table name of the actionmodel in the database.
 	Table = "action_models"
+	// ProjectTable is the table that holds the project relation/edge.
+	ProjectTable = "action_models"
+	// ProjectInverseTable is the table name for the Project entity.
+	// It exists in this package in order to avoid circular dependency with the "project" package.
+	ProjectInverseTable = "projects"
+	// ProjectColumn is the table column denoting the project relation/edge.
+	ProjectColumn = "project_id"
+	// AuditRecordsTable is the table that holds the audit_records relation/edge.
+	AuditRecordsTable = "audit_records"
+	// AuditRecordsInverseTable is the table name for the AuditRecord entity.
+	// It exists in this package in order to avoid circular dependency with the "auditrecord" package.
+	AuditRecordsInverseTable = "audit_records"
+	// AuditRecordsColumn is the table column denoting the audit_records relation/edge.
+	AuditRecordsColumn = "action_id"
 )
 
 // Columns holds all SQL columns for actionmodel fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
 	FieldProjectID,
 	FieldName,
 	FieldDescription,
@@ -52,6 +79,12 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultVersion holds the default value on creation for the "version" field.
 	DefaultVersion int
 )
@@ -62,6 +95,16 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
 // ByProjectID orders the results by the project_id field.
@@ -87,4 +130,39 @@ func ByRequiredFeature(opts ...sql.OrderTermOption) OrderOption {
 // ByVersion orders the results by the version field.
 func ByVersion(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldVersion, opts...).ToFunc()
+}
+
+// ByProjectField orders the results by project field.
+func ByProjectField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProjectStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByAuditRecordsCount orders the results by audit_records count.
+func ByAuditRecordsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAuditRecordsStep(), opts...)
+	}
+}
+
+// ByAuditRecords orders the results by audit_records terms.
+func ByAuditRecords(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAuditRecordsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newProjectStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProjectInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ProjectTable, ProjectColumn),
+	)
+}
+func newAuditRecordsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AuditRecordsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AuditRecordsTable, AuditRecordsColumn),
+	)
 }

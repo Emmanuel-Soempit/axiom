@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -10,8 +11,8 @@ type User struct {
 	ent.Schema
 }
 
-// Mixins of the User.
-func (User) Mixins() []ent.Mixin {
+// Mixin of the User.
+func (User) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		TimeMixin{},
 	}
@@ -20,14 +21,33 @@ func (User) Mixins() []ent.Mixin {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("firstname").MaxLen(20),
-		field.String("lastname").MaxLen(20),
-		field.String("email").MaxLen(20).Unique(),
-		field.String("password"),
+		field.String("first_name").
+			MaxLen(100),
+		field.String("last_name").
+			MaxLen(100),
+		field.String("email").
+			Unique(),
+		field.Bool("email_verified").
+			Default(false),
+		field.String("password").
+			Optional(),
+		field.Enum("sign_up_method").
+			Values("invite", "register").
+			Default("register"),
 	}
 }
 
 // Edges of the User.
 func (User) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("role", Role.Type).
+			Ref("users").
+			Unique(),
+		edge.To("invitations", UserInvitation.Type),
+		edge.To("audit_records", AuditRecord.Type),
+		edge.To("password_secret", UserPasswordSecret.Type).
+			Unique(),
+		edge.To("projects", Project.Type),
+		edge.To("created_api_keys", ApiKey.Type),
+	}
 }

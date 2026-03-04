@@ -4,8 +4,11 @@ package ent
 
 import (
 	"fmt"
+	"go-backend-template/ent/role"
 	"go-backend-template/ent/user"
+	"go-backend-template/ent/userpasswordsecret"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -16,15 +19,104 @@ type User struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// Firstname holds the value of the "firstname" field.
-	Firstname string `json:"firstname,omitempty"`
-	// Lastname holds the value of the "lastname" field.
-	Lastname string `json:"lastname,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// FirstName holds the value of the "first_name" field.
+	FirstName string `json:"first_name,omitempty"`
+	// LastName holds the value of the "last_name" field.
+	LastName string `json:"last_name,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
+	// EmailVerified holds the value of the "email_verified" field.
+	EmailVerified bool `json:"email_verified,omitempty"`
 	// Password holds the value of the "password" field.
-	Password     string `json:"password,omitempty"`
+	Password string `json:"password,omitempty"`
+	// SignUpMethod holds the value of the "sign_up_method" field.
+	SignUpMethod user.SignUpMethod `json:"sign_up_method,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserQuery when eager-loading is set.
+	Edges        UserEdges `json:"edges"`
+	role_users   *int
 	selectValues sql.SelectValues
+}
+
+// UserEdges holds the relations/edges for other nodes in the graph.
+type UserEdges struct {
+	// Role holds the value of the role edge.
+	Role *Role `json:"role,omitempty"`
+	// Invitations holds the value of the invitations edge.
+	Invitations []*UserInvitation `json:"invitations,omitempty"`
+	// AuditRecords holds the value of the audit_records edge.
+	AuditRecords []*AuditRecord `json:"audit_records,omitempty"`
+	// PasswordSecret holds the value of the password_secret edge.
+	PasswordSecret *UserPasswordSecret `json:"password_secret,omitempty"`
+	// Projects holds the value of the projects edge.
+	Projects []*Project `json:"projects,omitempty"`
+	// CreatedAPIKeys holds the value of the created_api_keys edge.
+	CreatedAPIKeys []*ApiKey `json:"created_api_keys,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [6]bool
+}
+
+// RoleOrErr returns the Role value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) RoleOrErr() (*Role, error) {
+	if e.Role != nil {
+		return e.Role, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: role.Label}
+	}
+	return nil, &NotLoadedError{edge: "role"}
+}
+
+// InvitationsOrErr returns the Invitations value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) InvitationsOrErr() ([]*UserInvitation, error) {
+	if e.loadedTypes[1] {
+		return e.Invitations, nil
+	}
+	return nil, &NotLoadedError{edge: "invitations"}
+}
+
+// AuditRecordsOrErr returns the AuditRecords value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) AuditRecordsOrErr() ([]*AuditRecord, error) {
+	if e.loadedTypes[2] {
+		return e.AuditRecords, nil
+	}
+	return nil, &NotLoadedError{edge: "audit_records"}
+}
+
+// PasswordSecretOrErr returns the PasswordSecret value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) PasswordSecretOrErr() (*UserPasswordSecret, error) {
+	if e.PasswordSecret != nil {
+		return e.PasswordSecret, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: userpasswordsecret.Label}
+	}
+	return nil, &NotLoadedError{edge: "password_secret"}
+}
+
+// ProjectsOrErr returns the Projects value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ProjectsOrErr() ([]*Project, error) {
+	if e.loadedTypes[4] {
+		return e.Projects, nil
+	}
+	return nil, &NotLoadedError{edge: "projects"}
+}
+
+// CreatedAPIKeysOrErr returns the CreatedAPIKeys value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) CreatedAPIKeysOrErr() ([]*ApiKey, error) {
+	if e.loadedTypes[5] {
+		return e.CreatedAPIKeys, nil
+	}
+	return nil, &NotLoadedError{edge: "created_api_keys"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -32,10 +124,16 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case user.FieldEmailVerified:
+			values[i] = new(sql.NullBool)
 		case user.FieldID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldFirstname, user.FieldLastname, user.FieldEmail, user.FieldPassword:
+		case user.FieldFirstName, user.FieldLastName, user.FieldEmail, user.FieldPassword, user.FieldSignUpMethod:
 			values[i] = new(sql.NullString)
+		case user.FieldCreatedAt, user.FieldUpdatedAt:
+			values[i] = new(sql.NullTime)
+		case user.ForeignKeys[0]: // role_users
+			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -57,17 +155,29 @@ func (_m *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
-		case user.FieldFirstname:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field firstname", values[i])
+		case user.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				_m.Firstname = value.String
+				_m.CreatedAt = value.Time
 			}
-		case user.FieldLastname:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field lastname", values[i])
+		case user.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				_m.Lastname = value.String
+				_m.UpdatedAt = value.Time
+			}
+		case user.FieldFirstName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field first_name", values[i])
+			} else if value.Valid {
+				_m.FirstName = value.String
+			}
+		case user.FieldLastName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field last_name", values[i])
+			} else if value.Valid {
+				_m.LastName = value.String
 			}
 		case user.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -75,11 +185,30 @@ func (_m *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Email = value.String
 			}
+		case user.FieldEmailVerified:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field email_verified", values[i])
+			} else if value.Valid {
+				_m.EmailVerified = value.Bool
+			}
 		case user.FieldPassword:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field password", values[i])
 			} else if value.Valid {
 				_m.Password = value.String
+			}
+		case user.FieldSignUpMethod:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field sign_up_method", values[i])
+			} else if value.Valid {
+				_m.SignUpMethod = user.SignUpMethod(value.String)
+			}
+		case user.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field role_users", value)
+			} else if value.Valid {
+				_m.role_users = new(int)
+				*_m.role_users = int(value.Int64)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -92,6 +221,36 @@ func (_m *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *User) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryRole queries the "role" edge of the User entity.
+func (_m *User) QueryRole() *RoleQuery {
+	return NewUserClient(_m.config).QueryRole(_m)
+}
+
+// QueryInvitations queries the "invitations" edge of the User entity.
+func (_m *User) QueryInvitations() *UserInvitationQuery {
+	return NewUserClient(_m.config).QueryInvitations(_m)
+}
+
+// QueryAuditRecords queries the "audit_records" edge of the User entity.
+func (_m *User) QueryAuditRecords() *AuditRecordQuery {
+	return NewUserClient(_m.config).QueryAuditRecords(_m)
+}
+
+// QueryPasswordSecret queries the "password_secret" edge of the User entity.
+func (_m *User) QueryPasswordSecret() *UserPasswordSecretQuery {
+	return NewUserClient(_m.config).QueryPasswordSecret(_m)
+}
+
+// QueryProjects queries the "projects" edge of the User entity.
+func (_m *User) QueryProjects() *ProjectQuery {
+	return NewUserClient(_m.config).QueryProjects(_m)
+}
+
+// QueryCreatedAPIKeys queries the "created_api_keys" edge of the User entity.
+func (_m *User) QueryCreatedAPIKeys() *ApiKeyQuery {
+	return NewUserClient(_m.config).QueryCreatedAPIKeys(_m)
 }
 
 // Update returns a builder for updating this User.
@@ -117,17 +276,29 @@ func (_m *User) String() string {
 	var builder strings.Builder
 	builder.WriteString("User(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
-	builder.WriteString("firstname=")
-	builder.WriteString(_m.Firstname)
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("lastname=")
-	builder.WriteString(_m.Lastname)
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("first_name=")
+	builder.WriteString(_m.FirstName)
+	builder.WriteString(", ")
+	builder.WriteString("last_name=")
+	builder.WriteString(_m.LastName)
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(_m.Email)
 	builder.WriteString(", ")
+	builder.WriteString("email_verified=")
+	builder.WriteString(fmt.Sprintf("%v", _m.EmailVerified))
+	builder.WriteString(", ")
 	builder.WriteString("password=")
 	builder.WriteString(_m.Password)
+	builder.WriteString(", ")
+	builder.WriteString("sign_up_method=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SignUpMethod))
 	builder.WriteByte(')')
 	return builder.String()
 }

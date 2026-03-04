@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -10,8 +11,8 @@ type ActionModel struct {
 	ent.Schema
 }
 
-// Mixins of the ActionModel.
-func (ActionModel) Mixins() []ent.Mixin {
+// Mixin of the ActionModel.
+func (ActionModel) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		TimeMixin{},
 	}
@@ -32,5 +33,12 @@ func (ActionModel) Fields() []ent.Field {
 
 // Edges of the ActionModel.
 func (ActionModel) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("project", Project.Type).
+			Ref("actions").
+			Unique().
+			Field("project_id").
+			Required(),
+		edge.To("audit_records", AuditRecord.Type),
+	}
 }

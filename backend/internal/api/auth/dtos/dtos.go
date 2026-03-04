@@ -10,6 +10,7 @@ type UserDTO struct {
 	Firstname string `json:"firstname"`
 	Lastname  string `json:"lastname"`
 	Email     string `json:"email"`
+	Role      string `json:"role"`
 }
 
 type LoginResponse struct {
@@ -22,4 +23,5 @@ type RegisterUserPayload struct {
 	Lastname  string `json:"lastname" xml:"lastname" form:"lastname"`
 	Email     string `json:"email" xml:"email" form:"email"`
 	Password  string `json:"password" xml:"password" form:"password"`
+	Role      string `json:"role" xml:"role" form:"role"`
 }
