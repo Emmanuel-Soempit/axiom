@@ -26,6 +26,8 @@ type Tx struct {
 	User *UserClient
 	// UserInvitation is the client for interacting with the UserInvitation builders.
 	UserInvitation *UserInvitationClient
+	// UserMeta is the client for interacting with the UserMeta builders.
+	UserMeta *UserMetaClient
 	// UserPasswordSecret is the client for interacting with the UserPasswordSecret builders.
 	UserPasswordSecret *UserPasswordSecretClient
 
@@ -166,6 +168,7 @@ func (tx *Tx) init() {
 	tx.Role = NewRoleClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.UserInvitation = NewUserInvitationClient(tx.config)
+	tx.UserMeta = NewUserMetaClient(tx.config)
 	tx.UserPasswordSecret = NewUserPasswordSecretClient(tx.config)
 }
 

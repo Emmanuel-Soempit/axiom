@@ -19,10 +19,10 @@ func NewCredentialsRepo(client *ent.Client) CredentialsRepo {
 	return &credentialsRepo{client: client}
 }
 
-func (r *credentialsRepo) Create(ctx context.Context, userID int, prefix string, hash string, payload dtos.CreateApiKeyPayload) (*ent.ApiKey, error) {
+func (r *credentialsRepo) Create(ctx context.Context, userID int, prefix string, hash string, projectID string, payload dtos.CreateApiKeyPayload) (*ent.ApiKey, error) {
 	builder := r.client.ApiKey.Create().
 		SetName(payload.Name).
-		SetProjectID(payload.ProjectID).
+		SetProjectID(projectID).
 		SetKeyPrefix(prefix).
 		SetKeyHash(hash).
 		SetCreatedBy(userID)

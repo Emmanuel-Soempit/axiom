@@ -118,6 +118,12 @@ func (_c *AuditRecordCreate) SetNillableValidated(v *bool) *AuditRecordCreate {
 	return _c
 }
 
+// SetValidationErrors sets the "validation_errors" field.
+func (_c *AuditRecordCreate) SetValidationErrors(v []string) *AuditRecordCreate {
+	_c.mutation.SetValidationErrors(v)
+	return _c
+}
+
 // SetFinalResponse sets the "final_response" field.
 func (_c *AuditRecordCreate) SetFinalResponse(v map[string]interface{}) *AuditRecordCreate {
 	_c.mutation.SetFinalResponse(v)
@@ -246,6 +252,10 @@ func (_c *AuditRecordCreate) createSpec() (*AuditRecord, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Validated(); ok {
 		_spec.SetField(auditrecord.FieldValidated, field.TypeBool, value)
 		_node.Validated = value
+	}
+	if value, ok := _c.mutation.ValidationErrors(); ok {
+		_spec.SetField(auditrecord.FieldValidationErrors, field.TypeJSON, value)
+		_node.ValidationErrors = value
 	}
 	if value, ok := _c.mutation.FinalResponse(); ok {
 		_spec.SetField(auditrecord.FieldFinalResponse, field.TypeJSON, value)

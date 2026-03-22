@@ -10,6 +10,7 @@ import (
 	"go-backend-template/ent/apikey"
 	"go-backend-template/ent/project"
 	"go-backend-template/ent/user"
+	"go-backend-template/ent/usermeta"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -117,6 +118,21 @@ func (_c *ProjectCreate) SetNillableUserID(id *int) *ProjectCreate {
 // SetUser sets the "user" edge to the User entity.
 func (_c *ProjectCreate) SetUser(v *User) *ProjectCreate {
 	return _c.SetUserID(v.ID)
+}
+
+// AddUserMetaIDs adds the "user_metas" edge to the UserMeta entity by IDs.
+func (_c *ProjectCreate) AddUserMetaIDs(ids ...int) *ProjectCreate {
+	_c.mutation.AddUserMetaIDs(ids...)
+	return _c
+}
+
+// AddUserMetas adds the "user_metas" edges to the UserMeta entity.
+func (_c *ProjectCreate) AddUserMetas(v ...*UserMeta) *ProjectCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddUserMetaIDs(ids...)
 }
 
 // Mutation returns the ProjectMutation object of the builder.
@@ -276,6 +292,22 @@ func (_c *ProjectCreate) createSpec() (*Project, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.user_projects = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.UserMetasIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.UserMetasTable,
+			Columns: []string{project.UserMetasColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usermeta.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

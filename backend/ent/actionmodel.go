@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"go-backend-template/ent/actionmodel"
 	"go-backend-template/ent/project"
+	"go-backend-template/internal/core/registry/dtos"
 	"strings"
 	"time"
 
@@ -30,9 +31,7 @@ type ActionModel struct {
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
 	// Parameters holds the value of the "parameters" field.
-	Parameters map[string]interface{} `json:"parameters,omitempty"`
-	// Rules holds the value of the "rules" field.
-	Rules map[string]interface{} `json:"rules,omitempty"`
+	Parameters map[string]*dtos.ParameterSchema `json:"parameters,omitempty"`
 	// RequiredFeature holds the value of the "required_feature" field.
 	RequiredFeature string `json:"required_feature,omitempty"`
 	// Version holds the value of the "version" field.
@@ -79,7 +78,7 @@ func (*ActionModel) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case actionmodel.FieldParameters, actionmodel.FieldRules:
+		case actionmodel.FieldParameters:
 			values[i] = new([]byte)
 		case actionmodel.FieldID, actionmodel.FieldVersion:
 			values[i] = new(sql.NullInt64)
@@ -144,14 +143,6 @@ func (_m *ActionModel) assignValues(columns []string, values []any) error {
 			} else if value != nil && len(*value) > 0 {
 				if err := json.Unmarshal(*value, &_m.Parameters); err != nil {
 					return fmt.Errorf("unmarshal field parameters: %w", err)
-				}
-			}
-		case actionmodel.FieldRules:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field rules", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.Rules); err != nil {
-					return fmt.Errorf("unmarshal field rules: %w", err)
 				}
 			}
 		case actionmodel.FieldRequiredFeature:
@@ -229,9 +220,6 @@ func (_m *ActionModel) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("parameters=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Parameters))
-	builder.WriteString(", ")
-	builder.WriteString("rules=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Rules))
 	builder.WriteString(", ")
 	builder.WriteString("required_feature=")
 	builder.WriteString(_m.RequiredFeature)

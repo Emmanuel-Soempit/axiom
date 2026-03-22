@@ -18,6 +18,7 @@ import (
 	"go-backend-template/ent/role"
 	"go-backend-template/ent/user"
 	"go-backend-template/ent/userinvitation"
+	"go-backend-template/ent/usermeta"
 	"go-backend-template/ent/userpasswordsecret"
 
 	"entgo.io/ent"
@@ -46,6 +47,8 @@ type Client struct {
 	User *UserClient
 	// UserInvitation is the client for interacting with the UserInvitation builders.
 	UserInvitation *UserInvitationClient
+	// UserMeta is the client for interacting with the UserMeta builders.
+	UserMeta *UserMetaClient
 	// UserPasswordSecret is the client for interacting with the UserPasswordSecret builders.
 	UserPasswordSecret *UserPasswordSecretClient
 }
@@ -66,6 +69,7 @@ func (c *Client) init() {
 	c.Role = NewRoleClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.UserInvitation = NewUserInvitationClient(c.config)
+	c.UserMeta = NewUserMetaClient(c.config)
 	c.UserPasswordSecret = NewUserPasswordSecretClient(c.config)
 }
 
@@ -166,6 +170,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Role:               NewRoleClient(cfg),
 		User:               NewUserClient(cfg),
 		UserInvitation:     NewUserInvitationClient(cfg),
+		UserMeta:           NewUserMetaClient(cfg),
 		UserPasswordSecret: NewUserPasswordSecretClient(cfg),
 	}, nil
 }
@@ -193,6 +198,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Role:               NewRoleClient(cfg),
 		User:               NewUserClient(cfg),
 		UserInvitation:     NewUserInvitationClient(cfg),
+		UserMeta:           NewUserMetaClient(cfg),
 		UserPasswordSecret: NewUserPasswordSecretClient(cfg),
 	}, nil
 }
@@ -224,7 +230,7 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.ActionModel, c.ApiKey, c.AuditRecord, c.Project, c.Role, c.User,
-		c.UserInvitation, c.UserPasswordSecret,
+		c.UserInvitation, c.UserMeta, c.UserPasswordSecret,
 	} {
 		n.Use(hooks...)
 	}
@@ -235,7 +241,7 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.ActionModel, c.ApiKey, c.AuditRecord, c.Project, c.Role, c.User,
-		c.UserInvitation, c.UserPasswordSecret,
+		c.UserInvitation, c.UserMeta, c.UserPasswordSecret,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -258,6 +264,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.User.mutate(ctx, m)
 	case *UserInvitationMutation:
 		return c.UserInvitation.mutate(ctx, m)
+	case *UserMetaMutation:
+		return c.UserMeta.mutate(ctx, m)
 	case *UserPasswordSecretMutation:
 		return c.UserPasswordSecret.mutate(ctx, m)
 	default:
@@ -916,6 +924,22 @@ func (c *ProjectClient) QueryUser(_m *Project) *UserQuery {
 	return query
 }
 
+// QueryUserMetas queries the user_metas edge of a Project.
+func (c *ProjectClient) QueryUserMetas(_m *Project) *UserMetaQuery {
+	query := (&UserMetaClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(project.Table, project.FieldID, id),
+			sqlgraph.To(usermeta.Table, usermeta.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, project.UserMetasTable, project.UserMetasColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ProjectClient) Hooks() []Hook {
 	return c.hooks.Project
@@ -1294,6 +1318,22 @@ func (c *UserClient) QueryCreatedAPIKeys(_m *User) *ApiKeyQuery {
 	return query
 }
 
+// QueryMeta queries the meta edge of a User.
+func (c *UserClient) QueryMeta(_m *User) *UserMetaQuery {
+	query := (&UserMetaClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(usermeta.Table, usermeta.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, user.MetaTable, user.MetaColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -1468,6 +1508,171 @@ func (c *UserInvitationClient) mutate(ctx context.Context, m *UserInvitationMuta
 	}
 }
 
+// UserMetaClient is a client for the UserMeta schema.
+type UserMetaClient struct {
+	config
+}
+
+// NewUserMetaClient returns a client for the UserMeta from the given config.
+func NewUserMetaClient(c config) *UserMetaClient {
+	return &UserMetaClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `usermeta.Hooks(f(g(h())))`.
+func (c *UserMetaClient) Use(hooks ...Hook) {
+	c.hooks.UserMeta = append(c.hooks.UserMeta, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `usermeta.Intercept(f(g(h())))`.
+func (c *UserMetaClient) Intercept(interceptors ...Interceptor) {
+	c.inters.UserMeta = append(c.inters.UserMeta, interceptors...)
+}
+
+// Create returns a builder for creating a UserMeta entity.
+func (c *UserMetaClient) Create() *UserMetaCreate {
+	mutation := newUserMetaMutation(c.config, OpCreate)
+	return &UserMetaCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UserMeta entities.
+func (c *UserMetaClient) CreateBulk(builders ...*UserMetaCreate) *UserMetaCreateBulk {
+	return &UserMetaCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UserMetaClient) MapCreateBulk(slice any, setFunc func(*UserMetaCreate, int)) *UserMetaCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UserMetaCreateBulk{err: fmt.Errorf("calling to UserMetaClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UserMetaCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UserMetaCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UserMeta.
+func (c *UserMetaClient) Update() *UserMetaUpdate {
+	mutation := newUserMetaMutation(c.config, OpUpdate)
+	return &UserMetaUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UserMetaClient) UpdateOne(_m *UserMeta) *UserMetaUpdateOne {
+	mutation := newUserMetaMutation(c.config, OpUpdateOne, withUserMeta(_m))
+	return &UserMetaUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UserMetaClient) UpdateOneID(id int) *UserMetaUpdateOne {
+	mutation := newUserMetaMutation(c.config, OpUpdateOne, withUserMetaID(id))
+	return &UserMetaUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UserMeta.
+func (c *UserMetaClient) Delete() *UserMetaDelete {
+	mutation := newUserMetaMutation(c.config, OpDelete)
+	return &UserMetaDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UserMetaClient) DeleteOne(_m *UserMeta) *UserMetaDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UserMetaClient) DeleteOneID(id int) *UserMetaDeleteOne {
+	builder := c.Delete().Where(usermeta.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UserMetaDeleteOne{builder}
+}
+
+// Query returns a query builder for UserMeta.
+func (c *UserMetaClient) Query() *UserMetaQuery {
+	return &UserMetaQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUserMeta},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a UserMeta entity by its id.
+func (c *UserMetaClient) Get(ctx context.Context, id int) (*UserMeta, error) {
+	return c.Query().Where(usermeta.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UserMetaClient) GetX(ctx context.Context, id int) *UserMeta {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a UserMeta.
+func (c *UserMetaClient) QueryUser(_m *UserMeta) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(usermeta.Table, usermeta.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, usermeta.UserTable, usermeta.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProject queries the project edge of a UserMeta.
+func (c *UserMetaClient) QueryProject(_m *UserMeta) *ProjectQuery {
+	query := (&ProjectClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(usermeta.Table, usermeta.FieldID, id),
+			sqlgraph.To(project.Table, project.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, usermeta.ProjectTable, usermeta.ProjectColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *UserMetaClient) Hooks() []Hook {
+	return c.hooks.UserMeta
+}
+
+// Interceptors returns the client interceptors.
+func (c *UserMetaClient) Interceptors() []Interceptor {
+	return c.inters.UserMeta
+}
+
+func (c *UserMetaClient) mutate(ctx context.Context, m *UserMetaMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UserMetaCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UserMetaUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UserMetaUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UserMetaDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown UserMeta mutation op: %q", m.Op())
+	}
+}
+
 // UserPasswordSecretClient is a client for the UserPasswordSecret schema.
 type UserPasswordSecretClient struct {
 	config
@@ -1620,11 +1825,11 @@ func (c *UserPasswordSecretClient) mutate(ctx context.Context, m *UserPasswordSe
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		ActionModel, ApiKey, AuditRecord, Project, Role, User, UserInvitation,
+		ActionModel, ApiKey, AuditRecord, Project, Role, User, UserInvitation, UserMeta,
 		UserPasswordSecret []ent.Hook
 	}
 	inters struct {
-		ActionModel, ApiKey, AuditRecord, Project, Role, User, UserInvitation,
+		ActionModel, ApiKey, AuditRecord, Project, Role, User, UserInvitation, UserMeta,
 		UserPasswordSecret []ent.Interceptor
 	}
 )

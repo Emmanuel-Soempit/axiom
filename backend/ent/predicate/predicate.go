@@ -27,5 +27,8 @@ type User func(*sql.Selector)
 // UserInvitation is the predicate function for userinvitation builders.
 type UserInvitation func(*sql.Selector)
 
+// UserMeta is the predicate function for usermeta builders.
+type UserMeta func(*sql.Selector)
+
 // UserPasswordSecret is the predicate function for userpasswordsecret builders.
 type UserPasswordSecret func(*sql.Selector)

@@ -35,6 +35,7 @@ func (a *ApiKeyAuth) ApiKeyAuth(c *fiber.Ctx) error {
 
 	BearerToken := "Bearer "
 	if !strings.HasPrefix(apiKey, BearerToken) {
+		log.Printf("Invalid API Key format: %s", apiKey)
 		return utils.Unauthorized(c, "Invalid API Key")
 	}
 
@@ -50,18 +51,27 @@ func (a *ApiKeyAuth) ApiKeyAuth(c *fiber.Ctx) error {
 	secret := parts[1]
 
 	// Find the API Key in the database
-	apiKeyRecord, err := a.client.ApiKey.Query().
-		Where(apikey.KeyPrefix(publicID)).
-		Only(c.Context())
+	apiKeyRecords, err := a.client.ApiKey.Query().
+		Where(apikey.KeyPrefix(publicID)).All(c.Context())
 
 	if err != nil {
 		log.Printf("API Key not found with prefix %s: %v", publicID, err)
 		return utils.Unauthorized(c, "Invalid API Key")
 	}
+	// log.Printf("API Key found with prefix %s: %v", publicID, apiKeyRecord)
 
 	// Verify the secret hash
-	if err := bcrypt.CompareHashAndPassword([]byte(apiKeyRecord.KeyHash), []byte(secret)); err != nil {
-		log.Printf("Invalid secret for API Key %s: %v", publicID, err)
+	var apiKeyRecord *ent.ApiKey
+	for _, key := range apiKeyRecords {
+		if err := bcrypt.CompareHashAndPassword([]byte(key.KeyHash), []byte(secret)); err != nil {
+			log.Printf("Invalid secret for API Key %s: %v", publicID, err)
+			continue
+		} else {
+			apiKeyRecord = key
+			break
+		}
+	}
+	if apiKeyRecord == nil {
 		return utils.Unauthorized(c, "Invalid API Key")
 	}
 

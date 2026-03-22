@@ -37,6 +37,7 @@ func (e *agentEngine) Process(ctx context.Context, input string, projectID strin
 		return nil, err
 	}
 
+	// fmt.Println("Actions loaded:", len(e.registry.ListActions()), "projectID:", projectID)
 	// 2. Build Structured Prompt
 	prompt := e.buildPrompt(input)
 
@@ -58,10 +59,21 @@ func (e *agentEngine) Process(ctx context.Context, input string, projectID strin
 		return nil, fmt.Errorf("action not found in registry: %s", resp.Action)
 	}
 
-	// 6. Validate Output
-	if err := e.validator.Validate(action, resp.Params); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
+	validatorLoad := map[string]any{
+		"action": action,
+		"params": resp.Params,
 	}
+
+	// 6. Validate Output
+	validationResponse, err := e.validator.Validate(&ctx, validatorLoad)
+	if err != nil {
+		return nil, fmt.Errorf("validation failed: %w %v", err, resp.Params)
+	}
+	fmt.Println("AI Response:", resp.Params)
+	if !validationResponse.Valid {
+		return nil, fmt.Errorf("validation failed: %v", validationResponse.Errors)
+	}
+	// fmt.Println("Validation response:", validationResponse, "params:", resp.Params)
 
 	// 7. Audit (Async would be better, but synchronous for now)
 	_ = e.auditor.Record(ctx, &audit.AuditRecordDto{

@@ -22,10 +22,10 @@ func NewCredentialsUsecase(repo repository.CredentialsRepo) CredentialsUsecase {
 	return &credentialsUsecase{repo: repo}
 }
 
-func (u *credentialsUsecase) CreateKey(ctx context.Context, userID int, payload dtos.CreateApiKeyPayload) (*dtos.CreateApiKeyResponse, error) {
+func (u *credentialsUsecase) CreateKey(ctx context.Context, userID int, projectID string, payload dtos.CreateApiKeyPayload) (*dtos.CreateApiKeyResponse, error) {
 
 	// 1. Generate prefix and secret
-	project, err := u.repo.FindProjectByID(ctx, payload.ProjectID)
+	project, err := u.repo.FindProjectByID(ctx, projectID)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (u *credentialsUsecase) CreateKey(ctx context.Context, userID int, payload 
 	}
 
 	// 3. Save to database
-	p, err := u.repo.Create(ctx, userID, project.PublicID, string(hash), payload)
+	p, err := u.repo.Create(ctx, userID, project.PublicID, string(hash), projectID, payload)
 	if err != nil {
 		return nil, err
 	}

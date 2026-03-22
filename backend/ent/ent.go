@@ -13,6 +13,7 @@ import (
 	"go-backend-template/ent/role"
 	"go-backend-template/ent/user"
 	"go-backend-template/ent/userinvitation"
+	"go-backend-template/ent/usermeta"
 	"go-backend-template/ent/userpasswordsecret"
 	"reflect"
 	"sync"
@@ -87,6 +88,7 @@ func checkColumn(t, c string) error {
 			role.Table:               role.ValidColumn,
 			user.Table:               user.ValidColumn,
 			userinvitation.Table:     userinvitation.ValidColumn,
+			usermeta.Table:           usermeta.ValidColumn,
 			userpasswordsecret.Table: userpasswordsecret.ValidColumn,
 		})
 	})

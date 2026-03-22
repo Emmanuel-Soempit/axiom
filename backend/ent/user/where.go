@@ -608,6 +608,29 @@ func HasCreatedAPIKeysWith(preds ...predicate.ApiKey) predicate.User {
 	})
 }
 
+// HasMeta applies the HasEdge predicate on the "meta" edge.
+func HasMeta() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, MetaTable, MetaColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMetaWith applies the HasEdge predicate on the "meta" edge with a given conditions (other predicates).
+func HasMetaWith(preds ...predicate.UserMeta) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newMetaStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.User) predicate.User {
 	return predicate.User(sql.AndPredicates(predicates...))

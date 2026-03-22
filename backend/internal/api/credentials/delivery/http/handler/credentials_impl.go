@@ -6,7 +6,6 @@ import (
 	"go-backend-template/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 type credentialsHandler struct {
@@ -16,11 +15,25 @@ type credentialsHandler struct {
 func NewCredentialsHandler(usecase usecase.CredentialsUsecase) CredentialsHandler {
 	return &credentialsHandler{usecase: usecase}
 }
+func (h *credentialsHandler) getProjectID(ctx *fiber.Ctx) string {
+	projectMap, ok := ctx.Locals("project").(map[string]interface{})
+	if !ok {
+		return ""
+	}
+	id, _ := projectMap["id"].(string)
+	return id
+}
 
 func (h *credentialsHandler) getUserID(ctx *fiber.Ctx) int {
-	userClaims := ctx.Locals("user").(jwt.MapClaims)
-	userMap := userClaims["user"].(map[string]interface{})
-	return int(userMap["id"].(float64))
+	userMap, ok := ctx.Locals("user").(map[string]interface{})
+	if !ok {
+		return 0
+	}
+	id, ok := userMap["id"].(float64)
+	if !ok {
+		return 0
+	}
+	return int(id)
 }
 
 func (h *credentialsHandler) CreateKey(c *fiber.Ctx) error {
@@ -30,7 +43,12 @@ func (h *credentialsHandler) CreateKey(c *fiber.Ctx) error {
 	}
 
 	userID := h.getUserID(c)
-	res, err := h.usecase.CreateKey(c.Context(), userID, payload)
+	projectID := h.getProjectID(c)
+	if projectID == "" {
+		return utils.Failed(c, "No active project found in session", "")
+	}
+
+	res, err := h.usecase.CreateKey(c.Context(), userID, projectID, payload)
 	if err != nil {
 		return utils.InternalError(c, "Failed to create API key", err.Error())
 	}
@@ -39,7 +57,10 @@ func (h *credentialsHandler) CreateKey(c *fiber.Ctx) error {
 }
 
 func (h *credentialsHandler) GetProjectKeys(c *fiber.Ctx) error {
-	projectID := c.Params("projectId")
+	projectID := h.getProjectID(c)
+	if projectID == "" {
+		return utils.Failed(c, "No active project found in session", "")
+	}
 	res, err := h.usecase.GetProjectKeys(c.Context(), projectID)
 	if err != nil {
 		return utils.InternalError(c, "Failed to fetch API keys", err.Error())

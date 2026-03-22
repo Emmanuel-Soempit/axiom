@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"go-backend-template/ent"
 	"go-backend-template/internal/api/project/dtos"
 	"go-backend-template/internal/api/project/repository"
 	"time"
@@ -104,4 +105,80 @@ func (u *projectUsecase) DeleteProject(ctx context.Context, userID int, id strin
 	}
 
 	return u.repo.Delete(ctx, id)
+}
+
+func (u *projectUsecase) GetAuditsByProject(ctx context.Context, projectID string) (*dtos.AuditOverviewResponse, error) {
+	records, err := u.repo.FindAuditsByProjectID(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+
+	audits := make([]dtos.AuditRecordResponse, len(records))
+	for i, r := range records {
+		audits[i] = dtos.AuditRecordResponse{
+			ID:               r.ID,
+			ProjectID:        r.ProjectID,
+			Prompt:           r.Prompt,
+			ProposedAction:   r.ProposedAction,
+			Validated:        r.Validated,
+			ValidationErrors: r.ValidationErrors,
+			FinalResponse:    r.FinalResponse,
+			CreatedAt:        r.CreatedAt.Format(time.RFC3339),
+		}
+	}
+
+	// Compute summary with 24h percentage change
+	now := time.Now()
+	last24h := now.Add(-24 * time.Hour)
+	prev24h := now.Add(-48 * time.Hour)
+
+	current, err := u.repo.CountAuditsByProjectID(ctx, projectID, last24h, now)
+	if err != nil {
+		return nil, err
+	}
+	previous, err := u.repo.CountAuditsByProjectID(ctx, projectID, prev24h, last24h)
+	if err != nil {
+		return nil, err
+	}
+
+	summary := dtos.AuditSummary{
+		Total:      dtos.AuditStat{Value: len(records), Percentage: pctChange(current.Total, previous.Total)},
+		Failed:     dtos.AuditStat{Value: countFailed(records), Percentage: pctChange(current.Failed, previous.Failed)},
+		Successful: dtos.AuditStat{Value: countSuccessful(records), Percentage: pctChange(current.Successful, previous.Successful)},
+	}
+
+	return &dtos.AuditOverviewResponse{
+		Audits:  audits,
+		Summary: summary,
+	}, nil
+}
+
+func pctChange(current, previous int) float64 {
+	if previous == 0 {
+		if current == 0 {
+			return 0
+		}
+		return 100
+	}
+	return float64(current-previous) / float64(previous) * 100
+}
+
+func countFailed(records []*ent.AuditRecord) int {
+	count := 0
+	for _, r := range records {
+		if !r.Validated {
+			count++
+		}
+	}
+	return count
+}
+
+func countSuccessful(records []*ent.AuditRecord) int {
+	count := 0
+	for _, r := range records {
+		if r.Validated {
+			count++
+		}
+	}
+	return count
 }

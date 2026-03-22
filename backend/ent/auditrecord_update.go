@@ -14,6 +14,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 )
 
@@ -136,6 +137,24 @@ func (_u *AuditRecordUpdate) SetNillableValidated(v *bool) *AuditRecordUpdate {
 	return _u
 }
 
+// SetValidationErrors sets the "validation_errors" field.
+func (_u *AuditRecordUpdate) SetValidationErrors(v []string) *AuditRecordUpdate {
+	_u.mutation.SetValidationErrors(v)
+	return _u
+}
+
+// AppendValidationErrors appends value to the "validation_errors" field.
+func (_u *AuditRecordUpdate) AppendValidationErrors(v []string) *AuditRecordUpdate {
+	_u.mutation.AppendValidationErrors(v)
+	return _u
+}
+
+// ClearValidationErrors clears the value of the "validation_errors" field.
+func (_u *AuditRecordUpdate) ClearValidationErrors() *AuditRecordUpdate {
+	_u.mutation.ClearValidationErrors()
+	return _u
+}
+
 // SetFinalResponse sets the "final_response" field.
 func (_u *AuditRecordUpdate) SetFinalResponse(v map[string]interface{}) *AuditRecordUpdate {
 	_u.mutation.SetFinalResponse(v)
@@ -240,6 +259,17 @@ func (_u *AuditRecordUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	}
 	if value, ok := _u.mutation.Validated(); ok {
 		_spec.SetField(auditrecord.FieldValidated, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.ValidationErrors(); ok {
+		_spec.SetField(auditrecord.FieldValidationErrors, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedValidationErrors(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, auditrecord.FieldValidationErrors, value)
+		})
+	}
+	if _u.mutation.ValidationErrorsCleared() {
+		_spec.ClearField(auditrecord.FieldValidationErrors, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.FinalResponse(); ok {
 		_spec.SetField(auditrecord.FieldFinalResponse, field.TypeJSON, value)
@@ -431,6 +461,24 @@ func (_u *AuditRecordUpdateOne) SetNillableValidated(v *bool) *AuditRecordUpdate
 	return _u
 }
 
+// SetValidationErrors sets the "validation_errors" field.
+func (_u *AuditRecordUpdateOne) SetValidationErrors(v []string) *AuditRecordUpdateOne {
+	_u.mutation.SetValidationErrors(v)
+	return _u
+}
+
+// AppendValidationErrors appends value to the "validation_errors" field.
+func (_u *AuditRecordUpdateOne) AppendValidationErrors(v []string) *AuditRecordUpdateOne {
+	_u.mutation.AppendValidationErrors(v)
+	return _u
+}
+
+// ClearValidationErrors clears the value of the "validation_errors" field.
+func (_u *AuditRecordUpdateOne) ClearValidationErrors() *AuditRecordUpdateOne {
+	_u.mutation.ClearValidationErrors()
+	return _u
+}
+
 // SetFinalResponse sets the "final_response" field.
 func (_u *AuditRecordUpdateOne) SetFinalResponse(v map[string]interface{}) *AuditRecordUpdateOne {
 	_u.mutation.SetFinalResponse(v)
@@ -565,6 +613,17 @@ func (_u *AuditRecordUpdateOne) sqlSave(ctx context.Context) (_node *AuditRecord
 	}
 	if value, ok := _u.mutation.Validated(); ok {
 		_spec.SetField(auditrecord.FieldValidated, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.ValidationErrors(); ok {
+		_spec.SetField(auditrecord.FieldValidationErrors, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedValidationErrors(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, auditrecord.FieldValidationErrors, value)
+		})
+	}
+	if _u.mutation.ValidationErrorsCleared() {
+		_spec.ClearField(auditrecord.FieldValidationErrors, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.FinalResponse(); ok {
 		_spec.SetField(auditrecord.FieldFinalResponse, field.TypeJSON, value)

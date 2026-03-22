@@ -92,6 +92,18 @@ func (f UserInvitationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Val
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserInvitationMutation", m)
 }
 
+// The UserMetaFunc type is an adapter to allow the use of ordinary
+// function as UserMeta mutator.
+type UserMetaFunc func(context.Context, *ent.UserMetaMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserMetaFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UserMetaMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserMetaMutation", m)
+}
+
 // The UserPasswordSecretFunc type is an adapter to allow the use of ordinary
 // function as UserPasswordSecret mutator.
 type UserPasswordSecretFunc func(context.Context, *ent.UserPasswordSecretMutation) (ent.Value, error)

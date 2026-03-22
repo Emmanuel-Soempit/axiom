@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"go-backend-template/internal/core/audit"
 	"go-backend-template/internal/core/engine"
 	"go-backend-template/internal/core/engine/delivery/http/handler"
@@ -15,7 +16,10 @@ import (
 func RegisterEngineRoutes(router fiber.Router, registry registry.Registry, auditor audit.Auditor, apiKeyAuth middleware.ApiKeyAuthMiddleware) {
 	// Initialize Engine dependencies
 	llmProvider := llm.NewGroqProvider()
-	validator := validation.NewValidator()
+	validator, err := validation.New(context.Background(), "internal/core/validation/opa/action_engine.rego")
+	if err != nil {
+		panic(err)
+	}
 	eng := engine.NewEngine(registry, llmProvider, auditor, validator)
 
 	h := handler.NewEngineHandler(eng)

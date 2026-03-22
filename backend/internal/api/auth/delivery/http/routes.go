@@ -5,6 +5,7 @@ import (
 	"go-backend-template/internal/api/auth/delivery/http/handler"
 	"go-backend-template/internal/api/auth/repository"
 	"go-backend-template/internal/api/auth/usecase"
+	repository_project "go-backend-template/internal/api/project/repository"
 	"go-backend-template/internal/middleware"
 
 	// "go-backend-template/internal/middleware"
@@ -23,11 +24,14 @@ func RegisterAuthRoutes(router fiber.Router, client *ent.Client) {
 
 	// Intiaizes structs
 	userRepo := repository.NewEntUserRepo(client)
-	authUseCase := usecase.NewAuthUsecase(userRepo)
+	projectRepo := repository_project.NewEntProjectRepo(client)
+	authUseCase := usecase.NewAuthUsecase(userRepo, projectRepo)
 	authHandler := handler.NewAuthHandler(authUseCase)
 
 	// Routes
 	authGroup.Post("/login", authHandler.LoginHandler)
 	authGroup.Post("/register", authHandler.RegisterHandler)
 
+	authGroup.Use(middleware.CheckJwtToken)
+	authGroup.Post("/switch-project", authHandler.SwitchProjectHandler)
 }

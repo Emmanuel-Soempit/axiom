@@ -11,6 +11,7 @@ import (
 	"go-backend-template/ent/predicate"
 	"go-backend-template/ent/project"
 	"go-backend-template/ent/user"
+	"go-backend-template/ent/usermeta"
 	"math"
 
 	"entgo.io/ent"
@@ -22,14 +23,15 @@ import (
 // ProjectQuery is the builder for querying Project entities.
 type ProjectQuery struct {
 	config
-	ctx         *QueryContext
-	order       []project.OrderOption
-	inters      []Interceptor
-	predicates  []predicate.Project
-	withActions *ActionModelQuery
-	withAPIKeys *ApiKeyQuery
-	withUser    *UserQuery
-	withFKs     bool
+	ctx           *QueryContext
+	order         []project.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.Project
+	withActions   *ActionModelQuery
+	withAPIKeys   *ApiKeyQuery
+	withUser      *UserQuery
+	withUserMetas *UserMetaQuery
+	withFKs       bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -125,6 +127,28 @@ func (_q *ProjectQuery) QueryUser() *UserQuery {
 			sqlgraph.From(project.Table, project.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, project.UserTable, project.UserColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryUserMetas chains the current query on the "user_metas" edge.
+func (_q *ProjectQuery) QueryUserMetas() *UserMetaQuery {
+	query := (&UserMetaClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(project.Table, project.FieldID, selector),
+			sqlgraph.To(usermeta.Table, usermeta.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, project.UserMetasTable, project.UserMetasColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -319,14 +343,15 @@ func (_q *ProjectQuery) Clone() *ProjectQuery {
 		return nil
 	}
 	return &ProjectQuery{
-		config:      _q.config,
-		ctx:         _q.ctx.Clone(),
-		order:       append([]project.OrderOption{}, _q.order...),
-		inters:      append([]Interceptor{}, _q.inters...),
-		predicates:  append([]predicate.Project{}, _q.predicates...),
-		withActions: _q.withActions.Clone(),
-		withAPIKeys: _q.withAPIKeys.Clone(),
-		withUser:    _q.withUser.Clone(),
+		config:        _q.config,
+		ctx:           _q.ctx.Clone(),
+		order:         append([]project.OrderOption{}, _q.order...),
+		inters:        append([]Interceptor{}, _q.inters...),
+		predicates:    append([]predicate.Project{}, _q.predicates...),
+		withActions:   _q.withActions.Clone(),
+		withAPIKeys:   _q.withAPIKeys.Clone(),
+		withUser:      _q.withUser.Clone(),
+		withUserMetas: _q.withUserMetas.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -363,6 +388,17 @@ func (_q *ProjectQuery) WithUser(opts ...func(*UserQuery)) *ProjectQuery {
 		opt(query)
 	}
 	_q.withUser = query
+	return _q
+}
+
+// WithUserMetas tells the query-builder to eager-load the nodes that are connected to
+// the "user_metas" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ProjectQuery) WithUserMetas(opts ...func(*UserMetaQuery)) *ProjectQuery {
+	query := (&UserMetaClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withUserMetas = query
 	return _q
 }
 
@@ -445,10 +481,11 @@ func (_q *ProjectQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Proj
 		nodes       = []*Project{}
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			_q.withActions != nil,
 			_q.withAPIKeys != nil,
 			_q.withUser != nil,
+			_q.withUserMetas != nil,
 		}
 	)
 	if _q.withUser != nil {
@@ -492,6 +529,13 @@ func (_q *ProjectQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Proj
 	if query := _q.withUser; query != nil {
 		if err := _q.loadUser(ctx, query, nodes, nil,
 			func(n *Project, e *User) { n.Edges.User = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withUserMetas; query != nil {
+		if err := _q.loadUserMetas(ctx, query, nodes,
+			func(n *Project) { n.Edges.UserMetas = []*UserMeta{} },
+			func(n *Project, e *UserMeta) { n.Edges.UserMetas = append(n.Edges.UserMetas, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -587,6 +631,39 @@ func (_q *ProjectQuery) loadUser(ctx context.Context, query *UserQuery, nodes []
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (_q *ProjectQuery) loadUserMetas(ctx context.Context, query *UserMetaQuery, nodes []*Project, init func(*Project), assign func(*Project, *UserMeta)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Project)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(usermeta.FieldLastActiveProject)
+	}
+	query.Where(predicate.UserMeta(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(project.UserMetasColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.LastActiveProject
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "last_active_project" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "last_active_project" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

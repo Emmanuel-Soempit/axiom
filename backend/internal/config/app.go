@@ -14,7 +14,7 @@ import (
 
 func appConfigurations(app *fiber.App) {
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "https://whatsapp-vendor-frontend.vercel.app",
+		AllowOrigins:     "https://whatsapp-vendor-frontend.vercel.app,http://localhost:3333,http://localhost:3001",
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true,

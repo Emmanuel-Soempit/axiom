@@ -11,6 +11,7 @@ import (
 	"go-backend-template/ent/predicate"
 	"go-backend-template/ent/project"
 	"go-backend-template/ent/user"
+	"go-backend-template/ent/usermeta"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -101,6 +102,21 @@ func (_u *ProjectUpdate) SetUser(v *User) *ProjectUpdate {
 	return _u.SetUserID(v.ID)
 }
 
+// AddUserMetaIDs adds the "user_metas" edge to the UserMeta entity by IDs.
+func (_u *ProjectUpdate) AddUserMetaIDs(ids ...int) *ProjectUpdate {
+	_u.mutation.AddUserMetaIDs(ids...)
+	return _u
+}
+
+// AddUserMetas adds the "user_metas" edges to the UserMeta entity.
+func (_u *ProjectUpdate) AddUserMetas(v ...*UserMeta) *ProjectUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddUserMetaIDs(ids...)
+}
+
 // Mutation returns the ProjectMutation object of the builder.
 func (_u *ProjectUpdate) Mutation() *ProjectMutation {
 	return _u.mutation
@@ -152,6 +168,27 @@ func (_u *ProjectUpdate) RemoveAPIKeys(v ...*ApiKey) *ProjectUpdate {
 func (_u *ProjectUpdate) ClearUser() *ProjectUpdate {
 	_u.mutation.ClearUser()
 	return _u
+}
+
+// ClearUserMetas clears all "user_metas" edges to the UserMeta entity.
+func (_u *ProjectUpdate) ClearUserMetas() *ProjectUpdate {
+	_u.mutation.ClearUserMetas()
+	return _u
+}
+
+// RemoveUserMetaIDs removes the "user_metas" edge to UserMeta entities by IDs.
+func (_u *ProjectUpdate) RemoveUserMetaIDs(ids ...int) *ProjectUpdate {
+	_u.mutation.RemoveUserMetaIDs(ids...)
+	return _u
+}
+
+// RemoveUserMetas removes "user_metas" edges to UserMeta entities.
+func (_u *ProjectUpdate) RemoveUserMetas(v ...*UserMeta) *ProjectUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveUserMetaIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -324,6 +361,51 @@ func (_u *ProjectUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.UserMetasCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.UserMetasTable,
+			Columns: []string{project.UserMetasColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usermeta.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedUserMetasIDs(); len(nodes) > 0 && !_u.mutation.UserMetasCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.UserMetasTable,
+			Columns: []string{project.UserMetasColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usermeta.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UserMetasIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.UserMetasTable,
+			Columns: []string{project.UserMetasColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usermeta.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{project.Label}
@@ -413,6 +495,21 @@ func (_u *ProjectUpdateOne) SetUser(v *User) *ProjectUpdateOne {
 	return _u.SetUserID(v.ID)
 }
 
+// AddUserMetaIDs adds the "user_metas" edge to the UserMeta entity by IDs.
+func (_u *ProjectUpdateOne) AddUserMetaIDs(ids ...int) *ProjectUpdateOne {
+	_u.mutation.AddUserMetaIDs(ids...)
+	return _u
+}
+
+// AddUserMetas adds the "user_metas" edges to the UserMeta entity.
+func (_u *ProjectUpdateOne) AddUserMetas(v ...*UserMeta) *ProjectUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddUserMetaIDs(ids...)
+}
+
 // Mutation returns the ProjectMutation object of the builder.
 func (_u *ProjectUpdateOne) Mutation() *ProjectMutation {
 	return _u.mutation
@@ -464,6 +561,27 @@ func (_u *ProjectUpdateOne) RemoveAPIKeys(v ...*ApiKey) *ProjectUpdateOne {
 func (_u *ProjectUpdateOne) ClearUser() *ProjectUpdateOne {
 	_u.mutation.ClearUser()
 	return _u
+}
+
+// ClearUserMetas clears all "user_metas" edges to the UserMeta entity.
+func (_u *ProjectUpdateOne) ClearUserMetas() *ProjectUpdateOne {
+	_u.mutation.ClearUserMetas()
+	return _u
+}
+
+// RemoveUserMetaIDs removes the "user_metas" edge to UserMeta entities by IDs.
+func (_u *ProjectUpdateOne) RemoveUserMetaIDs(ids ...int) *ProjectUpdateOne {
+	_u.mutation.RemoveUserMetaIDs(ids...)
+	return _u
+}
+
+// RemoveUserMetas removes "user_metas" edges to UserMeta entities.
+func (_u *ProjectUpdateOne) RemoveUserMetas(v ...*UserMeta) *ProjectUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveUserMetaIDs(ids...)
 }
 
 // Where appends a list predicates to the ProjectUpdate builder.
@@ -659,6 +777,51 @@ func (_u *ProjectUpdateOne) sqlSave(ctx context.Context) (_node *Project, err er
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.UserMetasCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.UserMetasTable,
+			Columns: []string{project.UserMetasColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usermeta.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedUserMetasIDs(); len(nodes) > 0 && !_u.mutation.UserMetasCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.UserMetasTable,
+			Columns: []string{project.UserMetasColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usermeta.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UserMetasIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.UserMetasTable,
+			Columns: []string{project.UserMetasColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usermeta.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

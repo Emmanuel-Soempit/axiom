@@ -12,6 +12,7 @@ import (
 	"go-backend-template/ent/role"
 	"go-backend-template/ent/user"
 	"go-backend-template/ent/userinvitation"
+	"go-backend-template/ent/usermeta"
 	"go-backend-template/ent/userpasswordsecret"
 	"time"
 
@@ -211,6 +212,25 @@ func (_c *UserCreate) AddCreatedAPIKeys(v ...*ApiKey) *UserCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddCreatedAPIKeyIDs(ids...)
+}
+
+// SetMetaID sets the "meta" edge to the UserMeta entity by ID.
+func (_c *UserCreate) SetMetaID(id int) *UserCreate {
+	_c.mutation.SetMetaID(id)
+	return _c
+}
+
+// SetNillableMetaID sets the "meta" edge to the UserMeta entity by ID if the given value is not nil.
+func (_c *UserCreate) SetNillableMetaID(id *int) *UserCreate {
+	if id != nil {
+		_c = _c.SetMetaID(*id)
+	}
+	return _c
+}
+
+// SetMeta sets the "meta" edge to the UserMeta entity.
+func (_c *UserCreate) SetMeta(v *UserMeta) *UserCreate {
+	return _c.SetMetaID(v.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -452,6 +472,22 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(apikey.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.MetaIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.MetaTable,
+			Columns: []string{user.MetaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usermeta.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

@@ -4,6 +4,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+
+	"go-backend-template/internal/core/registry/dtos"
 )
 
 // ActionModel holds the schema definition for the ActionModel entity.
@@ -24,8 +26,8 @@ func (ActionModel) Fields() []ent.Field {
 		field.String("project_id"),
 		field.String("name"),
 		field.String("description"),
-		field.JSON("parameters", map[string]interface{}{}),
-		field.JSON("rules", map[string]interface{}{}),
+		field.JSON("parameters", map[string]*dtos.ParameterSchema{}),
+
 		field.String("required_feature").Optional(),
 		field.Int("version").Default(1),
 	}

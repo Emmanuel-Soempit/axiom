@@ -1,0 +1,25 @@
+{
+  "name": "eac",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:web-app": "cd web-app && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && air",
+    "dev": "npm run dev:frontend & npm run dev:backend & npm run dev:web-app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Emmanuel-Soempit/embedded-agent-controller.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Emmanuel-Soempit/embedded-agent-controller/issues"
+  },
+  "homepage": "https://github.com/Emmanuel-Soempit/embedded-agent-controller#readme"
+}

@@ -39,5 +39,6 @@ func (Project) Edges() []ent.Edge {
 		edge.From("user", User.Type).
 			Ref("projects").
 			Unique(),
+		edge.To("user_metas", UserMeta.Type),
 	}
 }

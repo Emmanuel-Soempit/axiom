@@ -27,6 +27,7 @@ func (AuditRecord) Fields() []ent.Field {
 		field.Text("prompt"),
 		field.JSON("proposed_action", map[string]interface{}{}).Optional(),
 		field.Bool("validated").Default(false),
+		field.JSON("validation_errors", []string{}).Optional(),
 		field.JSON("final_response", map[string]interface{}{}).Optional(),
 	}
 }

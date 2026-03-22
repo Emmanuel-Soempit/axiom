@@ -3,11 +3,15 @@ package repository
 import (
 	"context"
 	"go-backend-template/ent"
+	"go-backend-template/ent/auditrecord"
+	"go-backend-template/ent/predicate"
 	"go-backend-template/ent/project"
 	"go-backend-template/ent/user"
 	"go-backend-template/internal/api/project/dtos"
 	"log"
+	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 )
 
@@ -72,4 +76,40 @@ func (r *entProjectRepo) Update(ctx context.Context, id string, payload dtos.Upd
 
 func (r *entProjectRepo) Delete(ctx context.Context, id string) error {
 	return r.client.Project.DeleteOneID(id).Exec(ctx)
+}
+
+func (r *entProjectRepo) FindAuditsByProjectID(ctx context.Context, projectID string) ([]*ent.AuditRecord, error) {
+	records, err := r.client.AuditRecord.
+		Query().
+		Where(auditrecord.ProjectIDEQ(projectID)).
+		Order(auditrecord.ByCreatedAt(sql.OrderDesc())).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return records, nil
+}
+
+func (r *entProjectRepo) CountAuditsByProjectID(ctx context.Context, projectID string, since time.Time, until time.Time) (AuditCounts, error) {
+	base := []predicate.AuditRecord{
+		auditrecord.ProjectIDEQ(projectID),
+		auditrecord.CreatedAtGTE(since),
+		auditrecord.CreatedAtLT(until),
+	}
+
+	total, err := r.client.AuditRecord.Query().Where(base...).Count(ctx)
+	if err != nil {
+		return AuditCounts{}, err
+	}
+
+	successful, err := r.client.AuditRecord.Query().Where(append(base, auditrecord.ValidatedEQ(true))...).Count(ctx)
+	if err != nil {
+		return AuditCounts{}, err
+	}
+
+	return AuditCounts{
+		Total:      total,
+		Successful: successful,
+		Failed:     total - successful,
+	}, nil
 }

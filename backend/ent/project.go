@@ -41,9 +41,11 @@ type ProjectEdges struct {
 	APIKeys []*ApiKey `json:"api_keys,omitempty"`
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
+	// UserMetas holds the value of the user_metas edge.
+	UserMetas []*UserMeta `json:"user_metas,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // ActionsOrErr returns the Actions value or an error if the edge
@@ -73,6 +75,15 @@ func (e ProjectEdges) UserOrErr() (*User, error) {
 		return nil, &NotFoundError{label: user.Label}
 	}
 	return nil, &NotLoadedError{edge: "user"}
+}
+
+// UserMetasOrErr returns the UserMetas value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProjectEdges) UserMetasOrErr() ([]*UserMeta, error) {
+	if e.loadedTypes[3] {
+		return e.UserMetas, nil
+	}
+	return nil, &NotLoadedError{edge: "user_metas"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -164,6 +175,11 @@ func (_m *Project) QueryAPIKeys() *ApiKeyQuery {
 // QueryUser queries the "user" edge of the Project entity.
 func (_m *Project) QueryUser() *UserQuery {
 	return NewProjectClient(_m.config).QueryUser(_m)
+}
+
+// QueryUserMetas queries the "user_metas" edge of the Project entity.
+func (_m *Project) QueryUserMetas() *UserMetaQuery {
+	return NewProjectClient(_m.config).QueryUserMetas(_m)
 }
 
 // Update returns a builder for updating this Project.

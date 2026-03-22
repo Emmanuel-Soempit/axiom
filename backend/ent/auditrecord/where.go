@@ -390,6 +390,16 @@ func ValidatedNEQ(v bool) predicate.AuditRecord {
 	return predicate.AuditRecord(sql.FieldNEQ(FieldValidated, v))
 }
 
+// ValidationErrorsIsNil applies the IsNil predicate on the "validation_errors" field.
+func ValidationErrorsIsNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIsNull(FieldValidationErrors))
+}
+
+// ValidationErrorsNotNil applies the NotNil predicate on the "validation_errors" field.
+func ValidationErrorsNotNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotNull(FieldValidationErrors))
+}
+
 // FinalResponseIsNil applies the IsNil predicate on the "final_response" field.
 func FinalResponseIsNil() predicate.AuditRecord {
 	return predicate.AuditRecord(sql.FieldIsNull(FieldFinalResponse))

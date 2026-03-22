@@ -36,6 +36,8 @@ type AuditRecord struct {
 	ProposedAction map[string]interface{} `json:"proposed_action,omitempty"`
 	// Validated holds the value of the "validated" field.
 	Validated bool `json:"validated,omitempty"`
+	// ValidationErrors holds the value of the "validation_errors" field.
+	ValidationErrors []string `json:"validation_errors,omitempty"`
 	// FinalResponse holds the value of the "final_response" field.
 	FinalResponse map[string]interface{} `json:"final_response,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -82,7 +84,7 @@ func (*AuditRecord) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case auditrecord.FieldProposedAction, auditrecord.FieldFinalResponse:
+		case auditrecord.FieldProposedAction, auditrecord.FieldValidationErrors, auditrecord.FieldFinalResponse:
 			values[i] = new([]byte)
 		case auditrecord.FieldValidated:
 			values[i] = new(sql.NullBool)
@@ -163,6 +165,14 @@ func (_m *AuditRecord) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Validated = value.Bool
 			}
+		case auditrecord.FieldValidationErrors:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field validation_errors", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.ValidationErrors); err != nil {
+					return fmt.Errorf("unmarshal field validation_errors: %w", err)
+				}
+			}
 		case auditrecord.FieldFinalResponse:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field final_response", values[i])
@@ -240,6 +250,9 @@ func (_m *AuditRecord) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("validated=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Validated))
+	builder.WriteString(", ")
+	builder.WriteString("validation_errors=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ValidationErrors))
 	builder.WriteString(", ")
 	builder.WriteString("final_response=")
 	builder.WriteString(fmt.Sprintf("%v", _m.FinalResponse))

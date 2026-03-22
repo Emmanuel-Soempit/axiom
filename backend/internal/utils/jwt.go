@@ -2,7 +2,7 @@ package utils
 
 import (
 	"errors"
-	"go-backend-template/ent"
+	"go-backend-template/internal/api/auth/dtos"
 	"log"
 	"os"
 	"time"
@@ -10,11 +10,12 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func GenerateJwtToken(user *ent.User) (string, error) {
+func GenerateJwtToken(user *dtos.UserDTO) (string, error) {
 	claims := jwt.MapClaims{
-		"user": user,
-		"role": user.Edges.Role.Name,
-		"exp":  time.Now().Add(time.Hour * 72).Unix(),
+		"user":    user,
+		"role":    user.Role,
+		"exp":     time.Now().Add(time.Hour * 72).Unix(),
+		"project": user.Project,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

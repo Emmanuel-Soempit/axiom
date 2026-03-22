@@ -49,5 +49,7 @@ func (User) Edges() []ent.Edge {
 			Unique(),
 		edge.To("projects", Project.Type),
 		edge.To("created_api_keys", ApiKey.Type),
+		edge.To("meta", UserMeta.Type).
+			Unique(),
 	}
 }

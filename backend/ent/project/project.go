@@ -28,6 +28,8 @@ const (
 	EdgeAPIKeys = "api_keys"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
+	// EdgeUserMetas holds the string denoting the user_metas edge name in mutations.
+	EdgeUserMetas = "user_metas"
 	// Table holds the table name of the project in the database.
 	Table = "projects"
 	// ActionsTable is the table that holds the actions relation/edge.
@@ -51,6 +53,13 @@ const (
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
 	UserColumn = "user_projects"
+	// UserMetasTable is the table that holds the user_metas relation/edge.
+	UserMetasTable = "user_meta"
+	// UserMetasInverseTable is the table name for the UserMeta entity.
+	// It exists in this package in order to avoid circular dependency with the "usermeta" package.
+	UserMetasInverseTable = "user_meta"
+	// UserMetasColumn is the table column denoting the user_metas relation/edge.
+	UserMetasColumn = "last_active_project"
 )
 
 // Columns holds all SQL columns for project fields.
@@ -154,6 +163,20 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByUserMetasCount orders the results by user_metas count.
+func ByUserMetasCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newUserMetasStep(), opts...)
+	}
+}
+
+// ByUserMetas orders the results by user_metas terms.
+func ByUserMetas(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUserMetasStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newActionsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -173,5 +196,12 @@ func newUserStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+	)
+}
+func newUserMetasStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UserMetasInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, UserMetasTable, UserMetasColumn),
 	)
 }

@@ -10,6 +10,7 @@ import (
 	"go-backend-template/ent/auditrecord"
 	"go-backend-template/ent/predicate"
 	"go-backend-template/ent/project"
+	"go-backend-template/internal/core/registry/dtos"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -79,14 +80,8 @@ func (_u *ActionModelUpdate) SetNillableDescription(v *string) *ActionModelUpdat
 }
 
 // SetParameters sets the "parameters" field.
-func (_u *ActionModelUpdate) SetParameters(v map[string]interface{}) *ActionModelUpdate {
+func (_u *ActionModelUpdate) SetParameters(v map[string]*dtos.ParameterSchema) *ActionModelUpdate {
 	_u.mutation.SetParameters(v)
-	return _u
-}
-
-// SetRules sets the "rules" field.
-func (_u *ActionModelUpdate) SetRules(v map[string]interface{}) *ActionModelUpdate {
-	_u.mutation.SetRules(v)
 	return _u
 }
 
@@ -251,9 +246,6 @@ func (_u *ActionModelUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.Parameters(); ok {
 		_spec.SetField(actionmodel.FieldParameters, field.TypeJSON, value)
 	}
-	if value, ok := _u.mutation.Rules(); ok {
-		_spec.SetField(actionmodel.FieldRules, field.TypeJSON, value)
-	}
 	if value, ok := _u.mutation.RequiredFeature(); ok {
 		_spec.SetField(actionmodel.FieldRequiredFeature, field.TypeString, value)
 	}
@@ -409,14 +401,8 @@ func (_u *ActionModelUpdateOne) SetNillableDescription(v *string) *ActionModelUp
 }
 
 // SetParameters sets the "parameters" field.
-func (_u *ActionModelUpdateOne) SetParameters(v map[string]interface{}) *ActionModelUpdateOne {
+func (_u *ActionModelUpdateOne) SetParameters(v map[string]*dtos.ParameterSchema) *ActionModelUpdateOne {
 	_u.mutation.SetParameters(v)
-	return _u
-}
-
-// SetRules sets the "rules" field.
-func (_u *ActionModelUpdateOne) SetRules(v map[string]interface{}) *ActionModelUpdateOne {
-	_u.mutation.SetRules(v)
 	return _u
 }
 
@@ -610,9 +596,6 @@ func (_u *ActionModelUpdateOne) sqlSave(ctx context.Context) (_node *ActionModel
 	}
 	if value, ok := _u.mutation.Parameters(); ok {
 		_spec.SetField(actionmodel.FieldParameters, field.TypeJSON, value)
-	}
-	if value, ok := _u.mutation.Rules(); ok {
-		_spec.SetField(actionmodel.FieldRules, field.TypeJSON, value)
 	}
 	if value, ok := _u.mutation.RequiredFeature(); ok {
 		_spec.SetField(actionmodel.FieldRequiredFeature, field.TypeString, value)

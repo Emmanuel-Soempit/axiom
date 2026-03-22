@@ -30,6 +30,8 @@ const (
 	FieldProposedAction = "proposed_action"
 	// FieldValidated holds the string denoting the validated field in the database.
 	FieldValidated = "validated"
+	// FieldValidationErrors holds the string denoting the validation_errors field in the database.
+	FieldValidationErrors = "validation_errors"
 	// FieldFinalResponse holds the string denoting the final_response field in the database.
 	FieldFinalResponse = "final_response"
 	// EdgeUser holds the string denoting the user edge name in mutations.
@@ -65,6 +67,7 @@ var Columns = []string{
 	FieldPrompt,
 	FieldProposedAction,
 	FieldValidated,
+	FieldValidationErrors,
 	FieldFinalResponse,
 }
 

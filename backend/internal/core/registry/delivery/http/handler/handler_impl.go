@@ -19,13 +19,27 @@ func NewRegistryHandler(uc usecase.RegistryUsecase) RegistryHandler {
 	}
 }
 
+func (h *registryHandler) getProjectID(ctx *fiber.Ctx) string {
+	projectMap, ok := ctx.Locals("project").(map[string]interface{})
+	if !ok {
+		return ""
+	}
+	id, _ := projectMap["id"].(string)
+	return id
+}
+
 func (h *registryHandler) CreateAction(c *fiber.Ctx) error {
+	projectID := h.getProjectID(c)
+	if projectID == "" {
+		return utils.Failed(c, "No active project found in session", "")
+	}
+
 	var payload dtos.CreateActionRequest
 	if err := c.BodyParser(&payload); err != nil {
 		return utils.Failed(c, "Invalid request body", err.Error())
 	}
 
-	res, err := h.usecase.CreateAction(c.Context(), payload)
+	res, err := h.usecase.CreateAction(c.Context(), projectID, payload)
 	if err != nil {
 		return utils.InternalError(c, "Failed to create action", err.Error())
 	}
@@ -34,12 +48,17 @@ func (h *registryHandler) CreateAction(c *fiber.Ctx) error {
 }
 
 func (h *registryHandler) GetAction(c *fiber.Ctx) error {
+	projectID := h.getProjectID(c)
+	if projectID == "" {
+		return utils.Failed(c, "No active project found in session", "")
+	}
+
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return utils.Failed(c, "Invalid ID format", err.Error())
 	}
 
-	res, err := h.usecase.GetAction(c.Context(), id)
+	res, err := h.usecase.GetAction(c.Context(), projectID, id)
 	if err != nil {
 		return utils.NotFound(c, "Action not found")
 	}
@@ -57,7 +76,7 @@ func (h *registryHandler) ListActions(c *fiber.Ctx) error {
 }
 
 func (h *registryHandler) ListActionsByProject(c *fiber.Ctx) error {
-	projectID := c.Params("projectId")
+	projectID := h.getProjectID(c)
 	if projectID == "" {
 		return utils.Failed(c, "projectID is required", nil)
 	}
@@ -71,6 +90,11 @@ func (h *registryHandler) ListActionsByProject(c *fiber.Ctx) error {
 }
 
 func (h *registryHandler) UpdateAction(c *fiber.Ctx) error {
+	projectID := h.getProjectID(c)
+	if projectID == "" {
+		return utils.Failed(c, "No active project found in session", "")
+	}
+
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return utils.Failed(c, "Invalid ID format", err.Error())
@@ -81,7 +105,7 @@ func (h *registryHandler) UpdateAction(c *fiber.Ctx) error {
 		return utils.Failed(c, "Invalid request body", err.Error())
 	}
 
-	res, err := h.usecase.UpdateAction(c.Context(), id, payload)
+	res, err := h.usecase.UpdateAction(c.Context(), projectID, id, payload)
 	if err != nil {
 		return utils.InternalError(c, "Failed to update action", err.Error())
 	}
@@ -90,12 +114,17 @@ func (h *registryHandler) UpdateAction(c *fiber.Ctx) error {
 }
 
 func (h *registryHandler) DeleteAction(c *fiber.Ctx) error {
+	projectID := h.getProjectID(c)
+	if projectID == "" {
+		return utils.Failed(c, "No active project found in session", "")
+	}
+
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return utils.Failed(c, "Invalid ID format", err.Error())
 	}
 
-	if err := h.usecase.DeleteAction(c.Context(), id); err != nil {
+	if err := h.usecase.DeleteAction(c.Context(), projectID, id); err != nil {
 		return utils.InternalError(c, "Failed to delete action", err.Error())
 	}
 

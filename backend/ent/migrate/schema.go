@@ -16,7 +16,6 @@ var (
 		{Name: "name", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString},
 		{Name: "parameters", Type: field.TypeJSON},
-		{Name: "rules", Type: field.TypeJSON},
 		{Name: "required_feature", Type: field.TypeString, Nullable: true},
 		{Name: "version", Type: field.TypeInt, Default: 1},
 		{Name: "project_id", Type: field.TypeString},
@@ -29,7 +28,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "action_models_projects_actions",
-				Columns:    []*schema.Column{ActionModelsColumns[9]},
+				Columns:    []*schema.Column{ActionModelsColumns[8]},
 				RefColumns: []*schema.Column{ProjectsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -41,7 +40,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name", Type: field.TypeString},
-		{Name: "key_prefix", Type: field.TypeString, Unique: true},
+		{Name: "key_prefix", Type: field.TypeString},
 		{Name: "key_hash", Type: field.TypeString},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "revoked"}, Default: "active"},
 		{Name: "last_used_at", Type: field.TypeTime, Nullable: true},
@@ -78,6 +77,7 @@ var (
 		{Name: "prompt", Type: field.TypeString, Size: 2147483647},
 		{Name: "proposed_action", Type: field.TypeJSON, Nullable: true},
 		{Name: "validated", Type: field.TypeBool, Default: false},
+		{Name: "validation_errors", Type: field.TypeJSON, Nullable: true},
 		{Name: "final_response", Type: field.TypeJSON, Nullable: true},
 		{Name: "action_id", Type: field.TypeInt, Nullable: true},
 		{Name: "user_id", Type: field.TypeInt, Nullable: true},
@@ -90,13 +90,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "audit_records_action_models_audit_records",
-				Columns:    []*schema.Column{AuditRecordsColumns[8]},
+				Columns:    []*schema.Column{AuditRecordsColumns[9]},
 				RefColumns: []*schema.Column{ActionModelsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "audit_records_users_audit_records",
-				Columns:    []*schema.Column{AuditRecordsColumns[9]},
+				Columns:    []*schema.Column{AuditRecordsColumns[10]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -189,6 +189,35 @@ var (
 			},
 		},
 	}
+	// UserMetaColumns holds the columns for the "user_meta" table.
+	UserMetaColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "last_logged_in", Type: field.TypeTime, Nullable: true},
+		{Name: "last_active_project", Type: field.TypeString, Nullable: true},
+		{Name: "user_id", Type: field.TypeInt, Unique: true},
+	}
+	// UserMetaTable holds the schema information for the "user_meta" table.
+	UserMetaTable = &schema.Table{
+		Name:       "user_meta",
+		Columns:    UserMetaColumns,
+		PrimaryKey: []*schema.Column{UserMetaColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_meta_projects_user_metas",
+				Columns:    []*schema.Column{UserMetaColumns[4]},
+				RefColumns: []*schema.Column{ProjectsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "user_meta_users_meta",
+				Columns:    []*schema.Column{UserMetaColumns[5]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// UserPasswordSecretsColumns holds the columns for the "user_password_secrets" table.
 	UserPasswordSecretsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -220,6 +249,7 @@ var (
 		RolesTable,
 		UsersTable,
 		UserInvitationsTable,
+		UserMetaTable,
 		UserPasswordSecretsTable,
 	}
 )
@@ -233,5 +263,7 @@ func init() {
 	ProjectsTable.ForeignKeys[0].RefTable = UsersTable
 	UsersTable.ForeignKeys[0].RefTable = RolesTable
 	UserInvitationsTable.ForeignKeys[0].RefTable = UsersTable
+	UserMetaTable.ForeignKeys[0].RefTable = ProjectsTable
+	UserMetaTable.ForeignKeys[1].RefTable = UsersTable
 	UserPasswordSecretsTable.ForeignKeys[0].RefTable = UsersTable
 }

@@ -25,7 +25,7 @@ func (h *engineHandler) ProcessIntent(c *fiber.Ctx) error {
 	}
 
 	// In a real app, we might get ProjectID from context/auth
-	resp, err := h.engine.Process(c.Context(), payload.Prompt, payload.ProjectID)
+	resp, err := h.engine.Process(c.Context(), payload.Prompt, c.Locals("project_id").(string))
 	if err != nil {
 		return utils.InternalError(c, "Failed to process intent", err.Error())
 	}

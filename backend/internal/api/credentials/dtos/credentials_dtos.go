@@ -2,7 +2,6 @@ package dtos
 
 type CreateApiKeyPayload struct {
 	Name      string  `json:"name" validate:"required"`
-	ProjectID string  `json:"project_id" validate:"required"`
 	ExpiresAt *string `json:"expires_at" validate:"required"` // RFC3339 string
 }
 

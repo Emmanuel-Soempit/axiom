@@ -11,4 +11,5 @@ type ProjectUsecase interface {
 	GetProjectByID(ctx context.Context, userID int, id string) (*dtos.ProjectResponse, error)
 	UpdateProject(ctx context.Context, userID int, id string, payload dtos.UpdateProjectPayload) (*dtos.ProjectResponse, error)
 	DeleteProject(ctx context.Context, userID int, id string) error
+	GetAuditsByProject(ctx context.Context, projectID string) (*dtos.AuditOverviewResponse, error)
 }

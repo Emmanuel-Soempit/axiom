@@ -65,3 +65,44 @@ func (h *Handler) RegisterHandler(ctx *fiber.Ctx) error {
 	})
 
 }
+
+func (h *Handler) SwitchProjectHandler(ctx *fiber.Ctx) error {
+	payload := new(dtos.SwitchProjectPayload)
+	if err := ctx.BodyParser(payload); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request payload",
+		})
+	}
+
+	// Extract user ID from context locals (set by JWT middleware)
+	userMap, ok := ctx.Locals("user").(map[string]interface{})
+	if !ok {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	// Safely check if the user is already in the target project
+	projectMap, hasProject := ctx.Locals("project").(map[string]interface{})
+	if hasProject && projectMap != nil {
+		if currentProjectID, ok := projectMap["id"].(string); ok && currentProjectID == payload.ProjectID {
+			return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "You are already in this project",
+			})
+		}
+	}
+
+	userID := int(userMap["id"].(float64))
+
+	data, err := h.authUc.SwitchProject(ctx.Context(), userID, payload.ProjectID)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Project switched successfully",
+		"data":    data,
+	})
+}

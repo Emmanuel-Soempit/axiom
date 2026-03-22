@@ -11,6 +11,7 @@ import (
 	"go-backend-template/ent/schema"
 	"go-backend-template/ent/user"
 	"go-backend-template/ent/userinvitation"
+	"go-backend-template/ent/usermeta"
 	"go-backend-template/ent/userpasswordsecret"
 	"time"
 
@@ -37,7 +38,7 @@ func init() {
 	// actionmodel.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	actionmodel.UpdateDefaultUpdatedAt = actionmodelDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// actionmodelDescVersion is the schema descriptor for version field.
-	actionmodelDescVersion := actionmodelFields[6].Descriptor()
+	actionmodelDescVersion := actionmodelFields[5].Descriptor()
 	// actionmodel.DefaultVersion holds the default value on creation for the version field.
 	actionmodel.DefaultVersion = actionmodelDescVersion.Default.(int)
 	apikeyMixin := schema.ApiKey{}.Mixin()
@@ -150,6 +151,21 @@ func init() {
 	userinvitation.DefaultUpdatedAt = userinvitationDescUpdatedAt.Default.(func() time.Time)
 	// userinvitation.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	userinvitation.UpdateDefaultUpdatedAt = userinvitationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	usermetaMixin := schema.UserMeta{}.Mixin()
+	usermetaMixinFields0 := usermetaMixin[0].Fields()
+	_ = usermetaMixinFields0
+	usermetaFields := schema.UserMeta{}.Fields()
+	_ = usermetaFields
+	// usermetaDescCreatedAt is the schema descriptor for created_at field.
+	usermetaDescCreatedAt := usermetaMixinFields0[0].Descriptor()
+	// usermeta.DefaultCreatedAt holds the default value on creation for the created_at field.
+	usermeta.DefaultCreatedAt = usermetaDescCreatedAt.Default.(func() time.Time)
+	// usermetaDescUpdatedAt is the schema descriptor for updated_at field.
+	usermetaDescUpdatedAt := usermetaMixinFields0[1].Descriptor()
+	// usermeta.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	usermeta.DefaultUpdatedAt = usermetaDescUpdatedAt.Default.(func() time.Time)
+	// usermeta.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	usermeta.UpdateDefaultUpdatedAt = usermetaDescUpdatedAt.UpdateDefault.(func() time.Time)
 	userpasswordsecretMixin := schema.UserPasswordSecret{}.Mixin()
 	userpasswordsecretMixinFields0 := userpasswordsecretMixin[0].Fields()
 	_ = userpasswordsecretMixinFields0

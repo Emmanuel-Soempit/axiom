@@ -1,0 +1,191 @@
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Create New Project - EAC</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#1919e6",
+              "background-light": "#f6f6f8",
+              "background-dark": "#111121",
+            },
+            fontFamily: {
+              display: ["Inter"],
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col"
+  >
+    <!-- Top Navigation Bar -->
+    <header
+      class="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark px-6 md:px-10 py-3"
+    >
+      <div class="flex items-center gap-3">
+        <div class="size-8 text-primary">
+          <svg
+            fill="currentColor"
+            viewbox="0 0 48 48"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              clip-rule="evenodd"
+              d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z"
+              fill-rule="evenodd"
+            ></path>
+          </svg>
+        </div>
+        <h2
+          class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight"
+        >
+          EAC
+        </h2>
+      </div>
+      <div class="flex items-center gap-4">
+        <button
+          class="p-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
+        >
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <div
+          class="bg-primary/10 rounded-full border border-primary/20 flex items-center justify-center size-9"
+        >
+          <span class="text-primary font-bold text-xs">JD</span>
+        </div>
+      </div>
+    </header>
+    <!-- Main Content Area -->
+    <main class="flex-1 flex items-center justify-center p-6">
+      <div
+        class="w-full max-w-[520px] bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
+      >
+        <!-- Modal Header -->
+        <div class="px-8 pt-8 pb-4">
+          <div class="flex items-center gap-3 mb-6">
+            <div
+              class="size-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary"
+            >
+              <span class="material-symbols-outlined">add_box</span>
+            </div>
+            <div>
+              <h1
+                class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white"
+              >
+                Create New Project
+              </h1>
+              <p class="text-slate-500 dark:text-slate-400 text-sm">
+                Spin up a new development environment instantly.
+              </p>
+            </div>
+          </div>
+        </div>
+        <!-- Form Body -->
+        <div class="px-8 py-4 space-y-6">
+          <div>
+            <label
+              class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2"
+              for="project-name"
+            >
+              Project Name
+            </label>
+            <div class="relative group">
+              <input
+                class="block w-full rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-3.5 px-4 text-slate-900 dark:text-white placeholder-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-base outline-none"
+                id="project-name"
+                placeholder="e.g. Test Project"
+                type="text"
+              />
+            </div>
+            <p
+              class="mt-2 text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1"
+            >
+              <span class="material-symbols-outlined text-sm">info</span>
+              Names must be unique within your organization.
+            </p>
+          </div>
+          <!-- Advanced Options Placeholder (Developer Aesthetic) -->
+          <div
+            class="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-100 dark:border-slate-800"
+          >
+            <div class="flex items-center justify-between cursor-pointer group">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-slate-400 text-sm"
+                  >settings</span
+                >
+                <span
+                  class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider"
+                  >Advanced Settings</span
+                >
+              </div>
+              <span
+                class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors"
+                >expand_more</span
+              >
+            </div>
+          </div>
+        </div>
+        <!-- Modal Footer -->
+        <div
+          class="px-8 py-6 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-3"
+        >
+          <button
+            class="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3.5 px-6 rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+          >
+            <span>Create Project</span>
+            <span class="material-symbols-outlined text-sm">rocket_launch</span>
+          </button>
+          <button
+            class="w-full bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold py-3 px-6 rounded-lg transition-all text-sm"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    </main>
+    <!-- Footer Help -->
+    <footer class="py-6 flex justify-center items-center gap-6">
+      <a
+        class="text-xs font-medium text-slate-400 hover:text-primary transition-colors flex items-center gap-1"
+        href="#"
+      >
+        <span class="material-symbols-outlined text-base">help</span>
+        Documentation
+      </a>
+      <a
+        class="text-xs font-medium text-slate-400 hover:text-primary transition-colors flex items-center gap-1"
+        href="#"
+      >
+        <span class="material-symbols-outlined text-base">terminal</span>
+        API Support
+      </a>
+    </footer>
+  </body>
+</html>

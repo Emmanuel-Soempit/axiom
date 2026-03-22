@@ -43,6 +43,8 @@ const (
 	EdgeProjects = "projects"
 	// EdgeCreatedAPIKeys holds the string denoting the created_api_keys edge name in mutations.
 	EdgeCreatedAPIKeys = "created_api_keys"
+	// EdgeMeta holds the string denoting the meta edge name in mutations.
+	EdgeMeta = "meta"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// RoleTable is the table that holds the role relation/edge.
@@ -87,6 +89,13 @@ const (
 	CreatedAPIKeysInverseTable = "api_keys"
 	// CreatedAPIKeysColumn is the table column denoting the created_api_keys relation/edge.
 	CreatedAPIKeysColumn = "created_by"
+	// MetaTable is the table that holds the meta relation/edge.
+	MetaTable = "user_meta"
+	// MetaInverseTable is the table name for the UserMeta entity.
+	// It exists in this package in order to avoid circular dependency with the "usermeta" package.
+	MetaInverseTable = "user_meta"
+	// MetaColumn is the table column denoting the meta relation/edge.
+	MetaColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -281,6 +290,13 @@ func ByCreatedAPIKeys(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newCreatedAPIKeysStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByMetaField orders the results by meta field.
+func ByMetaField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMetaStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newRoleStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -321,5 +337,12 @@ func newCreatedAPIKeysStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CreatedAPIKeysInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, CreatedAPIKeysTable, CreatedAPIKeysColumn),
+	)
+}
+func newMetaStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MetaInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, MetaTable, MetaColumn),
 	)
 }

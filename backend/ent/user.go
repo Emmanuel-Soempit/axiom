@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"go-backend-template/ent/role"
 	"go-backend-template/ent/user"
+	"go-backend-template/ent/usermeta"
 	"go-backend-template/ent/userpasswordsecret"
 	"strings"
 	"time"
@@ -56,9 +57,11 @@ type UserEdges struct {
 	Projects []*Project `json:"projects,omitempty"`
 	// CreatedAPIKeys holds the value of the created_api_keys edge.
 	CreatedAPIKeys []*ApiKey `json:"created_api_keys,omitempty"`
+	// Meta holds the value of the meta edge.
+	Meta *UserMeta `json:"meta,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [6]bool
+	loadedTypes [7]bool
 }
 
 // RoleOrErr returns the Role value or an error if the edge
@@ -117,6 +120,17 @@ func (e UserEdges) CreatedAPIKeysOrErr() ([]*ApiKey, error) {
 		return e.CreatedAPIKeys, nil
 	}
 	return nil, &NotLoadedError{edge: "created_api_keys"}
+}
+
+// MetaOrErr returns the Meta value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) MetaOrErr() (*UserMeta, error) {
+	if e.Meta != nil {
+		return e.Meta, nil
+	} else if e.loadedTypes[6] {
+		return nil, &NotFoundError{label: usermeta.Label}
+	}
+	return nil, &NotLoadedError{edge: "meta"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -251,6 +265,11 @@ func (_m *User) QueryProjects() *ProjectQuery {
 // QueryCreatedAPIKeys queries the "created_api_keys" edge of the User entity.
 func (_m *User) QueryCreatedAPIKeys() *ApiKeyQuery {
 	return NewUserClient(_m.config).QueryCreatedAPIKeys(_m)
+}
+
+// QueryMeta queries the "meta" edge of the User entity.
+func (_m *User) QueryMeta() *UserMetaQuery {
+	return NewUserClient(_m.config).QueryMeta(_m)
 }
 
 // Update returns a builder for updating this User.

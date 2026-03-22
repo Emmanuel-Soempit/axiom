@@ -31,7 +31,9 @@ func CheckJwtToken(ctx *fiber.Ctx) error {
 	}
 
 	// Optionally, set claims in context locals for downstream handlers
-	ctx.Locals("user", claims)
+	ctx.Locals("user", claims["user"])
+	ctx.Locals("role", claims["role"])
+	ctx.Locals("project", claims["project"])
 
 	return ctx.Next()
 }

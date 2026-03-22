@@ -27,9 +27,7 @@ func (ApiKey) Fields() []ent.Field {
 			Immutable(),
 		field.String("name"),
 		field.String("project_id"),
-		field.String("key_prefix").
-			Unique().
-			Immutable(),
+		field.String("key_prefix").Immutable(),
 		field.String("key_hash").
 			Sensitive(),
 		field.Enum("status").

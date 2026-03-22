@@ -19,7 +19,7 @@ func RegisterCredentialsRoutes(router fiber.Router, client *ent.Client) {
 	credentialsGroup := router.Group("/credentials", middleware.CheckJwtToken)
 
 	// Project-specific keys
-	credentialsGroup.Get("/projects/:projectId/keys", h.GetProjectKeys)
+	credentialsGroup.Get("/keys", h.GetProjectKeys)
 	credentialsGroup.Post("/keys", h.CreateKey)
 	credentialsGroup.Patch("/keys/:id/revoke", h.RevokeKey)
 	credentialsGroup.Delete("/keys/:id", h.DeleteKey)

@@ -26,8 +26,6 @@ const (
 	FieldDescription = "description"
 	// FieldParameters holds the string denoting the parameters field in the database.
 	FieldParameters = "parameters"
-	// FieldRules holds the string denoting the rules field in the database.
-	FieldRules = "rules"
 	// FieldRequiredFeature holds the string denoting the required_feature field in the database.
 	FieldRequiredFeature = "required_feature"
 	// FieldVersion holds the string denoting the version field in the database.
@@ -63,7 +61,6 @@ var Columns = []string{
 	FieldName,
 	FieldDescription,
 	FieldParameters,
-	FieldRules,
 	FieldRequiredFeature,
 	FieldVersion,
 }

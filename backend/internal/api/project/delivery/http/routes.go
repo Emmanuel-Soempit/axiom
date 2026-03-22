@@ -18,8 +18,9 @@ func RegisterProjectRoutes(router fiber.Router, client *ent.Client) {
 
 	projectGroup := router.Group("/projects", middleware.CheckJwtToken)
 	projectGroup.Post("/", h.CreateProject)
-	projectGroup.Get("/", h.GetProjects)
-	projectGroup.Get("/:id", h.GetProjectByID)
-	projectGroup.Put("/:id", h.UpdateProject)
-	projectGroup.Delete("/:id", h.DeleteProject)
+	projectGroup.Get("/all", h.GetProjects)
+	projectGroup.Get("/", h.GetProjectByID)
+	projectGroup.Put("/", h.UpdateProject)
+	projectGroup.Delete("/me", h.DeleteProject)
+	projectGroup.Get("/audits", h.GetAuditsByProject)
 }

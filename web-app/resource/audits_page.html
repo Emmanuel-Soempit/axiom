@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1919e6",
+                        "background-light": "#f6f7f9",
+                        "background-dark": "#111121",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-white text-slate-900 antialiased min-h-screen">
+<div class="flex flex-col h-screen">
+<header class="flex items-center justify-between border-b border-slate-200 px-6 py-3 bg-white sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined font-bold">terminal</span>
+</div>
+<h2 class="text-lg font-bold tracking-tight">EAC Dashboard</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="#">Projects</a>
+<a class="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="#">Deployments</a>
+<a class="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="#">Settings</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="bg-slate-100 dark:bg-slate-800 border-none rounded-lg py-1.5 pl-10 pr-4 text-sm w-64 focus:ring-1 focus:ring-primary transition-all" placeholder="Global Search..." type="text"/>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-lg">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white"></div>
+<span class="text-xs font-bold text-primary uppercase tracking-wider">Production API</span>
+</div>
+<div class="size-8 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden border border-slate-300 dark:border-slate-600">
+<img alt="User Profile" data-alt="Abstract colorful user profile avatar icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAn3mPzzentmU1miiitySmqacCXveVOKWH5NWX129kX7vHe4o1BAa8WelTK90smPVHP8goPK0T58qA8mj0HiqB5YNQ_7TGkVVnB6F3ZC-Rxv9lClEIUjSmpf6L90Y5PcAe8wBM1gmtrF-ES0KjvmtEX2KxT-acgSD9ZukBO1VuqztU7XKPR6xV2-od6Ldus8UDlIfkL7_AAuC57YpfBIf-I4QePE86RERj8WYgAS8aoRFcGES3VAhy4tb20LJ3w1ZDo_c1APn-vqVk"/>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<aside class="w-64 border-r border-slate-200 bg-white flex flex-col p-4 gap-2">
+<div class="mb-4">
+<p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Navigation</p>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl group-hover:text-primary">dashboard</span>
+<span class="text-sm font-medium">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl group-hover:text-primary">smart_toy</span>
+<span class="text-sm font-medium">Agents</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg transition-colors group border border-primary/20" href="#">
+<span class="material-symbols-outlined text-xl">history_edu</span>
+<span class="text-sm font-bold">Audits</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl group-hover:text-primary">list_alt</span>
+<span class="text-sm font-medium">Logs</span>
+</a>
+</div>
+<div class="mt-auto pt-4 border-t border-slate-200 dark:border-slate-800">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-xl group-hover:text-primary">shield</span>
+<span class="text-sm font-medium">Security</span>
+</a>
+<div class="mt-4 px-3">
+<div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+<p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Controller Version</p>
+<p class="text-xs font-mono text-primary">v2.4.1-stable</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 overflow-y-auto no-scrollbar flex flex-col bg-[#f6f7f9]">
+<div class="p-6 space-y-6 max-w-[1400px] mx-auto w-full">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="p-5 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<p class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Total Events</p>
+<span class="material-symbols-outlined text-primary text-xl">browse_activity</span>
+</div>
+<h3 class="text-2xl font-bold font-display">128,402</h3>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="text-emerald-500 text-xs font-bold">+12.4%</span>
+<span class="text-slate-400 text-[10px]">from last 24h</span>
+</div>
+</div>
+<div class="p-5 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<p class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Failed Validations</p>
+<span class="material-symbols-outlined text-red-400 text-xl">report</span>
+</div>
+<h3 class="text-2xl font-bold font-display">412</h3>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="text-red-400 text-xs font-bold">-5.2%</span>
+<span class="text-slate-400 text-[10px]">vs previous avg</span>
+</div>
+</div>
+<div class="p-5 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<p class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Avg Latency</p>
+<span class="material-symbols-outlined text-blue-400 text-xl">timer</span>
+</div>
+<h3 class="text-2xl font-bold font-display">84ms</h3>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="text-emerald-500 text-xs font-bold">-2.1%</span>
+<span class="text-slate-400 text-[10px]">optimization gain</span>
+</div>
+</div>
+</div>
+<div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+<div class="p-4 border-b border-slate-200 bg-slate-50/50 flex flex-wrap gap-4 items-center justify-between">
+<div class="flex flex-1 min-w-[300px] relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Filter audit logs by ID, action, or metadata..." type="text"/>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium hover:border-primary transition-all">
+                                    Action: All <span class="material-symbols-outlined text-base">expand_more</span>
+</button>
+<button class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium hover:border-primary transition-all">
+                                    Status: All <span class="material-symbols-outlined text-base">expand_more</span>
+</button>
+<button class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-medium hover:border-primary transition-all">
+                                    Date: Last 24h <span class="material-symbols-outlined text-base">expand_more</span>
+</button>
+<button class="p-2 bg-primary text-slate-900 rounded-lg hover:bg-primary/90">
+<span class="material-symbols-outlined text-base block">download</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-[11px] font-bold uppercase tracking-widest text-slate-500 border-b border-slate-200 bg-slate-50/80">
+<th class="px-6 py-4">Event Time</th>
+<th class="px-6 py-4">Action Executed</th>
+<th class="px-6 py-4">Source</th>
+<th class="px-6 py-4">Validation</th>
+<th class="px-6 py-4">Execution Status</th>
+<th class="px-6 py-4 text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-medium">2m ago</span>
+<span class="text-[10px] text-slate-500">14:23:45.021</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<code class="text-xs bg-slate-100 px-2 py-1 rounded text-primary font-medium">create_invoice</code>
+</td>
+<td class="px-6 py-4">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-slate-400">person</span>
+<span class="font-mono text-xs">user_882</span>
+</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-tighter"><span class="size-1.5 bg-emerald-500 rounded-full"></span>Schema Valid</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base">check_circle</span>
+<span class="font-medium">Completed</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-xs font-bold text-blue-500 hover:text-blue-600 px-3 py-1 bg-blue-500/10 rounded-lg transition-colors border border-blue-500/20">Inspect</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-medium">5m ago</span>
+<span class="text-[10px] text-slate-500">14:20:12.894</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<code class="text-xs bg-slate-100 px-2 py-1 rounded text-primary font-medium">update_user_permissions</code>
+</td>
+<td class="px-6 py-4">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-slate-400">person</span>
+<span class="font-mono text-xs">admin_001</span>
+</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 text-[10px] font-bold uppercase tracking-tighter">
+<span class="size-1 bg-red-500 rounded-full"></span>
+                                                Policy Violation
+                                            </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-red-400 text-base">block</span>
+<span class="font-medium">Blocked</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-xs font-bold text-blue-500 hover:text-blue-600 px-3 py-1 bg-blue-500/10 rounded-lg transition-colors border border-blue-500/20">Inspect</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-medium">12m ago</span>
+<span class="text-[10px] text-slate-500">14:13:02.112</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<code class="text-xs bg-slate-100 px-2 py-1 rounded text-primary font-medium">send_email</code>
+</td>
+<td class="px-6 py-4">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-slate-400">settings</span>
+<span class="font-mono text-xs">system_cron</span>
+</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-tighter"><span class="size-1.5 bg-emerald-500 rounded-full"></span>Schema Valid</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-400 text-base">pending</span>
+<span class="font-medium">Pending</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-xs font-bold text-blue-500 hover:text-blue-600 px-3 py-1 bg-blue-500/10 rounded-lg transition-colors border border-blue-500/20">Inspect</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-medium">15m ago</span>
+<span class="text-[10px] text-slate-500">14:10:55.332</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<code class="text-xs bg-slate-100 px-2 py-1 rounded text-primary font-medium">auth_refresh_token</code>
+</td>
+<td class="px-6 py-4">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-slate-400">person</span>
+<span class="font-mono text-xs">user_144</span>
+</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-tighter"><span class="size-1.5 bg-emerald-500 rounded-full"></span>Schema Valid</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base">check_circle</span>
+<span class="font-medium">Completed</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-xs font-bold text-blue-500 hover:text-blue-600 px-3 py-1 bg-blue-500/10 rounded-lg transition-colors border border-blue-500/20">Inspect</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-medium">21m ago</span>
+<span class="text-[10px] text-slate-500">14:04:11.009</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<code class="text-xs bg-slate-100 px-2 py-1 rounded text-primary font-medium">batch_update_products</code>
+</td>
+<td class="px-6 py-4">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-slate-400">settings</span>
+<span class="font-mono text-xs">service_api_v2</span>
+</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 text-[10px] font-bold uppercase tracking-tighter">
+<span class="size-1 bg-red-500 rounded-full"></span>
+                                                Format Error
+                                            </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-red-500 text-base">cancel</span>
+<span class="font-medium text-red-500">Failed</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-xs font-bold text-blue-500 hover:text-blue-600 px-3 py-1 bg-blue-500/10 rounded-lg transition-colors border border-blue-500/20">Inspect</button>
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+<div class="p-4 border-t border-slate-200 bg-slate-50/30 flex items-center justify-between">
+<span class="text-xs text-slate-500">Showing 1-10 of 128,402 events</span>
+<div class="flex gap-2">
+<button class="p-1.5 border border-slate-300 dark:border-slate-700 rounded hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-sm block">chevron_left</span>
+</button>
+<button class="px-3 py-1 border border-primary bg-primary/10 text-primary rounded text-xs font-bold">1</button>
+<button class="px-3 py-1 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-xs">2</button>
+<button class="px-3 py-1 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-xs">3</button>
+<span class="px-2 text-slate-400">...</span>
+<button class="px-3 py-1 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-xs">12,840</button>
+<button class="p-1.5 border border-slate-300 dark:border-slate-700 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+<span class="material-symbols-outlined text-sm block">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

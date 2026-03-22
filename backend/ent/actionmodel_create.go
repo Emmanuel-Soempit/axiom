@@ -9,6 +9,7 @@ import (
 	"go-backend-template/ent/actionmodel"
 	"go-backend-template/ent/auditrecord"
 	"go-backend-template/ent/project"
+	"go-backend-template/internal/core/registry/dtos"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -69,14 +70,8 @@ func (_c *ActionModelCreate) SetDescription(v string) *ActionModelCreate {
 }
 
 // SetParameters sets the "parameters" field.
-func (_c *ActionModelCreate) SetParameters(v map[string]interface{}) *ActionModelCreate {
+func (_c *ActionModelCreate) SetParameters(v map[string]*dtos.ParameterSchema) *ActionModelCreate {
 	_c.mutation.SetParameters(v)
-	return _c
-}
-
-// SetRules sets the "rules" field.
-func (_c *ActionModelCreate) SetRules(v map[string]interface{}) *ActionModelCreate {
-	_c.mutation.SetRules(v)
 	return _c
 }
 
@@ -197,9 +192,6 @@ func (_c *ActionModelCreate) check() error {
 	if _, ok := _c.mutation.Parameters(); !ok {
 		return &ValidationError{Name: "parameters", err: errors.New(`ent: missing required field "ActionModel.parameters"`)}
 	}
-	if _, ok := _c.mutation.Rules(); !ok {
-		return &ValidationError{Name: "rules", err: errors.New(`ent: missing required field "ActionModel.rules"`)}
-	}
 	if _, ok := _c.mutation.Version(); !ok {
 		return &ValidationError{Name: "version", err: errors.New(`ent: missing required field "ActionModel.version"`)}
 	}
@@ -251,10 +243,6 @@ func (_c *ActionModelCreate) createSpec() (*ActionModel, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Parameters(); ok {
 		_spec.SetField(actionmodel.FieldParameters, field.TypeJSON, value)
 		_node.Parameters = value
-	}
-	if value, ok := _c.mutation.Rules(); ok {
-		_spec.SetField(actionmodel.FieldRules, field.TypeJSON, value)
-		_node.Rules = value
 	}
 	if value, ok := _c.mutation.RequiredFeature(); ok {
 		_spec.SetField(actionmodel.FieldRequiredFeature, field.TypeString, value)

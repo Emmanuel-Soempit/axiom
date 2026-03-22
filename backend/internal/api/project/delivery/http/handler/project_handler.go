@@ -10,4 +10,5 @@ type ProjectHandler interface {
 	GetProjectByID(*fiber.Ctx) error
 	UpdateProject(*fiber.Ctx) error
 	DeleteProject(*fiber.Ctx) error
+	GetAuditsByProject(*fiber.Ctx) error
 }

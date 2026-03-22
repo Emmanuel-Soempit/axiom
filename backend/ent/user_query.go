@@ -13,6 +13,7 @@ import (
 	"go-backend-template/ent/role"
 	"go-backend-template/ent/user"
 	"go-backend-template/ent/userinvitation"
+	"go-backend-template/ent/usermeta"
 	"go-backend-template/ent/userpasswordsecret"
 	"math"
 
@@ -35,6 +36,7 @@ type UserQuery struct {
 	withPasswordSecret *UserPasswordSecretQuery
 	withProjects       *ProjectQuery
 	withCreatedAPIKeys *ApiKeyQuery
+	withMeta           *UserMetaQuery
 	withFKs            bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -197,6 +199,28 @@ func (_q *UserQuery) QueryCreatedAPIKeys() *ApiKeyQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(apikey.Table, apikey.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.CreatedAPIKeysTable, user.CreatedAPIKeysColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryMeta chains the current query on the "meta" edge.
+func (_q *UserQuery) QueryMeta() *UserMetaQuery {
+	query := (&UserMetaClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(usermeta.Table, usermeta.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, user.MetaTable, user.MetaColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -402,6 +426,7 @@ func (_q *UserQuery) Clone() *UserQuery {
 		withPasswordSecret: _q.withPasswordSecret.Clone(),
 		withProjects:       _q.withProjects.Clone(),
 		withCreatedAPIKeys: _q.withCreatedAPIKeys.Clone(),
+		withMeta:           _q.withMeta.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -471,6 +496,17 @@ func (_q *UserQuery) WithCreatedAPIKeys(opts ...func(*ApiKeyQuery)) *UserQuery {
 		opt(query)
 	}
 	_q.withCreatedAPIKeys = query
+	return _q
+}
+
+// WithMeta tells the query-builder to eager-load the nodes that are connected to
+// the "meta" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithMeta(opts ...func(*UserMetaQuery)) *UserQuery {
+	query := (&UserMetaClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withMeta = query
 	return _q
 }
 
@@ -553,13 +589,14 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		nodes       = []*User{}
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [6]bool{
+		loadedTypes = [7]bool{
 			_q.withRole != nil,
 			_q.withInvitations != nil,
 			_q.withAuditRecords != nil,
 			_q.withPasswordSecret != nil,
 			_q.withProjects != nil,
 			_q.withCreatedAPIKeys != nil,
+			_q.withMeta != nil,
 		}
 	)
 	if _q.withRole != nil {
@@ -623,6 +660,12 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := _q.loadCreatedAPIKeys(ctx, query, nodes,
 			func(n *User) { n.Edges.CreatedAPIKeys = []*ApiKey{} },
 			func(n *User, e *ApiKey) { n.Edges.CreatedAPIKeys = append(n.Edges.CreatedAPIKeys, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withMeta; query != nil {
+		if err := _q.loadMeta(ctx, query, nodes, nil,
+			func(n *User, e *UserMeta) { n.Edges.Meta = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -806,6 +849,33 @@ func (_q *UserQuery) loadCreatedAPIKeys(ctx context.Context, query *ApiKeyQuery,
 		node, ok := nodeids[fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "created_by" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadMeta(ctx context.Context, query *UserMetaQuery, nodes []*User, init func(*User), assign func(*User, *UserMeta)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(usermeta.FieldUserID)
+	}
+	query.Where(predicate.UserMeta(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.MetaColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
