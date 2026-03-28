@@ -138,7 +138,7 @@ jobs:
   # ─────────────────────────────────────────────
   deploy:
     name: Deploy to ${{ needs.set-env.outputs.environment }}
-    runs-on: [self-hosted, linux, eac-deploy]
+    runs-on: [self-hosted, linux]
     needs: [build, set-env]
     environment: ${{ needs.set-env.outputs.environment }}
 
