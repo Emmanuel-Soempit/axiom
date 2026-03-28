@@ -25,5 +25,6 @@ images:
   newTag: staging
 
 resources:
-- secrets/secrets.yaml
+- secrets/sealed-secrets.yaml
+- secrets/configmap.yaml
 - ../../ingress/staging-ingress.yaml

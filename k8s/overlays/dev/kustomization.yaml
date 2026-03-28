@@ -25,5 +25,6 @@ images:
   newTag: develop
 
 resources:
-- secrets/secrets.yaml
+- secrets/sealed-secrets.yaml
+- secrets/configmap.yaml
 - ../../ingress/dev-ingress.yaml

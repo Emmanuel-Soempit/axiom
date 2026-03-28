@@ -39,6 +39,13 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
+    - name: Create .env file
+      run: |
+        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+        echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" >> .env
+        echo "GROQ_API_URL=${{ secrets.GROQ_API_URL }}" >> .env
+
     - name: Build & push backend
       uses: docker/build-push-action@v5
       with:
