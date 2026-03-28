@@ -6,6 +6,16 @@ on:
       - main
       - staging
       - develop
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: "Environment to deploy"
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - production
 
 env:
   REGISTRY: ghcr.io
@@ -95,7 +105,21 @@ jobs:
     steps:
     - id: resolve
       run: |
-        if [[ "${{ github.ref_name }}" == "main" ]]; then
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          if [[ "${{ inputs.target_environment }}" == "production" ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "overlay=k8s/overlays/production" >> $GITHUB_OUTPUT
+            echo "namespace=eac-prod" >> $GITHUB_OUTPUT
+          elif [[ "${{ inputs.target_environment }}" == "staging" ]]; then
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "overlay=k8s/overlays/staging" >> $GITHUB_OUTPUT
+            echo "namespace=eac-staging" >> $GITHUB_OUTPUT
+          else
+            echo "environment=dev" >> $GITHUB_OUTPUT
+            echo "overlay=k8s/overlays/dev" >> $GITHUB_OUTPUT
+            echo "namespace=eac-dev" >> $GITHUB_OUTPUT
+          fi
+        elif [[ "${{ github.ref_name }}" == "main" ]]; then
           echo "environment=production" >> $GITHUB_OUTPUT
           echo "overlay=k8s/overlays/production" >> $GITHUB_OUTPUT
           echo "namespace=eac-prod" >> $GITHUB_OUTPUT
