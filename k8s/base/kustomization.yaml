@@ -10,4 +10,3 @@ resources:
 - frontend/service.yml
 - postgres/deployment.yml
 - postgres/service.yml
-- postgres/pvc.yml

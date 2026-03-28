@@ -44,5 +44,6 @@ spec:
             cpu: "500m"
       volumes:
       - name: postgres-data
-        persistentVolumeClaim:
-          claimName: postgres-pvc
+        hostPath:
+          path: /var/lib/eac/postgres
+          type: DirectoryOrCreate

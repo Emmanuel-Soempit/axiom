@@ -172,6 +172,14 @@ jobs:
     - name: Apply manifests
       run: kubectl apply -k ${{ needs.set-env.outputs.overlay }}
 
+    - name: Wait for postgres rollout (if present)
+      run: |
+        if kubectl get deployment/eac-postgres -n ${{ needs.set-env.outputs.namespace }} >/dev/null 2>&1; then
+          kubectl rollout status deployment/eac-postgres -n ${{ needs.set-env.outputs.namespace }} --timeout=300s
+        else
+          echo "eac-postgres deployment not found in this environment, skipping."
+        fi
+
     - name: Wait for backend rollout
       run: kubectl rollout status deployment/eac-backend -n ${{ needs.set-env.outputs.namespace }} --timeout=180s
 
