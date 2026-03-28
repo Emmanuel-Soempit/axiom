@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ghcr.io/Chigirlat/eac-frontend:latest
+        image: ghcr.io/emmanuel-soempit/eac-frontend:latest
         ports:
         - containerPort: 3000
         env:

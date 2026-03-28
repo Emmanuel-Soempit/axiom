@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ghcr.io/Chigirlat/eac-backend:latest  # set per overlay
+        image: ghcr.io/emmanuel-soempit/eac-backend:latest  # set per overlay
         ports:
         - containerPort: 3333
         env:

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: web-app
-        image: ghcr.io/Chigirlat/eac-web-app:latest
+        image: ghcr.io/emmanuel-soempit/eac-web-app:latest
         ports:
         - containerPort: 3001
         env:

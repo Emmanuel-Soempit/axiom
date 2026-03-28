@@ -17,11 +17,11 @@ replicas:
   count: 1
 
 images:
-- name: ghcr.io/Chigirlat/eac-backend
+- name: ghcr.io/emmanuel-soempit/eac-backend
   newTag: develop
-- name: ghcr.io/Chigirlat/eac-web-app
+- name: ghcr.io/emmanuel-soempit/eac-web-app
   newTag: develop
-- name: ghcr.io/Chigirlat/eac-frontend
+- name: ghcr.io/emmanuel-soempit/eac-frontend
   newTag: develop
 
 resources:
