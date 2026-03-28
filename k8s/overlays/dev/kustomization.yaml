@@ -27,4 +27,4 @@ images:
 resources:
 - secrets/sealed-secrets.yaml
 - secrets/configmap.yaml
-- ../../ingress/dev-ingress.yaml
+- ingress.yaml

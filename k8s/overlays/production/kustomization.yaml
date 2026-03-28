@@ -25,7 +25,7 @@ images:
 resources:
 - secrets/sealed-secrets.yaml
 - secrets/configmap.yaml
-- ../../ingress/prod-ingress.yaml
+- ingress.yaml
 
 # Production: remove in-cluster postgres — use managed DB (RDS, Supabase, etc.)
 patches:
