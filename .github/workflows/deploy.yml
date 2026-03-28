@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}
+  IMAGE_PREFIX: ${{ secrets.IMAGE_PREFIX || 'ghcr.io/emmanuel-soempit' }}
 
 jobs:
   # ─────────────────────────────────────────────
