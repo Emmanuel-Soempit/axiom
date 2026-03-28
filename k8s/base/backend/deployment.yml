@@ -23,6 +23,11 @@ spec:
             secretKeyRef:
               name: eac-secrets
               key: database_url
+        - name: PORT
+          valueFrom:
+            secretKeyRef:
+              name: eac-config
+              key: port
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
