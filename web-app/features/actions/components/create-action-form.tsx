@@ -501,7 +501,7 @@ export const CreateActionForm: React.FC<CreateActionFormProps> = ({ action }) =>
     const isPending = isCreating || isUpdating;
 
     const methods = useForm<ActionFormData>({
-        resolver: zodResolver(actionFormSchema),
+        resolver: zodResolver(actionFormSchema as any),
         defaultValues: {
             name: action?.name || '',
             description: action?.description || '',
@@ -534,7 +534,7 @@ export const CreateActionForm: React.FC<CreateActionFormProps> = ({ action }) =>
 
     return (
         <FormProvider {...methods}>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit as any)}>
                 <div className="flex gap-6">
                     {/* ---- Left Panel: Form Editor ---- */}
                     <div className="w-3/5 space-y-6">

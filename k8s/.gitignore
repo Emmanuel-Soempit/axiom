@@ -1,0 +1,5 @@
+# Ignore real secret files — commit only sealed/encrypted versions
+overlays/*/secrets/secrets.yaml
+
+# Allow sealed secret files (encrypted, safe to commit)
+!overlays/*/secrets/sealed-secrets.yaml

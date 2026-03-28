@@ -24,7 +24,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const router = useRouter()
     const checkAuth = async () => {
         try {
-            const response = await fetch("/api/auth/session");
+            const response = await fetch("/api/auth/session", {
+                credentials: 'include'
+            });
             if (response.ok) {
                 const data = await response.json();
                 setUser(data.user);
@@ -50,6 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 headers: {
                     "Content-Type": "application/json",
                 },
+                credentials: "include",
                 body: JSON.stringify(credentials),
             });
 
@@ -76,6 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 headers: {
                     "Content-Type": "application/json",
                 },
+                credentials: "include",
                 body: JSON.stringify(data),
             });
 
@@ -111,6 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 headers: {
                     "Content-Type": "application/json",
                 },
+                credentials: "include",
                 body: JSON.stringify({ projectId: projectId }),
             });
 

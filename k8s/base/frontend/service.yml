@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: eac-frontend
+spec:
+  selector:
+    app: eac-frontend
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: ClusterIP

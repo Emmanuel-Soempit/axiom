@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { SwitchProjectResponse } from "@/types";
+import { cookies } from "next/headers";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+const API_URL = process.env.INTERNAL_API_URL;
 
 export async function POST(request: Request) {
   try {
@@ -33,29 +33,32 @@ export async function POST(request: Request) {
       );
     }
 
+    const res = NextResponse.json({
+      success: true,
+      message: result.message,
+      user: result.data.user,
+    });
+
+
     // Update JWT token cookie
-    cookieStore.set("session-token", result.data.token, {
+    res.cookies.set("session-token", result.data.token, {
       httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 1 week
       path: "/",
     });
 
     // Update User data cookie
-    cookieStore.set("session-user", JSON.stringify(result.data.user), {
+   res.cookies.set("session-user", JSON.stringify(result.data.user), {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 1 week
       path: "/",
     });
 
-    return NextResponse.json({
-      success: true,
-      message: result.message,
-      user: result.data.user,
-    });
+    return res
   } catch (error) {
     console.error("Switch Project Proxy Error:", error);
     return NextResponse.json(

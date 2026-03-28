@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eac-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eac-frontend
+  template:
+    metadata:
+      labels:
+        app: eac-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: ghcr.io/Chigirlat/eac-frontend:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
+        - name: HOSTNAME
+          value: "0.0.0.0"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
