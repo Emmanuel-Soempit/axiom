@@ -162,9 +162,9 @@ jobs:
       run: |
         cd ${{ needs.set-env.outputs.overlay }}
         kustomize edit set image \
-          ghcr.io/${{ github.repository_owner }}/eac-backend=ghcr.io/${{ github.repository_owner }}/eac-backend:${{ needs.build.outputs.sha }} \
-          ghcr.io/${{ github.repository_owner }}/eac-web-app=ghcr.io/${{ github.repository_owner }}/eac-web-app:${{ needs.build.outputs.sha }} \
-          ghcr.io/${{ github.repository_owner }}/eac-frontend=ghcr.io/${{ github.repository_owner }}/eac-frontend:${{ needs.build.outputs.sha }}
+          ghcr.io/emmanuel-soempit/eac-backend=${{ env.IMAGE_PREFIX }}/eac-backend:${{ needs.build.outputs.sha }} \
+          ghcr.io/emmanuel-soempit/eac-web-app=${{ env.IMAGE_PREFIX }}/eac-web-app:${{ needs.build.outputs.sha }} \
+          ghcr.io/emmanuel-soempit/eac-frontend=${{ env.IMAGE_PREFIX }}/eac-frontend:${{ needs.build.outputs.sha }}
 
     - name: Ensure namespace exists
       run: kubectl get namespace ${{ needs.set-env.outputs.namespace }} || kubectl create namespace ${{ needs.set-env.outputs.namespace }}
