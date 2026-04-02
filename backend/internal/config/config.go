@@ -26,7 +26,7 @@ func InitApp() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3000"
+		port = "3333"
 	}
 	if err := app.Listen(":" + port); err != nil {
 		log.Fatal("Failed to start server:", err)
