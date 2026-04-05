@@ -9,7 +9,7 @@ export const QuickLinks: React.FC = () => {
             </Text>
             <ul className="space-y-3">
                 <li>
-                    <a href="#" className="flex items-center gap-2 text-sm text-slate-700 hover:text-primary transition-colors">
+                    <a target="_blank" href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/docs`} className="flex items-center gap-2 text-sm text-slate-700 hover:text-primary transition-colors">
                         <span className="material-symbols-outlined text-base">description</span>
                         API Reference
                     </a>

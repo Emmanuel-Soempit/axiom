@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
       {
         source: "/api/:path*",
         destination: `http://eac-backend:3333/api/:path*`,
+        // destination: `http://127.0.0.1:3333/api/:path*`,
       },
     ];
   },

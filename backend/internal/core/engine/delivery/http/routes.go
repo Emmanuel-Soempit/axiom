@@ -26,6 +26,8 @@ func RegisterEngineRoutes(router fiber.Router, registry registry.Registry, audit
 
 	engineGroup := router.Group("/engine")
 
+	engineGroup.Use(middleware.CoreRateLimiter())
+
 	engineGroup.Use(apiKeyAuth.ApiKeyAuth)
 	engineGroup.Post("/process", h.ProcessIntent)
 }

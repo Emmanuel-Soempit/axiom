@@ -123,3 +123,17 @@ func (h *projectHandler) GetAuditsByProject(ctx *fiber.Ctx) error {
 
 	return utils.Success(ctx, "Audit records fetched successfully", audits)
 }
+
+func (h *projectHandler) GetDashboardByProject(ctx *fiber.Ctx) error {
+	id := h.getProjectID(ctx)
+	if id == "" {
+		return utils.Failed(ctx, "No active project found in session", "")
+	}
+
+	dashboard, err := h.uc.GetDashboardByProject(ctx.Context(), id)
+	if err != nil {
+		return utils.InternalError(ctx, "Failed to fetch dashboard", err.Error())
+	}
+
+	return utils.Success(ctx, "Dashboard fetched successfully", dashboard)
+}

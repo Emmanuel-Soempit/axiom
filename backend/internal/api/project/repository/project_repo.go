@@ -23,6 +23,7 @@ type ProjectRepo interface {
 	Delete(ctx context.Context, id string) error
 	FindAuditsByProjectID(ctx context.Context, projectID string) ([]*ent.AuditRecord, error)
 	CountAuditsByProjectID(ctx context.Context, projectID string, since time.Time, until time.Time) (AuditCounts, error)
+	CountActionsByProjectID(ctx context.Context, projectID string) (int, error)
 }
 
 func generatePublicID(nBytes int) string {

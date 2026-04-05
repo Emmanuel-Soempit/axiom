@@ -1,10 +1,15 @@
 import React from 'react';
+import { useParams } from 'next/navigation';
 import { Heading, Text } from '@/shared/components/Typography';
 import Button from '@/shared/components/Button';
 import { useAuth } from '@/providers/auth';
 
 export const DashboardHeader: React.FC = () => {
     const { user } = useAuth();
+    const params = useParams();
+    const projectId = params.projectId as string | undefined;
+    const basePath = projectId ? `/project/${projectId}` : '/project';
+
     return (
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 pb-6 border-b border-slate-200 gap-4">
             <div>
@@ -22,11 +27,11 @@ export const DashboardHeader: React.FC = () => {
                 </Text>
             </div>
             <div className="flex gap-3">
-                <Button variant="white" size="sm">
+                <Button variant="white" size="sm" href={`${basePath}/audits`}>
                     <span className="material-symbols-outlined text-lg mr-1.5">terminal</span>
                     View Logs
                 </Button>
-                <Button variant="white" size="sm">
+                <Button variant="white" size="sm" href={`${basePath}/actions`}>
                     <span className="material-symbols-outlined text-lg mr-1.5">settings</span>
                     Configure
                 </Button>

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"go-backend-template/ent"
+	"go-backend-template/ent/actionmodel"
 	"go-backend-template/ent/auditrecord"
 	"go-backend-template/ent/predicate"
 	"go-backend-template/ent/project"
@@ -112,4 +113,16 @@ func (r *entProjectRepo) CountAuditsByProjectID(ctx context.Context, projectID s
 		Successful: successful,
 		Failed:     total - successful,
 	}, nil
+}
+
+func (r *entProjectRepo) CountActionsByProjectID(ctx context.Context, projectID string) (int, error) {
+	count, err := r.client.ActionModel.
+		Query().
+		Where(actionmodel.ProjectIDEQ(projectID)).
+		Count(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }

@@ -7,13 +7,35 @@ const AUTH_PATHS = ["/sign-in", "/sign-up"];
 // Protected paths that require authentication
 const PROTECTED_PATHS = ["/(protected)/", "/profile", "/settings"];
 
-export async function middleware(request: any) {
+function getRedirectPathForAuthenticatedUser(request: NextRequest): string {
+  const userCookie = request.cookies.get("session-user")?.value;
+
+  if (!userCookie) {
+    return "/project";
+  }
+
+  try {
+    const user = JSON.parse(userCookie);
+    const activeProjectId = user?.project?.id;
+
+    if (activeProjectId) {
+      return `/project/${activeProjectId}`;
+    }
+  } catch (e) {
+    console.error("Middleware session-user parse error:", e);
+  }
+
+  return "/project";
+}
+
+export async function middleware(request: NextRequest) {
   const token = request.cookies.get("session-token")?.value;
   const { pathname } = request.nextUrl;
 
-  // 1. If user is logged in and trying to access sign-in/sign-up, redirect to root
+  // 1. If user is logged in and trying to access sign-in/sign-up, redirect to dashboard/create-project
   if (token && AUTH_PATHS.some((path) => pathname.startsWith(path))) {
-    return NextResponse.redirect(new URL("/", request.url));
+    const redirectPath = getRedirectPathForAuthenticatedUser(request);
+    return NextResponse.redirect(new URL(redirectPath, request.url));
   }
 
   // 2. If user is NOT logged in and trying to access protected paths, redirect to sign-in

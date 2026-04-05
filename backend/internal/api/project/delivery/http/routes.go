@@ -23,4 +23,5 @@ func RegisterProjectRoutes(router fiber.Router, client *ent.Client) {
 	projectGroup.Put("/", h.UpdateProject)
 	projectGroup.Delete("/me", h.DeleteProject)
 	projectGroup.Get("/audits", h.GetAuditsByProject)
+	projectGroup.Get("/dashboard", h.GetDashboardByProject)
 }

@@ -4,6 +4,7 @@ import { useParams, useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/providers/auth';
 import { useProjects } from '@/features/project/hooks';
 import toast from 'react-hot-toast';
+import { comingSoonToast } from '@/utils/methods';
 
 export function ProjectDashboardLayout({ children }: { children: React.ReactNode }) {
     const params = useParams();
@@ -242,7 +243,7 @@ function Sidebar({
             <div className={`h-16 flex items-center ${isCollapsed ? 'justify-center' : 'px-6'} border-b border-slate-200`}>
                 <Link href={`${basePath}/dashboard`}>
                     <img
-                        src={`${frontendUrl}/pngs/${isCollapsed ? 'main-icon.png' : 'main-logo.png'}`}
+                        src={`/pngs/${isCollapsed ? 'main-icon.png' : 'main-logo.png'}`}
                         alt="EAC"
                         className={`${isCollapsed ? 'h-8 w-8 object-contain' : 'h-10'} transition-all`}
                     />
@@ -252,10 +253,14 @@ function Sidebar({
                 <SidebarLink href={`${basePath}`} icon="home" label="Home" active={pathname === basePath || pathname === `${basePath}/dashboard`} isCollapsed={isCollapsed} />
                 <SidebarLink href={`${basePath}/audits`} icon="analytics" label="Audits" active={pathname.includes("/audits")} isCollapsed={isCollapsed} />
                 <SidebarLink href={`${basePath}/actions`} icon="auto_fix" label="Actions" active={pathname.includes("/actions")} isCollapsed={isCollapsed} />
-                <SidebarLink href={`${basePath}/marketplace`} icon="storefront" label="Marketplace" active={pathname.includes("/marketplace")} isCollapsed={isCollapsed} />
+                {/* <SidebarLink onClick={() => {
+                   comingSoonToast("Marketplace")
+                }} href={`#`} icon="storefront" label="Marketplace" active={pathname.includes("/marketplace")} isCollapsed={isCollapsed} /> */}
                 <div className="my-4 border-t border-slate-100"></div>
                 <SidebarLink href={`${basePath}/keys`} icon="key" label="API Keys" active={pathname.includes("/keys")} isCollapsed={isCollapsed} />
-                <SidebarLink href={`${basePath}/settings`} icon="settings" label="Settings" active={pathname.includes("/settings")} isCollapsed={isCollapsed} />
+                <SidebarLink onClick={() => {
+                   comingSoonToast("Settings")
+                }} href={`#s`} icon="settings" label="Settings" active={pathname.includes("/settings")} isCollapsed={isCollapsed} />
                 <SidebarLink icon="logout" label="Logout" isCollapsed={isCollapsed} onClick={() => {
                     signOut();
                 }} />
@@ -269,7 +274,7 @@ function Sidebar({
                     <span className="material-symbols-outlined text-lg">add</span>
                     {!isCollapsed && <span>New Project</span>}
                 </Link>
-                {!isCollapsed && (
+                {/* {!isCollapsed && (
                     <div className="mt-4 flex flex-col gap-1">
                         <div className="flex justify-between items-center px-2">
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Storage</span>
@@ -279,7 +284,7 @@ function Sidebar({
                             <div className="bg-primary h-full w-[82%]"></div>
                         </div>
                     </div>
-                )}
+                )} */}
             </div>
         </aside>
     );

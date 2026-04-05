@@ -39,7 +39,14 @@ func RateLimiter(config RateLimiterConfig) fiber.Handler {
 // AuthRateLimiter stricter rate limiting for auth endpoints
 func AuthRateLimiter() fiber.Handler {
 	return RateLimiter(RateLimiterConfig{
-		Max:        5,           // 5 requests
-		Expiration: time.Minute, // per minute
+		Max:        5,
+		Expiration: time.Minute,
+	})
+}
+
+func CoreRateLimiter() fiber.Handler {
+	return RateLimiter(RateLimiterConfig{
+		Max:        2,
+		Expiration: time.Hour,
 	})
 }

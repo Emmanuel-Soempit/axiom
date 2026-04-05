@@ -127,24 +127,14 @@ func (u *projectUsecase) GetAuditsByProject(ctx context.Context, projectID strin
 		}
 	}
 
-	// Compute summary with 24h percentage change
-	now := time.Now()
-	last24h := now.Add(-24 * time.Hour)
-	prev24h := now.Add(-48 * time.Hour)
-
-	current, err := u.repo.CountAuditsByProjectID(ctx, projectID, last24h, now)
-	if err != nil {
-		return nil, err
-	}
-	previous, err := u.repo.CountAuditsByProjectID(ctx, projectID, prev24h, last24h)
-	if err != nil {
-		return nil, err
-	}
+	totalCount := len(records)
+	failedCount := countFailed(records)
+	successfulCount := countSuccessful(records)
 
 	summary := dtos.AuditSummary{
-		Total:      dtos.AuditStat{Value: len(records), Percentage: pctChange(current.Total, previous.Total)},
-		Failed:     dtos.AuditStat{Value: countFailed(records), Percentage: pctChange(current.Failed, previous.Failed)},
-		Successful: dtos.AuditStat{Value: countSuccessful(records), Percentage: pctChange(current.Successful, previous.Successful)},
+		Total:      dtos.AuditStat{Value: totalCount, Percentage: ratio(totalCount, totalCount)},
+		Failed:     dtos.AuditStat{Value: failedCount, Percentage: ratio(failedCount, totalCount)},
+		Successful: dtos.AuditStat{Value: successfulCount, Percentage: ratio(successfulCount, totalCount)},
 	}
 
 	return &dtos.AuditOverviewResponse{
@@ -153,14 +143,23 @@ func (u *projectUsecase) GetAuditsByProject(ctx context.Context, projectID strin
 	}, nil
 }
 
-func pctChange(current, previous int) float64 {
-	if previous == 0 {
-		if current == 0 {
-			return 0
-		}
-		return 100
+func (u *projectUsecase) GetDashboardByProject(ctx context.Context, projectID string) (*dtos.ProjectDashboardResponse, error) {
+	totalActions, err := u.repo.CountActionsByProjectID(ctx, projectID)
+	if err != nil {
+		return nil, err
 	}
-	return float64(current-previous) / float64(previous) * 100
+
+	return &dtos.ProjectDashboardResponse{
+		TotalActions: totalActions,
+	}, nil
+}
+
+func ratio(value, total int) float64 {
+	if total == 0 {
+		return 0
+	}
+
+	return (float64(value) / float64(total)) * 100
 }
 
 func countFailed(records []*ent.AuditRecord) int {

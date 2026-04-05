@@ -42,3 +42,7 @@ type AuditOverviewResponse struct {
 	Audits  []AuditRecordResponse `json:"audits"`
 	Summary AuditSummary          `json:"summary"`
 }
+
+type ProjectDashboardResponse struct {
+	TotalActions int `json:"total_actions"`
+}
