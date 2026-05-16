@@ -26,6 +26,6 @@ func InitializeCoreRoutes(app *fiber.App, client *ent.Client) {
 	routeGroup := app.Group("/api/v1/core")
 
 	// Register sub-module routes
-	engineRoutes.RegisterEngineRoutes(routeGroup, reg, aud, apiKeyAuth)
+	engineRoutes.RegisterEngineRoutes(routeGroup, client, reg, aud, apiKeyAuth)
 	registryRoutes.RegisterRegistryRoutes(routeGroup, regUsecase)
 }

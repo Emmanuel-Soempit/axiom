@@ -102,6 +102,34 @@ var (
 			},
 		},
 	}
+	// MessagesColumns holds the columns for the "messages" table.
+	MessagesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "session_id", Type: field.TypeUUID},
+		{Name: "role", Type: field.TypeEnum, Enums: []string{"system", "user", "assistant", "action_result"}},
+		{Name: "content", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "action_name", Type: field.TypeString, Nullable: true},
+		{Name: "call_id", Type: field.TypeString, Nullable: true},
+		{Name: "arguments", Type: field.TypeJSON, Nullable: true},
+		{Name: "opa_decision", Type: field.TypeJSON, Nullable: true},
+		{Name: "message_action", Type: field.TypeInt, Nullable: true},
+	}
+	// MessagesTable holds the schema information for the "messages" table.
+	MessagesTable = &schema.Table{
+		Name:       "messages",
+		Columns:    MessagesColumns,
+		PrimaryKey: []*schema.Column{MessagesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "messages_action_models_action",
+				Columns:    []*schema.Column{MessagesColumns[10]},
+				RefColumns: []*schema.Column{ActionModelsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// ProjectsColumns holds the columns for the "projects" table.
 	ProjectsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
@@ -245,6 +273,7 @@ var (
 		ActionModelsTable,
 		APIKeysTable,
 		AuditRecordsTable,
+		MessagesTable,
 		ProjectsTable,
 		RolesTable,
 		UsersTable,
@@ -260,6 +289,7 @@ func init() {
 	APIKeysTable.ForeignKeys[1].RefTable = UsersTable
 	AuditRecordsTable.ForeignKeys[0].RefTable = ActionModelsTable
 	AuditRecordsTable.ForeignKeys[1].RefTable = UsersTable
+	MessagesTable.ForeignKeys[0].RefTable = ActionModelsTable
 	ProjectsTable.ForeignKeys[0].RefTable = UsersTable
 	UsersTable.ForeignKeys[0].RefTable = RolesTable
 	UserInvitationsTable.ForeignKeys[0].RefTable = UsersTable

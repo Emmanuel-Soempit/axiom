@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"go-backend-template/ent"
 	"go-backend-template/internal/core/audit"
 	"go-backend-template/internal/core/engine"
 	"go-backend-template/internal/core/engine/delivery/http/handler"
@@ -13,14 +14,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterEngineRoutes(router fiber.Router, registry registry.Registry, auditor audit.Auditor, apiKeyAuth middleware.ApiKeyAuthMiddleware) {
+func RegisterEngineRoutes(router fiber.Router, client *ent.Client, registry registry.Registry, auditor audit.Auditor, apiKeyAuth middleware.ApiKeyAuthMiddleware) {
 	// Initialize Engine dependencies
 	llmProvider := llm.NewGroqProvider()
 	validator, err := validation.New(context.Background(), "internal/core/validation/opa/action_engine.rego")
 	if err != nil {
 		panic(err)
 	}
-	eng := engine.NewEngine(registry, llmProvider, auditor, validator)
+	messageStore := engine.NewEntMessageStore(client)
+	eng := engine.NewEngine(registry, llmProvider, auditor, validator, messageStore)
 
 	h := handler.NewEngineHandler(eng)
 
@@ -30,4 +32,5 @@ func RegisterEngineRoutes(router fiber.Router, registry registry.Registry, audit
 
 	engineGroup.Use(apiKeyAuth.ApiKeyAuth)
 	engineGroup.Post("/process", h.ProcessIntent)
+	engineGroup.Get("/sessions/:sessionId/history", h.GetSessionHistory)
 }

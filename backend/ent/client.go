@@ -14,6 +14,7 @@ import (
 	"go-backend-template/ent/actionmodel"
 	"go-backend-template/ent/apikey"
 	"go-backend-template/ent/auditrecord"
+	"go-backend-template/ent/message"
 	"go-backend-template/ent/project"
 	"go-backend-template/ent/role"
 	"go-backend-template/ent/user"
@@ -39,6 +40,8 @@ type Client struct {
 	ApiKey *ApiKeyClient
 	// AuditRecord is the client for interacting with the AuditRecord builders.
 	AuditRecord *AuditRecordClient
+	// Message is the client for interacting with the Message builders.
+	Message *MessageClient
 	// Project is the client for interacting with the Project builders.
 	Project *ProjectClient
 	// Role is the client for interacting with the Role builders.
@@ -65,6 +68,7 @@ func (c *Client) init() {
 	c.ActionModel = NewActionModelClient(c.config)
 	c.ApiKey = NewApiKeyClient(c.config)
 	c.AuditRecord = NewAuditRecordClient(c.config)
+	c.Message = NewMessageClient(c.config)
 	c.Project = NewProjectClient(c.config)
 	c.Role = NewRoleClient(c.config)
 	c.User = NewUserClient(c.config)
@@ -166,6 +170,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ActionModel:        NewActionModelClient(cfg),
 		ApiKey:             NewApiKeyClient(cfg),
 		AuditRecord:        NewAuditRecordClient(cfg),
+		Message:            NewMessageClient(cfg),
 		Project:            NewProjectClient(cfg),
 		Role:               NewRoleClient(cfg),
 		User:               NewUserClient(cfg),
@@ -194,6 +199,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ActionModel:        NewActionModelClient(cfg),
 		ApiKey:             NewApiKeyClient(cfg),
 		AuditRecord:        NewAuditRecordClient(cfg),
+		Message:            NewMessageClient(cfg),
 		Project:            NewProjectClient(cfg),
 		Role:               NewRoleClient(cfg),
 		User:               NewUserClient(cfg),
@@ -229,7 +235,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.ActionModel, c.ApiKey, c.AuditRecord, c.Project, c.Role, c.User,
+		c.ActionModel, c.ApiKey, c.AuditRecord, c.Message, c.Project, c.Role, c.User,
 		c.UserInvitation, c.UserMeta, c.UserPasswordSecret,
 	} {
 		n.Use(hooks...)
@@ -240,7 +246,7 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.ActionModel, c.ApiKey, c.AuditRecord, c.Project, c.Role, c.User,
+		c.ActionModel, c.ApiKey, c.AuditRecord, c.Message, c.Project, c.Role, c.User,
 		c.UserInvitation, c.UserMeta, c.UserPasswordSecret,
 	} {
 		n.Intercept(interceptors...)
@@ -256,6 +262,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.ApiKey.mutate(ctx, m)
 	case *AuditRecordMutation:
 		return c.AuditRecord.mutate(ctx, m)
+	case *MessageMutation:
+		return c.Message.mutate(ctx, m)
 	case *ProjectMutation:
 		return c.Project.mutate(ctx, m)
 	case *RoleMutation:
@@ -765,6 +773,155 @@ func (c *AuditRecordClient) mutate(ctx context.Context, m *AuditRecordMutation) 
 		return (&AuditRecordDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown AuditRecord mutation op: %q", m.Op())
+	}
+}
+
+// MessageClient is a client for the Message schema.
+type MessageClient struct {
+	config
+}
+
+// NewMessageClient returns a client for the Message from the given config.
+func NewMessageClient(c config) *MessageClient {
+	return &MessageClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `message.Hooks(f(g(h())))`.
+func (c *MessageClient) Use(hooks ...Hook) {
+	c.hooks.Message = append(c.hooks.Message, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `message.Intercept(f(g(h())))`.
+func (c *MessageClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Message = append(c.inters.Message, interceptors...)
+}
+
+// Create returns a builder for creating a Message entity.
+func (c *MessageClient) Create() *MessageCreate {
+	mutation := newMessageMutation(c.config, OpCreate)
+	return &MessageCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Message entities.
+func (c *MessageClient) CreateBulk(builders ...*MessageCreate) *MessageCreateBulk {
+	return &MessageCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MessageClient) MapCreateBulk(slice any, setFunc func(*MessageCreate, int)) *MessageCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MessageCreateBulk{err: fmt.Errorf("calling to MessageClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MessageCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MessageCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Message.
+func (c *MessageClient) Update() *MessageUpdate {
+	mutation := newMessageMutation(c.config, OpUpdate)
+	return &MessageUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MessageClient) UpdateOne(_m *Message) *MessageUpdateOne {
+	mutation := newMessageMutation(c.config, OpUpdateOne, withMessage(_m))
+	return &MessageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MessageClient) UpdateOneID(id int) *MessageUpdateOne {
+	mutation := newMessageMutation(c.config, OpUpdateOne, withMessageID(id))
+	return &MessageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Message.
+func (c *MessageClient) Delete() *MessageDelete {
+	mutation := newMessageMutation(c.config, OpDelete)
+	return &MessageDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *MessageClient) DeleteOne(_m *Message) *MessageDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *MessageClient) DeleteOneID(id int) *MessageDeleteOne {
+	builder := c.Delete().Where(message.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MessageDeleteOne{builder}
+}
+
+// Query returns a query builder for Message.
+func (c *MessageClient) Query() *MessageQuery {
+	return &MessageQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeMessage},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Message entity by its id.
+func (c *MessageClient) Get(ctx context.Context, id int) (*Message, error) {
+	return c.Query().Where(message.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MessageClient) GetX(ctx context.Context, id int) *Message {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryAction queries the action edge of a Message.
+func (c *MessageClient) QueryAction(_m *Message) *ActionModelQuery {
+	query := (&ActionModelClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(message.Table, message.FieldID, id),
+			sqlgraph.To(actionmodel.Table, actionmodel.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, message.ActionTable, message.ActionColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MessageClient) Hooks() []Hook {
+	return c.hooks.Message
+}
+
+// Interceptors returns the client interceptors.
+func (c *MessageClient) Interceptors() []Interceptor {
+	return c.inters.Message
+}
+
+func (c *MessageClient) mutate(ctx context.Context, m *MessageMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&MessageCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&MessageUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&MessageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&MessageDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Message mutation op: %q", m.Op())
 	}
 }
 
@@ -1825,11 +1982,11 @@ func (c *UserPasswordSecretClient) mutate(ctx context.Context, m *UserPasswordSe
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		ActionModel, ApiKey, AuditRecord, Project, Role, User, UserInvitation, UserMeta,
-		UserPasswordSecret []ent.Hook
+		ActionModel, ApiKey, AuditRecord, Message, Project, Role, User, UserInvitation,
+		UserMeta, UserPasswordSecret []ent.Hook
 	}
 	inters struct {
-		ActionModel, ApiKey, AuditRecord, Project, Role, User, UserInvitation, UserMeta,
-		UserPasswordSecret []ent.Interceptor
+		ActionModel, ApiKey, AuditRecord, Message, Project, Role, User, UserInvitation,
+		UserMeta, UserPasswordSecret []ent.Interceptor
 	}
 )

@@ -83,8 +83,9 @@ func (a *ApiKeyAuth) ApiKeyAuth(c *fiber.Ctx) error {
 		return utils.Unauthorized(c, "Associated project not found")
 	}
 
-	// Store project ID in context for downstream handlers
+	// Store project ID + the user who owns the API key for downstream handlers
 	c.Locals("project_id", apiKeyRecord.ProjectID)
+	c.Locals("user_id", apiKeyRecord.CreatedBy)
 
 	return c.Next()
 }

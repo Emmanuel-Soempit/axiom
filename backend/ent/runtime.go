@@ -6,6 +6,7 @@ import (
 	"go-backend-template/ent/actionmodel"
 	"go-backend-template/ent/apikey"
 	"go-backend-template/ent/auditrecord"
+	"go-backend-template/ent/message"
 	"go-backend-template/ent/project"
 	"go-backend-template/ent/role"
 	"go-backend-template/ent/schema"
@@ -79,6 +80,21 @@ func init() {
 	auditrecordDescValidated := auditrecordFields[5].Descriptor()
 	// auditrecord.DefaultValidated holds the default value on creation for the validated field.
 	auditrecord.DefaultValidated = auditrecordDescValidated.Default.(bool)
+	messageMixin := schema.Message{}.Mixin()
+	messageMixinFields0 := messageMixin[0].Fields()
+	_ = messageMixinFields0
+	messageFields := schema.Message{}.Fields()
+	_ = messageFields
+	// messageDescCreatedAt is the schema descriptor for created_at field.
+	messageDescCreatedAt := messageMixinFields0[0].Descriptor()
+	// message.DefaultCreatedAt holds the default value on creation for the created_at field.
+	message.DefaultCreatedAt = messageDescCreatedAt.Default.(func() time.Time)
+	// messageDescUpdatedAt is the schema descriptor for updated_at field.
+	messageDescUpdatedAt := messageMixinFields0[1].Descriptor()
+	// message.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	message.DefaultUpdatedAt = messageDescUpdatedAt.Default.(func() time.Time)
+	// message.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	message.UpdateDefaultUpdatedAt = messageDescUpdatedAt.UpdateDefault.(func() time.Time)
 	projectMixin := schema.Project{}.Mixin()
 	projectMixinFields0 := projectMixin[0].Fields()
 	_ = projectMixinFields0

@@ -9,6 +9,7 @@ import (
 	"go-backend-template/ent/actionmodel"
 	"go-backend-template/ent/apikey"
 	"go-backend-template/ent/auditrecord"
+	"go-backend-template/ent/message"
 	"go-backend-template/ent/project"
 	"go-backend-template/ent/role"
 	"go-backend-template/ent/user"
@@ -84,6 +85,7 @@ func checkColumn(t, c string) error {
 			actionmodel.Table:        actionmodel.ValidColumn,
 			apikey.Table:             apikey.ValidColumn,
 			auditrecord.Table:        auditrecord.ValidColumn,
+			message.Table:            message.ValidColumn,
 			project.Table:            project.ValidColumn,
 			role.Table:               role.ValidColumn,
 			user.Table:               user.ValidColumn,
