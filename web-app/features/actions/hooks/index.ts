@@ -10,7 +10,7 @@ export const useActions = () => {
   });
 };
 
-export const useCreateAction = () => {
+export const useCreateAction = (redirectTo?: string) => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { projectId } = useParams();
@@ -20,7 +20,7 @@ export const useCreateAction = () => {
     onSuccess: () => {
       toast.success("Action created successfully!");
       queryClient.invalidateQueries({ queryKey: ["actions"] });
-      router.push(`/project/${projectId}/actions`);
+      router.push(redirectTo || `/project/${projectId}/actions`);
     },
     onError: (err: any) => {
       const message = err.response?.data?.message || "Failed to create action";

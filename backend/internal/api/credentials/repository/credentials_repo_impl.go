@@ -2,11 +2,12 @@ package repository
 
 import (
 	"context"
-	"go-backend-template/ent"
-	"go-backend-template/ent/apikey"
-	"go-backend-template/ent/project"
-	"go-backend-template/internal/api/credentials/dtos"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/ent/apikey"
+	"github.com/Emmanuel-Soempit/axiom/ent/project"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/credentials/dtos"
 
 	"github.com/google/uuid"
 )

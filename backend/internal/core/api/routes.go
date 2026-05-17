@@ -1,13 +1,13 @@
 package api
 
 import (
-	"go-backend-template/ent"
-	"go-backend-template/internal/core/audit"
-	engineRoutes "go-backend-template/internal/core/engine/delivery/http"
-	"go-backend-template/internal/core/registry"
-	registryRoutes "go-backend-template/internal/core/registry/delivery/http"
-	"go-backend-template/internal/core/registry/usecase"
-	"go-backend-template/internal/middleware"
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/audit"
+	engineRoutes "github.com/Emmanuel-Soempit/axiom/internal/core/engine/delivery/http"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/registry"
+	registryRoutes "github.com/Emmanuel-Soempit/axiom/internal/core/registry/delivery/http"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/registry/usecase"
+	"github.com/Emmanuel-Soempit/axiom/internal/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )

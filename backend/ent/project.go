@@ -4,10 +4,11 @@ package ent
 
 import (
 	"fmt"
-	"go-backend-template/ent/project"
-	"go-backend-template/ent/user"
 	"strings"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/project"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -37,6 +38,10 @@ type Project struct {
 type ProjectEdges struct {
 	// Actions holds the value of the actions edge.
 	Actions []*ActionModel `json:"actions,omitempty"`
+	// Agents holds the value of the agents edge.
+	Agents []*Agent `json:"agents,omitempty"`
+	// Features holds the value of the features edge.
+	Features []*Feature `json:"features,omitempty"`
 	// APIKeys holds the value of the api_keys edge.
 	APIKeys []*ApiKey `json:"api_keys,omitempty"`
 	// User holds the value of the user edge.
@@ -45,7 +50,7 @@ type ProjectEdges struct {
 	UserMetas []*UserMeta `json:"user_metas,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [6]bool
 }
 
 // ActionsOrErr returns the Actions value or an error if the edge
@@ -57,10 +62,28 @@ func (e ProjectEdges) ActionsOrErr() ([]*ActionModel, error) {
 	return nil, &NotLoadedError{edge: "actions"}
 }
 
+// AgentsOrErr returns the Agents value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProjectEdges) AgentsOrErr() ([]*Agent, error) {
+	if e.loadedTypes[1] {
+		return e.Agents, nil
+	}
+	return nil, &NotLoadedError{edge: "agents"}
+}
+
+// FeaturesOrErr returns the Features value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProjectEdges) FeaturesOrErr() ([]*Feature, error) {
+	if e.loadedTypes[2] {
+		return e.Features, nil
+	}
+	return nil, &NotLoadedError{edge: "features"}
+}
+
 // APIKeysOrErr returns the APIKeys value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProjectEdges) APIKeysOrErr() ([]*ApiKey, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[3] {
 		return e.APIKeys, nil
 	}
 	return nil, &NotLoadedError{edge: "api_keys"}
@@ -71,7 +94,7 @@ func (e ProjectEdges) APIKeysOrErr() ([]*ApiKey, error) {
 func (e ProjectEdges) UserOrErr() (*User, error) {
 	if e.User != nil {
 		return e.User, nil
-	} else if e.loadedTypes[2] {
+	} else if e.loadedTypes[4] {
 		return nil, &NotFoundError{label: user.Label}
 	}
 	return nil, &NotLoadedError{edge: "user"}
@@ -80,7 +103,7 @@ func (e ProjectEdges) UserOrErr() (*User, error) {
 // UserMetasOrErr returns the UserMetas value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProjectEdges) UserMetasOrErr() ([]*UserMeta, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[5] {
 		return e.UserMetas, nil
 	}
 	return nil, &NotLoadedError{edge: "user_metas"}
@@ -165,6 +188,16 @@ func (_m *Project) Value(name string) (ent.Value, error) {
 // QueryActions queries the "actions" edge of the Project entity.
 func (_m *Project) QueryActions() *ActionModelQuery {
 	return NewProjectClient(_m.config).QueryActions(_m)
+}
+
+// QueryAgents queries the "agents" edge of the Project entity.
+func (_m *Project) QueryAgents() *AgentQuery {
+	return NewProjectClient(_m.config).QueryAgents(_m)
+}
+
+// QueryFeatures queries the "features" edge of the Project entity.
+func (_m *Project) QueryFeatures() *FeatureQuery {
+	return NewProjectClient(_m.config).QueryFeatures(_m)
 }
 
 // QueryAPIKeys queries the "api_keys" edge of the Project entity.

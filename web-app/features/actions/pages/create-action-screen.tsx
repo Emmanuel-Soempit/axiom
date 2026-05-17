@@ -6,18 +6,22 @@ import { useParams } from 'next/navigation';
 import { Heading, Text } from '@/shared/components/Typography';
 import { CreateActionForm } from '../components/create-action-form';
 
-export const CreateActionScreen: React.FC = () => {
+interface CreateActionScreenProps {
+    featureId?: string;
+}
+
+export const CreateActionScreen: React.FC<CreateActionScreenProps> = ({ featureId }) => {
     const { projectId } = useParams();
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500 pb-20">
             <div>
                 <Link
-                    href={`/project/${projectId}/actions`}
+                    href={featureId ? `/project/${projectId}/features/${featureId}` : `/project/${projectId}/actions`}
                     className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-primary transition-colors mb-4"
                 >
                     <span className="material-symbols-outlined text-lg">arrow_back</span>
-                    Back to Actions
+                    {featureId ? 'Back to Feature' : 'Back to Actions'}
                 </Link>
                 <div className="flex items-center justify-between">
                     <div>
@@ -36,7 +40,7 @@ export const CreateActionScreen: React.FC = () => {
                 </div>
             </div>
 
-            <CreateActionForm />
+            <CreateActionForm featureId={featureId} />
         </div>
     );
 };

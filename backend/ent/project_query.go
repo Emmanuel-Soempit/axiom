@@ -6,13 +6,16 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
-	"go-backend-template/ent/actionmodel"
-	"go-backend-template/ent/apikey"
-	"go-backend-template/ent/predicate"
-	"go-backend-template/ent/project"
-	"go-backend-template/ent/user"
-	"go-backend-template/ent/usermeta"
 	"math"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/agent"
+	"github.com/Emmanuel-Soempit/axiom/ent/apikey"
+	"github.com/Emmanuel-Soempit/axiom/ent/feature"
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
+	"github.com/Emmanuel-Soempit/axiom/ent/project"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
+	"github.com/Emmanuel-Soempit/axiom/ent/usermeta"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -28,6 +31,8 @@ type ProjectQuery struct {
 	inters        []Interceptor
 	predicates    []predicate.Project
 	withActions   *ActionModelQuery
+	withAgents    *AgentQuery
+	withFeatures  *FeatureQuery
 	withAPIKeys   *ApiKeyQuery
 	withUser      *UserQuery
 	withUserMetas *UserMetaQuery
@@ -83,6 +88,50 @@ func (_q *ProjectQuery) QueryActions() *ActionModelQuery {
 			sqlgraph.From(project.Table, project.FieldID, selector),
 			sqlgraph.To(actionmodel.Table, actionmodel.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, project.ActionsTable, project.ActionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAgents chains the current query on the "agents" edge.
+func (_q *ProjectQuery) QueryAgents() *AgentQuery {
+	query := (&AgentClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(project.Table, project.FieldID, selector),
+			sqlgraph.To(agent.Table, agent.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, project.AgentsTable, project.AgentsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryFeatures chains the current query on the "features" edge.
+func (_q *ProjectQuery) QueryFeatures() *FeatureQuery {
+	query := (&FeatureClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(project.Table, project.FieldID, selector),
+			sqlgraph.To(feature.Table, feature.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, project.FeaturesTable, project.FeaturesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -349,6 +398,8 @@ func (_q *ProjectQuery) Clone() *ProjectQuery {
 		inters:        append([]Interceptor{}, _q.inters...),
 		predicates:    append([]predicate.Project{}, _q.predicates...),
 		withActions:   _q.withActions.Clone(),
+		withAgents:    _q.withAgents.Clone(),
+		withFeatures:  _q.withFeatures.Clone(),
 		withAPIKeys:   _q.withAPIKeys.Clone(),
 		withUser:      _q.withUser.Clone(),
 		withUserMetas: _q.withUserMetas.Clone(),
@@ -366,6 +417,28 @@ func (_q *ProjectQuery) WithActions(opts ...func(*ActionModelQuery)) *ProjectQue
 		opt(query)
 	}
 	_q.withActions = query
+	return _q
+}
+
+// WithAgents tells the query-builder to eager-load the nodes that are connected to
+// the "agents" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ProjectQuery) WithAgents(opts ...func(*AgentQuery)) *ProjectQuery {
+	query := (&AgentClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withAgents = query
+	return _q
+}
+
+// WithFeatures tells the query-builder to eager-load the nodes that are connected to
+// the "features" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ProjectQuery) WithFeatures(opts ...func(*FeatureQuery)) *ProjectQuery {
+	query := (&FeatureClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withFeatures = query
 	return _q
 }
 
@@ -481,8 +554,10 @@ func (_q *ProjectQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Proj
 		nodes       = []*Project{}
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [6]bool{
 			_q.withActions != nil,
+			_q.withAgents != nil,
+			_q.withFeatures != nil,
 			_q.withAPIKeys != nil,
 			_q.withUser != nil,
 			_q.withUserMetas != nil,
@@ -516,6 +591,20 @@ func (_q *ProjectQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Proj
 		if err := _q.loadActions(ctx, query, nodes,
 			func(n *Project) { n.Edges.Actions = []*ActionModel{} },
 			func(n *Project, e *ActionModel) { n.Edges.Actions = append(n.Edges.Actions, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withAgents; query != nil {
+		if err := _q.loadAgents(ctx, query, nodes,
+			func(n *Project) { n.Edges.Agents = []*Agent{} },
+			func(n *Project, e *Agent) { n.Edges.Agents = append(n.Edges.Agents, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withFeatures; query != nil {
+		if err := _q.loadFeatures(ctx, query, nodes,
+			func(n *Project) { n.Edges.Features = []*Feature{} },
+			func(n *Project, e *Feature) { n.Edges.Features = append(n.Edges.Features, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -557,6 +646,68 @@ func (_q *ProjectQuery) loadActions(ctx context.Context, query *ActionModelQuery
 	}
 	query.Where(predicate.ActionModel(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(project.ActionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ProjectID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "project_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ProjectQuery) loadAgents(ctx context.Context, query *AgentQuery, nodes []*Project, init func(*Project), assign func(*Project, *Agent)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Project)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(agent.FieldProjectID)
+	}
+	query.Where(predicate.Agent(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(project.AgentsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ProjectID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "project_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *ProjectQuery) loadFeatures(ctx context.Context, query *FeatureQuery, nodes []*Project, init func(*Project), assign func(*Project, *Feature)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Project)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(feature.FieldProjectID)
+	}
+	query.Where(predicate.Feature(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(project.FeaturesColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

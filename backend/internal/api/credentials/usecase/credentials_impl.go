@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-backend-template/ent"
-	"go-backend-template/internal/api/credentials/dtos"
-	"go-backend-template/internal/api/credentials/repository"
-	"go-backend-template/internal/utils"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/credentials/dtos"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/credentials/repository"
+	"github.com/Emmanuel-Soempit/axiom/internal/utils"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"

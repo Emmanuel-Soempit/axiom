@@ -6,12 +6,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-backend-template/ent/actionmodel"
-	"go-backend-template/ent/auditrecord"
-	"go-backend-template/ent/predicate"
-	"go-backend-template/ent/project"
-	"go-backend-template/internal/core/registry/dtos"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/auditrecord"
+	"github.com/Emmanuel-Soempit/axiom/ent/feature"
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
+	"github.com/Emmanuel-Soempit/axiom/ent/project"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/registry/dtos"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -48,6 +50,26 @@ func (_u *ActionModelUpdate) SetNillableProjectID(v *string) *ActionModelUpdate 
 	if v != nil {
 		_u.SetProjectID(*v)
 	}
+	return _u
+}
+
+// SetFeatureID sets the "feature_id" field.
+func (_u *ActionModelUpdate) SetFeatureID(v int) *ActionModelUpdate {
+	_u.mutation.SetFeatureID(v)
+	return _u
+}
+
+// SetNillableFeatureID sets the "feature_id" field if the given value is not nil.
+func (_u *ActionModelUpdate) SetNillableFeatureID(v *int) *ActionModelUpdate {
+	if v != nil {
+		_u.SetFeatureID(*v)
+	}
+	return _u
+}
+
+// ClearFeatureID clears the value of the "feature_id" field.
+func (_u *ActionModelUpdate) ClearFeatureID() *ActionModelUpdate {
+	_u.mutation.ClearFeatureID()
 	return _u
 }
 
@@ -131,6 +153,11 @@ func (_u *ActionModelUpdate) SetProject(v *Project) *ActionModelUpdate {
 	return _u.SetProjectID(v.ID)
 }
 
+// SetFeature sets the "feature" edge to the Feature entity.
+func (_u *ActionModelUpdate) SetFeature(v *Feature) *ActionModelUpdate {
+	return _u.SetFeatureID(v.ID)
+}
+
 // AddAuditRecordIDs adds the "audit_records" edge to the AuditRecord entity by IDs.
 func (_u *ActionModelUpdate) AddAuditRecordIDs(ids ...int) *ActionModelUpdate {
 	_u.mutation.AddAuditRecordIDs(ids...)
@@ -154,6 +181,12 @@ func (_u *ActionModelUpdate) Mutation() *ActionModelMutation {
 // ClearProject clears the "project" edge to the Project entity.
 func (_u *ActionModelUpdate) ClearProject() *ActionModelUpdate {
 	_u.mutation.ClearProject()
+	return _u
+}
+
+// ClearFeature clears the "feature" edge to the Feature entity.
+func (_u *ActionModelUpdate) ClearFeature() *ActionModelUpdate {
+	_u.mutation.ClearFeature()
 	return _u
 }
 
@@ -287,6 +320,35 @@ func (_u *ActionModelUpdate) sqlSave(ctx context.Context) (_node int, err error)
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.FeatureCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   actionmodel.FeatureTable,
+			Columns: []string{actionmodel.FeatureColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feature.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.FeatureIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   actionmodel.FeatureTable,
+			Columns: []string{actionmodel.FeatureColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feature.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _u.mutation.AuditRecordsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -372,6 +434,26 @@ func (_u *ActionModelUpdateOne) SetNillableProjectID(v *string) *ActionModelUpda
 	return _u
 }
 
+// SetFeatureID sets the "feature_id" field.
+func (_u *ActionModelUpdateOne) SetFeatureID(v int) *ActionModelUpdateOne {
+	_u.mutation.SetFeatureID(v)
+	return _u
+}
+
+// SetNillableFeatureID sets the "feature_id" field if the given value is not nil.
+func (_u *ActionModelUpdateOne) SetNillableFeatureID(v *int) *ActionModelUpdateOne {
+	if v != nil {
+		_u.SetFeatureID(*v)
+	}
+	return _u
+}
+
+// ClearFeatureID clears the value of the "feature_id" field.
+func (_u *ActionModelUpdateOne) ClearFeatureID() *ActionModelUpdateOne {
+	_u.mutation.ClearFeatureID()
+	return _u
+}
+
 // SetName sets the "name" field.
 func (_u *ActionModelUpdateOne) SetName(v string) *ActionModelUpdateOne {
 	_u.mutation.SetName(v)
@@ -452,6 +534,11 @@ func (_u *ActionModelUpdateOne) SetProject(v *Project) *ActionModelUpdateOne {
 	return _u.SetProjectID(v.ID)
 }
 
+// SetFeature sets the "feature" edge to the Feature entity.
+func (_u *ActionModelUpdateOne) SetFeature(v *Feature) *ActionModelUpdateOne {
+	return _u.SetFeatureID(v.ID)
+}
+
 // AddAuditRecordIDs adds the "audit_records" edge to the AuditRecord entity by IDs.
 func (_u *ActionModelUpdateOne) AddAuditRecordIDs(ids ...int) *ActionModelUpdateOne {
 	_u.mutation.AddAuditRecordIDs(ids...)
@@ -475,6 +562,12 @@ func (_u *ActionModelUpdateOne) Mutation() *ActionModelMutation {
 // ClearProject clears the "project" edge to the Project entity.
 func (_u *ActionModelUpdateOne) ClearProject() *ActionModelUpdateOne {
 	_u.mutation.ClearProject()
+	return _u
+}
+
+// ClearFeature clears the "feature" edge to the Feature entity.
+func (_u *ActionModelUpdateOne) ClearFeature() *ActionModelUpdateOne {
+	_u.mutation.ClearFeature()
 	return _u
 }
 
@@ -631,6 +724,35 @@ func (_u *ActionModelUpdateOne) sqlSave(ctx context.Context) (_node *ActionModel
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(project.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.FeatureCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   actionmodel.FeatureTable,
+			Columns: []string{actionmodel.FeatureColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feature.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.FeatureIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   actionmodel.FeatureTable,
+			Columns: []string{actionmodel.FeatureColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feature.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

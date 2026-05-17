@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
-	"go-backend-template/ent"
-	"go-backend-template/ent/role"
-	_ "go-backend-template/ent/runtime"
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/ent/role"
+	_ "github.com/Emmanuel-Soempit/axiom/ent/runtime"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"

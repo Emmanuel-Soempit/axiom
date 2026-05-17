@@ -1,4 +1,4 @@
-module go-backend-template
+module github.com/Emmanuel-Soempit/axiom
 
 go 1.25.0
 

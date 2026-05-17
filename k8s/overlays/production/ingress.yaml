@@ -1,8 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: eac-ingress
-  namespace: eac-prod
+  name: axiom-ingress
+  namespace: axiom-prod
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -12,7 +12,7 @@ spec:
     - soempit.com
     - portal.soempit.com
     - api.soempit.com
-    secretName: eac-prod-tls
+    secretName: axiom-prod-tls
   rules:
   - host: soempit.com
     http:
@@ -21,7 +21,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: eac-frontend
+            name: axiom-frontend
             port:
               number: 3000
   - host: portal.soempit.com
@@ -31,7 +31,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: eac-web-app
+            name: axiom-web-app
             port:
               number: 3001
   - host: api.soempit.com
@@ -41,6 +41,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: eac-backend
+            name: axiom-backend
             port:
               number: 3333

@@ -4,24 +4,24 @@ kind: Kustomization
 bases:
 - ../../base
 
-namespace: eac-staging
+namespace: axiom-staging
 
 replicas:
-- name: eac-backend
+- name: axiom-backend
   count: 2
-- name: eac-web-app
+- name: axiom-web-app
   count: 2
-- name: eac-frontend
+- name: axiom-frontend
   count: 2
-- name: eac-postgres
+- name: axiom-postgres
   count: 1
 
 images:
-- name: ghcr.io/emmanuel-soempit/eac-backend
+- name: ghcr.io/emmanuel-soempit/axiom-backend
   newTag: staging
-- name: ghcr.io/emmanuel-soempit/eac-web-app
+- name: ghcr.io/emmanuel-soempit/axiom-web-app
   newTag: staging
-- name: ghcr.io/emmanuel-soempit/eac-frontend
+- name: ghcr.io/emmanuel-soempit/axiom-frontend
   newTag: staging
 
 resources:

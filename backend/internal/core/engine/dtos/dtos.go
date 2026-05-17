@@ -1,7 +1,7 @@
 package dtos
 
 import (
-	"go-backend-template/internal/core/llm"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/llm"
 
 	"github.com/google/uuid"
 )

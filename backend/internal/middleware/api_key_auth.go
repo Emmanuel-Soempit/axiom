@@ -4,10 +4,10 @@ import (
 	"log"
 	"strings"
 
-	"go-backend-template/ent"
-	"go-backend-template/ent/apikey"
-	"go-backend-template/ent/project"
-	"go-backend-template/internal/utils"
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/ent/apikey"
+	"github.com/Emmanuel-Soempit/axiom/ent/project"
+	"github.com/Emmanuel-Soempit/axiom/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"

@@ -6,13 +6,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-backend-template/ent/actionmodel"
-	"go-backend-template/ent/apikey"
-	"go-backend-template/ent/predicate"
-	"go-backend-template/ent/project"
-	"go-backend-template/ent/user"
-	"go-backend-template/ent/usermeta"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/agent"
+	"github.com/Emmanuel-Soempit/axiom/ent/apikey"
+	"github.com/Emmanuel-Soempit/axiom/ent/feature"
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
+	"github.com/Emmanuel-Soempit/axiom/ent/project"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
+	"github.com/Emmanuel-Soempit/axiom/ent/usermeta"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -66,6 +69,36 @@ func (_u *ProjectUpdate) AddActions(v ...*ActionModel) *ProjectUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.AddActionIDs(ids...)
+}
+
+// AddAgentIDs adds the "agents" edge to the Agent entity by IDs.
+func (_u *ProjectUpdate) AddAgentIDs(ids ...int) *ProjectUpdate {
+	_u.mutation.AddAgentIDs(ids...)
+	return _u
+}
+
+// AddAgents adds the "agents" edges to the Agent entity.
+func (_u *ProjectUpdate) AddAgents(v ...*Agent) *ProjectUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddAgentIDs(ids...)
+}
+
+// AddFeatureIDs adds the "features" edge to the Feature entity by IDs.
+func (_u *ProjectUpdate) AddFeatureIDs(ids ...int) *ProjectUpdate {
+	_u.mutation.AddFeatureIDs(ids...)
+	return _u
+}
+
+// AddFeatures adds the "features" edges to the Feature entity.
+func (_u *ProjectUpdate) AddFeatures(v ...*Feature) *ProjectUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddFeatureIDs(ids...)
 }
 
 // AddAPIKeyIDs adds the "api_keys" edge to the ApiKey entity by IDs.
@@ -141,6 +174,48 @@ func (_u *ProjectUpdate) RemoveActions(v ...*ActionModel) *ProjectUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveActionIDs(ids...)
+}
+
+// ClearAgents clears all "agents" edges to the Agent entity.
+func (_u *ProjectUpdate) ClearAgents() *ProjectUpdate {
+	_u.mutation.ClearAgents()
+	return _u
+}
+
+// RemoveAgentIDs removes the "agents" edge to Agent entities by IDs.
+func (_u *ProjectUpdate) RemoveAgentIDs(ids ...int) *ProjectUpdate {
+	_u.mutation.RemoveAgentIDs(ids...)
+	return _u
+}
+
+// RemoveAgents removes "agents" edges to Agent entities.
+func (_u *ProjectUpdate) RemoveAgents(v ...*Agent) *ProjectUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveAgentIDs(ids...)
+}
+
+// ClearFeatures clears all "features" edges to the Feature entity.
+func (_u *ProjectUpdate) ClearFeatures() *ProjectUpdate {
+	_u.mutation.ClearFeatures()
+	return _u
+}
+
+// RemoveFeatureIDs removes the "features" edge to Feature entities by IDs.
+func (_u *ProjectUpdate) RemoveFeatureIDs(ids ...int) *ProjectUpdate {
+	_u.mutation.RemoveFeatureIDs(ids...)
+	return _u
+}
+
+// RemoveFeatures removes "features" edges to Feature entities.
+func (_u *ProjectUpdate) RemoveFeatures(v ...*Feature) *ProjectUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveFeatureIDs(ids...)
 }
 
 // ClearAPIKeys clears all "api_keys" edges to the ApiKey entity.
@@ -280,6 +355,96 @@ func (_u *ProjectUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(actionmodel.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AgentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.AgentsTable,
+			Columns: []string{project.AgentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedAgentsIDs(); len(nodes) > 0 && !_u.mutation.AgentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.AgentsTable,
+			Columns: []string{project.AgentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AgentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.AgentsTable,
+			Columns: []string{project.AgentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.FeaturesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.FeaturesTable,
+			Columns: []string{project.FeaturesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feature.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedFeaturesIDs(); len(nodes) > 0 && !_u.mutation.FeaturesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.FeaturesTable,
+			Columns: []string{project.FeaturesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feature.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.FeaturesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.FeaturesTable,
+			Columns: []string{project.FeaturesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feature.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -461,6 +626,36 @@ func (_u *ProjectUpdateOne) AddActions(v ...*ActionModel) *ProjectUpdateOne {
 	return _u.AddActionIDs(ids...)
 }
 
+// AddAgentIDs adds the "agents" edge to the Agent entity by IDs.
+func (_u *ProjectUpdateOne) AddAgentIDs(ids ...int) *ProjectUpdateOne {
+	_u.mutation.AddAgentIDs(ids...)
+	return _u
+}
+
+// AddAgents adds the "agents" edges to the Agent entity.
+func (_u *ProjectUpdateOne) AddAgents(v ...*Agent) *ProjectUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddAgentIDs(ids...)
+}
+
+// AddFeatureIDs adds the "features" edge to the Feature entity by IDs.
+func (_u *ProjectUpdateOne) AddFeatureIDs(ids ...int) *ProjectUpdateOne {
+	_u.mutation.AddFeatureIDs(ids...)
+	return _u
+}
+
+// AddFeatures adds the "features" edges to the Feature entity.
+func (_u *ProjectUpdateOne) AddFeatures(v ...*Feature) *ProjectUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddFeatureIDs(ids...)
+}
+
 // AddAPIKeyIDs adds the "api_keys" edge to the ApiKey entity by IDs.
 func (_u *ProjectUpdateOne) AddAPIKeyIDs(ids ...uuid.UUID) *ProjectUpdateOne {
 	_u.mutation.AddAPIKeyIDs(ids...)
@@ -534,6 +729,48 @@ func (_u *ProjectUpdateOne) RemoveActions(v ...*ActionModel) *ProjectUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveActionIDs(ids...)
+}
+
+// ClearAgents clears all "agents" edges to the Agent entity.
+func (_u *ProjectUpdateOne) ClearAgents() *ProjectUpdateOne {
+	_u.mutation.ClearAgents()
+	return _u
+}
+
+// RemoveAgentIDs removes the "agents" edge to Agent entities by IDs.
+func (_u *ProjectUpdateOne) RemoveAgentIDs(ids ...int) *ProjectUpdateOne {
+	_u.mutation.RemoveAgentIDs(ids...)
+	return _u
+}
+
+// RemoveAgents removes "agents" edges to Agent entities.
+func (_u *ProjectUpdateOne) RemoveAgents(v ...*Agent) *ProjectUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveAgentIDs(ids...)
+}
+
+// ClearFeatures clears all "features" edges to the Feature entity.
+func (_u *ProjectUpdateOne) ClearFeatures() *ProjectUpdateOne {
+	_u.mutation.ClearFeatures()
+	return _u
+}
+
+// RemoveFeatureIDs removes the "features" edge to Feature entities by IDs.
+func (_u *ProjectUpdateOne) RemoveFeatureIDs(ids ...int) *ProjectUpdateOne {
+	_u.mutation.RemoveFeatureIDs(ids...)
+	return _u
+}
+
+// RemoveFeatures removes "features" edges to Feature entities.
+func (_u *ProjectUpdateOne) RemoveFeatures(v ...*Feature) *ProjectUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveFeatureIDs(ids...)
 }
 
 // ClearAPIKeys clears all "api_keys" edges to the ApiKey entity.
@@ -703,6 +940,96 @@ func (_u *ProjectUpdateOne) sqlSave(ctx context.Context) (_node *Project, err er
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(actionmodel.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AgentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.AgentsTable,
+			Columns: []string{project.AgentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedAgentsIDs(); len(nodes) > 0 && !_u.mutation.AgentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.AgentsTable,
+			Columns: []string{project.AgentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AgentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.AgentsTable,
+			Columns: []string{project.AgentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.FeaturesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.FeaturesTable,
+			Columns: []string{project.FeaturesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feature.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedFeaturesIDs(); len(nodes) > 0 && !_u.mutation.FeaturesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.FeaturesTable,
+			Columns: []string{project.FeaturesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feature.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.FeaturesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.FeaturesTable,
+			Columns: []string{project.FeaturesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feature.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

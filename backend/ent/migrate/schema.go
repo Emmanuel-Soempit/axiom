@@ -18,6 +18,7 @@ var (
 		{Name: "parameters", Type: field.TypeJSON},
 		{Name: "required_feature", Type: field.TypeString, Nullable: true},
 		{Name: "version", Type: field.TypeInt, Default: 1},
+		{Name: "feature_id", Type: field.TypeInt, Nullable: true},
 		{Name: "project_id", Type: field.TypeString},
 	}
 	// ActionModelsTable holds the schema information for the "action_models" table.
@@ -27,8 +28,47 @@ var (
 		PrimaryKey: []*schema.Column{ActionModelsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "action_models_projects_actions",
+				Symbol:     "action_models_features_actions",
 				Columns:    []*schema.Column{ActionModelsColumns[8]},
+				RefColumns: []*schema.Column{FeaturesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "action_models_projects_actions",
+				Columns:    []*schema.Column{ActionModelsColumns[9]},
+				RefColumns: []*schema.Column{ProjectsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// AgentsColumns holds the columns for the "agents" table.
+	AgentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "name", Type: field.TypeString},
+		{Name: "slug", Type: field.TypeString, Unique: true, Size: 2147483647},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "system_prompt", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "active", Type: field.TypeBool, Default: true},
+		{Name: "feature_agent", Type: field.TypeInt, Nullable: true},
+		{Name: "project_id", Type: field.TypeString},
+	}
+	// AgentsTable holds the schema information for the "agents" table.
+	AgentsTable = &schema.Table{
+		Name:       "agents",
+		Columns:    AgentsColumns,
+		PrimaryKey: []*schema.Column{AgentsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "agents_features_agent",
+				Columns:    []*schema.Column{AgentsColumns[8]},
+				RefColumns: []*schema.Column{FeaturesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "agents_projects_agents",
+				Columns:    []*schema.Column{AgentsColumns[9]},
 				RefColumns: []*schema.Column{ProjectsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -79,7 +119,9 @@ var (
 		{Name: "validated", Type: field.TypeBool, Default: false},
 		{Name: "validation_errors", Type: field.TypeJSON, Nullable: true},
 		{Name: "final_response", Type: field.TypeJSON, Nullable: true},
+		{Name: "error_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"agent_not_found", "load_actions", "load_history", "build_system_prompt", "llm_chat", "action_not_found", "validation_error", "validation_failed", "persist_user_message", "persist_assistant_message", "persist_tool_message"}},
 		{Name: "action_id", Type: field.TypeInt, Nullable: true},
+		{Name: "agent_id", Type: field.TypeInt, Nullable: true},
 		{Name: "user_id", Type: field.TypeInt, Nullable: true},
 	}
 	// AuditRecordsTable holds the schema information for the "audit_records" table.
@@ -90,15 +132,52 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "audit_records_action_models_audit_records",
-				Columns:    []*schema.Column{AuditRecordsColumns[9]},
+				Columns:    []*schema.Column{AuditRecordsColumns[10]},
 				RefColumns: []*schema.Column{ActionModelsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
+				Symbol:     "audit_records_agents_audit_records",
+				Columns:    []*schema.Column{AuditRecordsColumns[11]},
+				RefColumns: []*schema.Column{AgentsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
 				Symbol:     "audit_records_users_audit_records",
-				Columns:    []*schema.Column{AuditRecordsColumns[10]},
+				Columns:    []*schema.Column{AuditRecordsColumns[12]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// FeaturesColumns holds the columns for the "features" table.
+	FeaturesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "name", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "slug", Type: field.TypeString, Nullable: true},
+		{Name: "agent_feature", Type: field.TypeInt, Nullable: true},
+		{Name: "project_id", Type: field.TypeString},
+	}
+	// FeaturesTable holds the schema information for the "features" table.
+	FeaturesTable = &schema.Table{
+		Name:       "features",
+		Columns:    FeaturesColumns,
+		PrimaryKey: []*schema.Column{FeaturesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "features_agents_feature",
+				Columns:    []*schema.Column{FeaturesColumns[6]},
+				RefColumns: []*schema.Column{AgentsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "features_projects_features",
+				Columns:    []*schema.Column{FeaturesColumns[7]},
+				RefColumns: []*schema.Column{ProjectsColumns[0]},
+				OnDelete:   schema.NoAction,
 			},
 		},
 	}
@@ -271,8 +350,10 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ActionModelsTable,
+		AgentsTable,
 		APIKeysTable,
 		AuditRecordsTable,
+		FeaturesTable,
 		MessagesTable,
 		ProjectsTable,
 		RolesTable,
@@ -284,11 +365,17 @@ var (
 )
 
 func init() {
-	ActionModelsTable.ForeignKeys[0].RefTable = ProjectsTable
+	ActionModelsTable.ForeignKeys[0].RefTable = FeaturesTable
+	ActionModelsTable.ForeignKeys[1].RefTable = ProjectsTable
+	AgentsTable.ForeignKeys[0].RefTable = FeaturesTable
+	AgentsTable.ForeignKeys[1].RefTable = ProjectsTable
 	APIKeysTable.ForeignKeys[0].RefTable = ProjectsTable
 	APIKeysTable.ForeignKeys[1].RefTable = UsersTable
 	AuditRecordsTable.ForeignKeys[0].RefTable = ActionModelsTable
-	AuditRecordsTable.ForeignKeys[1].RefTable = UsersTable
+	AuditRecordsTable.ForeignKeys[1].RefTable = AgentsTable
+	AuditRecordsTable.ForeignKeys[2].RefTable = UsersTable
+	FeaturesTable.ForeignKeys[0].RefTable = AgentsTable
+	FeaturesTable.ForeignKeys[1].RefTable = ProjectsTable
 	MessagesTable.ForeignKeys[0].RefTable = ActionModelsTable
 	ProjectsTable.ForeignKeys[0].RefTable = UsersTable
 	UsersTable.ForeignKeys[0].RefTable = RolesTable

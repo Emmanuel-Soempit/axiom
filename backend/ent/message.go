@@ -5,10 +5,11 @@ package ent
 import (
 	"encoding/json"
 	"fmt"
-	"go-backend-template/ent/actionmodel"
-	"go-backend-template/ent/message"
 	"strings"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/message"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

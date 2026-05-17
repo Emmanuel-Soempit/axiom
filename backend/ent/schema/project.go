@@ -35,6 +35,8 @@ func (Project) Fields() []ent.Field {
 func (Project) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("actions", ActionModel.Type),
+		edge.To("agents", Agent.Type),
+		edge.To("features", Feature.Type),
 		edge.To("api_keys", ApiKey.Type),
 		edge.From("user", User.Type).
 			Ref("projects").

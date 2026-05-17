@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"go-backend-template/ent"
-	"go-backend-template/ent/message"
-	"go-backend-template/internal/core/llm"
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/ent/message"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/llm"
 
 	"github.com/google/uuid"
 )

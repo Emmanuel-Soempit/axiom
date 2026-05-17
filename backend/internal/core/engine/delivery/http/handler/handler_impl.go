@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"go-backend-template/internal/core/engine"
-	"go-backend-template/internal/core/engine/dtos"
-	"go-backend-template/internal/utils"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/engine"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/engine/dtos"
+	"github.com/Emmanuel-Soempit/axiom/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -28,8 +28,9 @@ func (h *engineHandler) ProcessIntent(c *fiber.Ctx) error {
 	// ProjectID + UserID come from the API key auth middleware
 	projectID, _ := c.Locals("project_id").(string)
 	userID, _ := c.Locals("user_id").(int)
+	agentSlug := c.Params("slug")
 
-	result, err := h.engine.Process(c.Context(), payload.SessionID, projectID, userID, payload.Prompt)
+	result, err := h.engine.Process(c.Context(), payload.SessionID, projectID, userID, agentSlug, payload.Prompt)
 	if err != nil {
 		return utils.InternalError(c, "Failed to process intent", err.Error())
 	}

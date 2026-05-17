@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	"go-backend-template/internal/utils"
 	"strings"
+
+	"github.com/Emmanuel-Soempit/axiom/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 )

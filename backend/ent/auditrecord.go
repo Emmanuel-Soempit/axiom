@@ -5,11 +5,13 @@ package ent
 import (
 	"encoding/json"
 	"fmt"
-	"go-backend-template/ent/actionmodel"
-	"go-backend-template/ent/auditrecord"
-	"go-backend-template/ent/user"
 	"strings"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/agent"
+	"github.com/Emmanuel-Soempit/axiom/ent/auditrecord"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -40,6 +42,10 @@ type AuditRecord struct {
 	ValidationErrors []string `json:"validation_errors,omitempty"`
 	// FinalResponse holds the value of the "final_response" field.
 	FinalResponse map[string]interface{} `json:"final_response,omitempty"`
+	// AgentID holds the value of the "agent_id" field.
+	AgentID int `json:"agent_id,omitempty"`
+	// ErrorType holds the value of the "error_type" field.
+	ErrorType auditrecord.ErrorType `json:"error_type,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AuditRecordQuery when eager-loading is set.
 	Edges        AuditRecordEdges `json:"edges"`
@@ -52,9 +58,11 @@ type AuditRecordEdges struct {
 	User *User `json:"user,omitempty"`
 	// Action holds the value of the action edge.
 	Action *ActionModel `json:"action,omitempty"`
+	// Agent holds the value of the agent edge.
+	Agent *Agent `json:"agent,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // UserOrErr returns the User value or an error if the edge
@@ -79,6 +87,17 @@ func (e AuditRecordEdges) ActionOrErr() (*ActionModel, error) {
 	return nil, &NotLoadedError{edge: "action"}
 }
 
+// AgentOrErr returns the Agent value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e AuditRecordEdges) AgentOrErr() (*Agent, error) {
+	if e.Agent != nil {
+		return e.Agent, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: agent.Label}
+	}
+	return nil, &NotLoadedError{edge: "agent"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*AuditRecord) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -88,9 +107,9 @@ func (*AuditRecord) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case auditrecord.FieldValidated:
 			values[i] = new(sql.NullBool)
-		case auditrecord.FieldID, auditrecord.FieldUserID, auditrecord.FieldActionID:
+		case auditrecord.FieldID, auditrecord.FieldUserID, auditrecord.FieldActionID, auditrecord.FieldAgentID:
 			values[i] = new(sql.NullInt64)
-		case auditrecord.FieldProjectID, auditrecord.FieldPrompt:
+		case auditrecord.FieldProjectID, auditrecord.FieldPrompt, auditrecord.FieldErrorType:
 			values[i] = new(sql.NullString)
 		case auditrecord.FieldCreatedAt, auditrecord.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -181,6 +200,18 @@ func (_m *AuditRecord) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field final_response: %w", err)
 				}
 			}
+		case auditrecord.FieldAgentID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field agent_id", values[i])
+			} else if value.Valid {
+				_m.AgentID = int(value.Int64)
+			}
+		case auditrecord.FieldErrorType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field error_type", values[i])
+			} else if value.Valid {
+				_m.ErrorType = auditrecord.ErrorType(value.String)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -202,6 +233,11 @@ func (_m *AuditRecord) QueryUser() *UserQuery {
 // QueryAction queries the "action" edge of the AuditRecord entity.
 func (_m *AuditRecord) QueryAction() *ActionModelQuery {
 	return NewAuditRecordClient(_m.config).QueryAction(_m)
+}
+
+// QueryAgent queries the "agent" edge of the AuditRecord entity.
+func (_m *AuditRecord) QueryAgent() *AgentQuery {
+	return NewAuditRecordClient(_m.config).QueryAgent(_m)
 }
 
 // Update returns a builder for updating this AuditRecord.
@@ -256,6 +292,12 @@ func (_m *AuditRecord) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("final_response=")
 	builder.WriteString(fmt.Sprintf("%v", _m.FinalResponse))
+	builder.WriteString(", ")
+	builder.WriteString("agent_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AgentID))
+	builder.WriteString(", ")
+	builder.WriteString("error_type=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ErrorType))
 	builder.WriteByte(')')
 	return builder.String()
 }

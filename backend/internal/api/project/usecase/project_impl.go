@@ -3,10 +3,11 @@ package usecase
 import (
 	"context"
 	"errors"
-	"go-backend-template/ent"
-	"go-backend-template/internal/api/project/dtos"
-	"go-backend-template/internal/api/project/repository"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/project/dtos"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/project/repository"
 )
 
 type projectUsecase struct {

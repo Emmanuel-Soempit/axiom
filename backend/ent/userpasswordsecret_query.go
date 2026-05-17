@@ -5,10 +5,11 @@ package ent
 import (
 	"context"
 	"fmt"
-	"go-backend-template/ent/predicate"
-	"go-backend-template/ent/user"
-	"go-backend-template/ent/userpasswordsecret"
 	"math"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
+	"github.com/Emmanuel-Soempit/axiom/ent/userpasswordsecret"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

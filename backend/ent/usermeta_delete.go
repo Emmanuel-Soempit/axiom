@@ -4,8 +4,9 @@ package ent
 
 import (
 	"context"
-	"go-backend-template/ent/predicate"
-	"go-backend-template/ent/usermeta"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
+	"github.com/Emmanuel-Soempit/axiom/ent/usermeta"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

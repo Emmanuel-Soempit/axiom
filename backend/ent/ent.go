@@ -6,18 +6,21 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-backend-template/ent/actionmodel"
-	"go-backend-template/ent/apikey"
-	"go-backend-template/ent/auditrecord"
-	"go-backend-template/ent/message"
-	"go-backend-template/ent/project"
-	"go-backend-template/ent/role"
-	"go-backend-template/ent/user"
-	"go-backend-template/ent/userinvitation"
-	"go-backend-template/ent/usermeta"
-	"go-backend-template/ent/userpasswordsecret"
 	"reflect"
 	"sync"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/agent"
+	"github.com/Emmanuel-Soempit/axiom/ent/apikey"
+	"github.com/Emmanuel-Soempit/axiom/ent/auditrecord"
+	"github.com/Emmanuel-Soempit/axiom/ent/feature"
+	"github.com/Emmanuel-Soempit/axiom/ent/message"
+	"github.com/Emmanuel-Soempit/axiom/ent/project"
+	"github.com/Emmanuel-Soempit/axiom/ent/role"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
+	"github.com/Emmanuel-Soempit/axiom/ent/userinvitation"
+	"github.com/Emmanuel-Soempit/axiom/ent/usermeta"
+	"github.com/Emmanuel-Soempit/axiom/ent/userpasswordsecret"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -83,8 +86,10 @@ func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			actionmodel.Table:        actionmodel.ValidColumn,
+			agent.Table:              agent.ValidColumn,
 			apikey.Table:             apikey.ValidColumn,
 			auditrecord.Table:        auditrecord.ValidColumn,
+			feature.Table:            feature.ValidColumn,
 			message.Table:            message.ValidColumn,
 			project.Table:            project.ValidColumn,
 			role.Table:               role.ValidColumn,

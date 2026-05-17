@@ -2,15 +2,16 @@ package repository
 
 import (
 	"context"
-	"go-backend-template/ent"
-	"go-backend-template/ent/actionmodel"
-	"go-backend-template/ent/auditrecord"
-	"go-backend-template/ent/predicate"
-	"go-backend-template/ent/project"
-	"go-backend-template/ent/user"
-	"go-backend-template/internal/api/project/dtos"
 	"log"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/auditrecord"
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
+	"github.com/Emmanuel-Soempit/axiom/ent/project"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/project/dtos"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"

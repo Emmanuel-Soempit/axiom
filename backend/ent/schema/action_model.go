@@ -5,7 +5,7 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 
-	"go-backend-template/internal/core/registry/dtos"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/registry/dtos"
 )
 
 // ActionModel holds the schema definition for the ActionModel entity.
@@ -24,6 +24,7 @@ func (ActionModel) Mixin() []ent.Mixin {
 func (ActionModel) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("project_id"),
+		field.Int("feature_id").Optional(),
 		field.String("name"),
 		field.String("description"),
 		field.JSON("parameters", map[string]*dtos.ParameterSchema{}),
@@ -41,6 +42,10 @@ func (ActionModel) Edges() []ent.Edge {
 			Unique().
 			Field("project_id").
 			Required(),
+		edge.From("feature", Feature.Type).
+			Ref("actions").
+			Unique().
+			Field("feature_id"),
 		edge.To("audit_records", AuditRecord.Type),
 	}
 }

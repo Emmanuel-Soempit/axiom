@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"go-backend-template/internal/api/credentials/dtos"
-	"go-backend-template/internal/api/credentials/usecase"
-	"go-backend-template/internal/utils"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/credentials/dtos"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/credentials/usecase"
+	"github.com/Emmanuel-Soempit/axiom/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 )

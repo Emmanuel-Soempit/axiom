@@ -2,14 +2,15 @@ package http
 
 import (
 	"context"
-	"go-backend-template/ent"
-	"go-backend-template/internal/core/audit"
-	"go-backend-template/internal/core/engine"
-	"go-backend-template/internal/core/engine/delivery/http/handler"
-	"go-backend-template/internal/core/llm"
-	"go-backend-template/internal/core/registry"
-	"go-backend-template/internal/core/validation"
-	"go-backend-template/internal/middleware"
+
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/audit"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/engine"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/engine/delivery/http/handler"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/llm"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/registry"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/validation"
+	"github.com/Emmanuel-Soempit/axiom/internal/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -22,7 +23,7 @@ func RegisterEngineRoutes(router fiber.Router, client *ent.Client, registry regi
 		panic(err)
 	}
 	messageStore := engine.NewEntMessageStore(client)
-	eng := engine.NewEngine(registry, llmProvider, auditor, validator, messageStore)
+	eng := engine.NewEngine(client, registry, llmProvider, auditor, validator, messageStore)
 
 	h := handler.NewEngineHandler(eng)
 
@@ -31,6 +32,6 @@ func RegisterEngineRoutes(router fiber.Router, client *ent.Client, registry regi
 	engineGroup.Use(middleware.CoreRateLimiter())
 
 	engineGroup.Use(apiKeyAuth.ApiKeyAuth)
-	engineGroup.Post("/process", h.ProcessIntent)
+	engineGroup.Post("/process/:slug", h.ProcessIntent)
 	engineGroup.Get("/sessions/:sessionId/history", h.GetSessionHistory)
 }

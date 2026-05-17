@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"go-backend-template/internal/core/llm"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/llm"
 
 	"github.com/google/uuid"
 )

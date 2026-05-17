@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: eac-frontend
+  name: axiom-frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: eac-frontend
+      app: axiom-frontend
   template:
     metadata:
       labels:
-        app: eac-frontend
+        app: axiom-frontend
     spec:
       containers:
       - name: frontend
-        image: ghcr.io/emmanuel-soempit/eac-frontend:latest
+        image: ghcr.io/emmanuel-soempit/axiom-frontend:latest
         ports:
         - containerPort: 3000
         env:
@@ -25,7 +25,7 @@ spec:
         - name: NEXT_PUBLIC_FRONTEND_URL
           valueFrom:
             configMapKeyRef:
-              name: eac-config
+              name: axiom-config
               key: frontend_url
         readinessProbe:
           httpGet:

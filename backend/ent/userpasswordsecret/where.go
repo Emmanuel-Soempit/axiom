@@ -3,8 +3,9 @@
 package userpasswordsecret
 
 import (
-	"go-backend-template/ent/predicate"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

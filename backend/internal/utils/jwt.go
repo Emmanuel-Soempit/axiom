@@ -2,10 +2,11 @@ package utils
 
 import (
 	"errors"
-	"go-backend-template/internal/api/auth/dtos"
 	"log"
 	"os"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/internal/api/auth/dtos"
 
 	"github.com/golang-jwt/jwt/v5"
 )

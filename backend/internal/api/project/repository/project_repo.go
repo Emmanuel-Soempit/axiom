@@ -4,9 +4,10 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	"go-backend-template/ent"
-	"go-backend-template/internal/api/project/dtos"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/project/dtos"
 )
 
 type AuditCounts struct {

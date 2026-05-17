@@ -3,9 +3,10 @@ package registry
 import (
 	"context"
 	"fmt"
-	"go-backend-template/ent"
-	"go-backend-template/ent/actionmodel"
 	"sync"
+
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
 )
 
 type actionRegistry struct {
@@ -28,6 +29,35 @@ func (r *actionRegistry) LoadActions(ctx context.Context, projectID string) erro
 		All(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to load actions: %w", err)
+	}
+
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	for _, action := range actions {
+		r.actions[action.Name] = action
+	}
+
+	return nil
+}
+
+func (r *actionRegistry) LoadActionsByFeatureIDs(ctx context.Context, projectID string, featureIDs []int) error {
+	if len(featureIDs) == 0 {
+		r.mu.Lock()
+		defer r.mu.Unlock()
+		r.actions = make(map[string]*ent.ActionModel)
+		return nil
+	}
+
+	actions, err := r.client.ActionModel.
+		Query().
+		Where(
+			actionmodel.ProjectID(projectID),
+			actionmodel.FeatureIDIn(featureIDs...),
+		).
+		All(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to load actions by feature IDs: %w", err)
 	}
 
 	r.mu.Lock()

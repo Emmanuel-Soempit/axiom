@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: eac-postgres
+  name: axiom-postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: eac-postgres
+      app: axiom-postgres
   template:
     metadata:
       labels:
-        app: eac-postgres
+        app: axiom-postgres
     spec:
       containers:
       - name: postgres
@@ -25,7 +25,7 @@ spec:
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: eac-secrets
+              name: axiom-secrets
               key: postgres_password
         volumeMounts:
         - name: postgres-data
@@ -45,5 +45,5 @@ spec:
       volumes:
       - name: postgres-data
         hostPath:
-          path: /var/lib/eac/postgres
+          path: /var/lib/axiom/postgres
           type: DirectoryOrCreate

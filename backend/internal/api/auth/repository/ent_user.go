@@ -2,12 +2,13 @@ package repository
 
 import (
 	"context"
-	"go-backend-template/ent"
-	"go-backend-template/ent/role"
-	"go-backend-template/ent/user"
-	"go-backend-template/ent/usermeta"
-	"go-backend-template/internal/api/auth/dtos"
 	"log"
+
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/ent/role"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
+	"github.com/Emmanuel-Soempit/axiom/ent/usermeta"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/auth/dtos"
 )
 
 type entUserRepo struct {
