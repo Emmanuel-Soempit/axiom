@@ -6,10 +6,11 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
-	"go-backend-template/ent/predicate"
-	"go-backend-template/ent/role"
-	"go-backend-template/ent/user"
 	"math"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
+	"github.com/Emmanuel-Soempit/axiom/ent/role"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

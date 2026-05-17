@@ -14,10 +14,16 @@ type Tx struct {
 	config
 	// ActionModel is the client for interacting with the ActionModel builders.
 	ActionModel *ActionModelClient
+	// Agent is the client for interacting with the Agent builders.
+	Agent *AgentClient
 	// ApiKey is the client for interacting with the ApiKey builders.
 	ApiKey *ApiKeyClient
 	// AuditRecord is the client for interacting with the AuditRecord builders.
 	AuditRecord *AuditRecordClient
+	// Feature is the client for interacting with the Feature builders.
+	Feature *FeatureClient
+	// Message is the client for interacting with the Message builders.
+	Message *MessageClient
 	// Project is the client for interacting with the Project builders.
 	Project *ProjectClient
 	// Role is the client for interacting with the Role builders.
@@ -162,8 +168,11 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.ActionModel = NewActionModelClient(tx.config)
+	tx.Agent = NewAgentClient(tx.config)
 	tx.ApiKey = NewApiKeyClient(tx.config)
 	tx.AuditRecord = NewAuditRecordClient(tx.config)
+	tx.Feature = NewFeatureClient(tx.config)
+	tx.Message = NewMessageClient(tx.config)
 	tx.Project = NewProjectClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.User = NewUserClient(tx.config)

@@ -17,7 +17,7 @@ import Button from '@/shared/components/Button';
 import { useCreateAction, useUpdateAction } from '../hooks';
 import { ParameterType } from '../types/parameter';
 import { Action } from '../types';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -45,7 +45,6 @@ interface ActionFormData {
     name: string;
     description: string;
     version: number;
-    required_feature: string;
     parameters: ParameterFormField[];
 }
 
@@ -74,7 +73,6 @@ const actionFormSchema = z.object({
     name: z.string().min(1, 'Action name is required').regex(/^[a-z][a-z0-9_]*$/, 'Must be snake_case'),
     description: z.string().min(1, 'Description is required'),
     version: z.number().min(1, 'Version must be at least 1'),
-    required_feature: z.string(),
     parameters: z.array(parameterSchema).min(1, 'At least one parameter is required'),
 });
 
@@ -444,9 +442,6 @@ const JsonPreview: React.FC = () => {
         parameters: transformParams(values.parameters || []),
         version: Number(values.version) || 1,
     };
-    if (values.required_feature?.trim()) {
-        payload.required_feature = values.required_feature;
-    }
 
     const jsonString = JSON.stringify(payload, null, 2);
     const highlighted = syntaxHighlight(jsonString);
@@ -491,10 +486,15 @@ const JsonPreview: React.FC = () => {
 
 interface CreateActionFormProps {
     action?: Action;
+    featureId?: string | number;
 }
 
-export const CreateActionForm: React.FC<CreateActionFormProps> = ({ action }) => {
-    const { mutateAsync: createAction, isPending: isCreating } = useCreateAction();
+export const CreateActionForm: React.FC<CreateActionFormProps> = ({ action, featureId }) => {
+    const { projectId } = useParams();
+    const redirectPath = featureId
+        ? `/project/${projectId}/features/${featureId}`
+        : undefined;
+    const { mutateAsync: createAction, isPending: isCreating } = useCreateAction(redirectPath);
     const { mutateAsync: updateAction, isPending: isUpdating } = useUpdateAction(action?.id?.toString() || '');
     const router = useRouter();
     const isEditMode = !!action;
@@ -506,7 +506,6 @@ export const CreateActionForm: React.FC<CreateActionFormProps> = ({ action }) =>
             name: action?.name || '',
             description: action?.description || '',
             version: action?.version || 1,
-            required_feature: action?.required_feature || '',
             parameters: action?.parameters ? transformParamsToForm(action.parameters) : [],
         },
     });
@@ -518,13 +517,15 @@ export const CreateActionForm: React.FC<CreateActionFormProps> = ({ action }) =>
     } = methods;
 
     const onSubmit = (data: ActionFormData) => {
-        const payload = {
+        const payload: any = {
             name: data.name,
             description: data.description,
             parameters: transformParams(data.parameters),
-            required_feature: data.required_feature || undefined,
             version: Number(data.version),
         };
+        if (featureId) {
+            payload.feature_id = Number(featureId);
+        }
 
         const mutation = isEditMode ? updateAction(payload) : createAction(payload);
         mutation.then(() => {
@@ -609,12 +610,6 @@ export const CreateActionForm: React.FC<CreateActionFormProps> = ({ action }) =>
                                     )}
                                 </div>
 
-                                <FormInput
-                                    label="Required Feature"
-                                    placeholder="e.g. tasks"
-                                    register={register('required_feature')}
-                                    helperText="Optional"
-                                />
                             </div>
                         </details>
 

@@ -3,8 +3,9 @@
 package auditrecord
 
 import (
-	"go-backend-template/ent/predicate"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -88,6 +89,11 @@ func Prompt(v string) predicate.AuditRecord {
 // Validated applies equality check predicate on the "validated" field. It's identical to ValidatedEQ.
 func Validated(v bool) predicate.AuditRecord {
 	return predicate.AuditRecord(sql.FieldEQ(FieldValidated, v))
+}
+
+// AgentID applies equality check predicate on the "agent_id" field. It's identical to AgentIDEQ.
+func AgentID(v int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldEQ(FieldAgentID, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -410,6 +416,66 @@ func FinalResponseNotNil() predicate.AuditRecord {
 	return predicate.AuditRecord(sql.FieldNotNull(FieldFinalResponse))
 }
 
+// AgentIDEQ applies the EQ predicate on the "agent_id" field.
+func AgentIDEQ(v int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldEQ(FieldAgentID, v))
+}
+
+// AgentIDNEQ applies the NEQ predicate on the "agent_id" field.
+func AgentIDNEQ(v int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNEQ(FieldAgentID, v))
+}
+
+// AgentIDIn applies the In predicate on the "agent_id" field.
+func AgentIDIn(vs ...int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIn(FieldAgentID, vs...))
+}
+
+// AgentIDNotIn applies the NotIn predicate on the "agent_id" field.
+func AgentIDNotIn(vs ...int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotIn(FieldAgentID, vs...))
+}
+
+// AgentIDIsNil applies the IsNil predicate on the "agent_id" field.
+func AgentIDIsNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIsNull(FieldAgentID))
+}
+
+// AgentIDNotNil applies the NotNil predicate on the "agent_id" field.
+func AgentIDNotNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotNull(FieldAgentID))
+}
+
+// ErrorTypeEQ applies the EQ predicate on the "error_type" field.
+func ErrorTypeEQ(v ErrorType) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldEQ(FieldErrorType, v))
+}
+
+// ErrorTypeNEQ applies the NEQ predicate on the "error_type" field.
+func ErrorTypeNEQ(v ErrorType) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNEQ(FieldErrorType, v))
+}
+
+// ErrorTypeIn applies the In predicate on the "error_type" field.
+func ErrorTypeIn(vs ...ErrorType) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIn(FieldErrorType, vs...))
+}
+
+// ErrorTypeNotIn applies the NotIn predicate on the "error_type" field.
+func ErrorTypeNotIn(vs ...ErrorType) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotIn(FieldErrorType, vs...))
+}
+
+// ErrorTypeIsNil applies the IsNil predicate on the "error_type" field.
+func ErrorTypeIsNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIsNull(FieldErrorType))
+}
+
+// ErrorTypeNotNil applies the NotNil predicate on the "error_type" field.
+func ErrorTypeNotNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotNull(FieldErrorType))
+}
+
 // HasUser applies the HasEdge predicate on the "user" edge.
 func HasUser() predicate.AuditRecord {
 	return predicate.AuditRecord(func(s *sql.Selector) {
@@ -448,6 +514,29 @@ func HasAction() predicate.AuditRecord {
 func HasActionWith(preds ...predicate.ActionModel) predicate.AuditRecord {
 	return predicate.AuditRecord(func(s *sql.Selector) {
 		step := newActionStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasAgent applies the HasEdge predicate on the "agent" edge.
+func HasAgent() predicate.AuditRecord {
+	return predicate.AuditRecord(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, AgentTable, AgentColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAgentWith applies the HasEdge predicate on the "agent" edge with a given conditions (other predicates).
+func HasAgentWith(preds ...predicate.Agent) predicate.AuditRecord {
+	return predicate.AuditRecord(func(s *sql.Selector) {
+		step := newAgentStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

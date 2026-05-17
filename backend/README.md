@@ -5,7 +5,7 @@ A Go backend template that uses Air for hot reloading, Fiber for web framework, 
 ## **Project Structure**
 
 ```
-go-backend-template/
+github.com/Emmanuel-Soempit/axiom/
 ├── .env
 ├── .env.example
 ├── .gitignore
@@ -145,8 +145,8 @@ go-backend-template/
 
 1. **Clone the repository**
    ```bash
-   git clone git@github.com:Emmanuel-Soempit/go-backend-template.git
-   cd go-backend-template
+   git clone git@github.com:Emmanuel-Soempit/github.com/Emmanuel-Soempit/axiom.git
+   cd github.com/Emmanuel-Soempit/axiom
    ```
 
 2. **Install dependencies**

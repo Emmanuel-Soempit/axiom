@@ -3,17 +3,21 @@
 package ent
 
 import (
-	"go-backend-template/ent/actionmodel"
-	"go-backend-template/ent/apikey"
-	"go-backend-template/ent/auditrecord"
-	"go-backend-template/ent/project"
-	"go-backend-template/ent/role"
-	"go-backend-template/ent/schema"
-	"go-backend-template/ent/user"
-	"go-backend-template/ent/userinvitation"
-	"go-backend-template/ent/usermeta"
-	"go-backend-template/ent/userpasswordsecret"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/agent"
+	"github.com/Emmanuel-Soempit/axiom/ent/apikey"
+	"github.com/Emmanuel-Soempit/axiom/ent/auditrecord"
+	"github.com/Emmanuel-Soempit/axiom/ent/feature"
+	"github.com/Emmanuel-Soempit/axiom/ent/message"
+	"github.com/Emmanuel-Soempit/axiom/ent/project"
+	"github.com/Emmanuel-Soempit/axiom/ent/role"
+	"github.com/Emmanuel-Soempit/axiom/ent/schema"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
+	"github.com/Emmanuel-Soempit/axiom/ent/userinvitation"
+	"github.com/Emmanuel-Soempit/axiom/ent/usermeta"
+	"github.com/Emmanuel-Soempit/axiom/ent/userpasswordsecret"
 
 	"github.com/google/uuid"
 )
@@ -38,9 +42,32 @@ func init() {
 	// actionmodel.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	actionmodel.UpdateDefaultUpdatedAt = actionmodelDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// actionmodelDescVersion is the schema descriptor for version field.
-	actionmodelDescVersion := actionmodelFields[5].Descriptor()
+	actionmodelDescVersion := actionmodelFields[6].Descriptor()
 	// actionmodel.DefaultVersion holds the default value on creation for the version field.
 	actionmodel.DefaultVersion = actionmodelDescVersion.Default.(int)
+	agentMixin := schema.Agent{}.Mixin()
+	agentMixinFields0 := agentMixin[0].Fields()
+	_ = agentMixinFields0
+	agentFields := schema.Agent{}.Fields()
+	_ = agentFields
+	// agentDescCreatedAt is the schema descriptor for created_at field.
+	agentDescCreatedAt := agentMixinFields0[0].Descriptor()
+	// agent.DefaultCreatedAt holds the default value on creation for the created_at field.
+	agent.DefaultCreatedAt = agentDescCreatedAt.Default.(func() time.Time)
+	// agentDescUpdatedAt is the schema descriptor for updated_at field.
+	agentDescUpdatedAt := agentMixinFields0[1].Descriptor()
+	// agent.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	agent.DefaultUpdatedAt = agentDescUpdatedAt.Default.(func() time.Time)
+	// agent.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	agent.UpdateDefaultUpdatedAt = agentDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// agentDescName is the schema descriptor for name field.
+	agentDescName := agentFields[0].Descriptor()
+	// agent.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	agent.NameValidator = agentDescName.Validators[0].(func(string) error)
+	// agentDescActive is the schema descriptor for active field.
+	agentDescActive := agentFields[5].Descriptor()
+	// agent.DefaultActive holds the default value on creation for the active field.
+	agent.DefaultActive = agentDescActive.Default.(bool)
 	apikeyMixin := schema.ApiKey{}.Mixin()
 	apikeyMixinFields0 := apikeyMixin[0].Fields()
 	_ = apikeyMixinFields0
@@ -79,6 +106,36 @@ func init() {
 	auditrecordDescValidated := auditrecordFields[5].Descriptor()
 	// auditrecord.DefaultValidated holds the default value on creation for the validated field.
 	auditrecord.DefaultValidated = auditrecordDescValidated.Default.(bool)
+	featureMixin := schema.Feature{}.Mixin()
+	featureMixinFields0 := featureMixin[0].Fields()
+	_ = featureMixinFields0
+	featureFields := schema.Feature{}.Fields()
+	_ = featureFields
+	// featureDescCreatedAt is the schema descriptor for created_at field.
+	featureDescCreatedAt := featureMixinFields0[0].Descriptor()
+	// feature.DefaultCreatedAt holds the default value on creation for the created_at field.
+	feature.DefaultCreatedAt = featureDescCreatedAt.Default.(func() time.Time)
+	// featureDescUpdatedAt is the schema descriptor for updated_at field.
+	featureDescUpdatedAt := featureMixinFields0[1].Descriptor()
+	// feature.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	feature.DefaultUpdatedAt = featureDescUpdatedAt.Default.(func() time.Time)
+	// feature.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	feature.UpdateDefaultUpdatedAt = featureDescUpdatedAt.UpdateDefault.(func() time.Time)
+	messageMixin := schema.Message{}.Mixin()
+	messageMixinFields0 := messageMixin[0].Fields()
+	_ = messageMixinFields0
+	messageFields := schema.Message{}.Fields()
+	_ = messageFields
+	// messageDescCreatedAt is the schema descriptor for created_at field.
+	messageDescCreatedAt := messageMixinFields0[0].Descriptor()
+	// message.DefaultCreatedAt holds the default value on creation for the created_at field.
+	message.DefaultCreatedAt = messageDescCreatedAt.Default.(func() time.Time)
+	// messageDescUpdatedAt is the schema descriptor for updated_at field.
+	messageDescUpdatedAt := messageMixinFields0[1].Descriptor()
+	// message.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	message.DefaultUpdatedAt = messageDescUpdatedAt.Default.(func() time.Time)
+	// message.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	message.UpdateDefaultUpdatedAt = messageDescUpdatedAt.UpdateDefault.(func() time.Time)
 	projectMixin := schema.Project{}.Mixin()
 	projectMixinFields0 := projectMixin[0].Fields()
 	_ = projectMixinFields0

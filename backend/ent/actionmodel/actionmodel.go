@@ -20,6 +20,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldProjectID holds the string denoting the project_id field in the database.
 	FieldProjectID = "project_id"
+	// FieldFeatureID holds the string denoting the feature_id field in the database.
+	FieldFeatureID = "feature_id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
 	// FieldDescription holds the string denoting the description field in the database.
@@ -32,6 +34,8 @@ const (
 	FieldVersion = "version"
 	// EdgeProject holds the string denoting the project edge name in mutations.
 	EdgeProject = "project"
+	// EdgeFeature holds the string denoting the feature edge name in mutations.
+	EdgeFeature = "feature"
 	// EdgeAuditRecords holds the string denoting the audit_records edge name in mutations.
 	EdgeAuditRecords = "audit_records"
 	// Table holds the table name of the actionmodel in the database.
@@ -43,6 +47,13 @@ const (
 	ProjectInverseTable = "projects"
 	// ProjectColumn is the table column denoting the project relation/edge.
 	ProjectColumn = "project_id"
+	// FeatureTable is the table that holds the feature relation/edge.
+	FeatureTable = "action_models"
+	// FeatureInverseTable is the table name for the Feature entity.
+	// It exists in this package in order to avoid circular dependency with the "feature" package.
+	FeatureInverseTable = "features"
+	// FeatureColumn is the table column denoting the feature relation/edge.
+	FeatureColumn = "feature_id"
 	// AuditRecordsTable is the table that holds the audit_records relation/edge.
 	AuditRecordsTable = "audit_records"
 	// AuditRecordsInverseTable is the table name for the AuditRecord entity.
@@ -58,6 +69,7 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldProjectID,
+	FieldFeatureID,
 	FieldName,
 	FieldDescription,
 	FieldParameters,
@@ -109,6 +121,11 @@ func ByProjectID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProjectID, opts...).ToFunc()
 }
 
+// ByFeatureID orders the results by the feature_id field.
+func ByFeatureID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFeatureID, opts...).ToFunc()
+}
+
 // ByName orders the results by the name field.
 func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
@@ -136,6 +153,13 @@ func ByProjectField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
+// ByFeatureField orders the results by feature field.
+func ByFeatureField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newFeatureStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByAuditRecordsCount orders the results by audit_records count.
 func ByAuditRecordsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -154,6 +178,13 @@ func newProjectStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProjectInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, ProjectTable, ProjectColumn),
+	)
+}
+func newFeatureStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(FeatureInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, FeatureTable, FeatureColumn),
 	)
 }
 func newAuditRecordsStep() *sqlgraph.Step {

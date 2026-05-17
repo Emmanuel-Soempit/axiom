@@ -9,6 +9,7 @@ export interface CreateActionPayload {
   parameters: Record<string, any>;
   required_feature?: string;
   version: number;
+  feature_id?: number;
 }
 
 export const httpGetActions = async (): Promise<

@@ -9,11 +9,20 @@ import (
 // ActionModel is the predicate function for actionmodel builders.
 type ActionModel func(*sql.Selector)
 
+// Agent is the predicate function for agent builders.
+type Agent func(*sql.Selector)
+
 // ApiKey is the predicate function for apikey builders.
 type ApiKey func(*sql.Selector)
 
 // AuditRecord is the predicate function for auditrecord builders.
 type AuditRecord func(*sql.Selector)
+
+// Feature is the predicate function for feature builders.
+type Feature func(*sql.Selector)
+
+// Message is the predicate function for message builders.
+type Message func(*sql.Selector)
 
 // Project is the predicate function for project builders.
 type Project func(*sql.Selector)

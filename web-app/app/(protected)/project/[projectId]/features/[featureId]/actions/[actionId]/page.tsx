@@ -1,7 +1,7 @@
 import React from 'react';
 import { UpdateActionScreen } from '@/features/actions/pages';
 
-export default function UpdateActionPage() {
+export default function UpdateFeatureActionPage() {
     return (
         <React.Fragment>
             <UpdateActionScreen />

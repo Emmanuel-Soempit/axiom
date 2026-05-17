@@ -4,9 +4,10 @@ package ent
 
 import (
 	"fmt"
-	"go-backend-template/ent/role"
 	"strings"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/role"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

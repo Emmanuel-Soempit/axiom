@@ -46,7 +46,7 @@ func AuthRateLimiter() fiber.Handler {
 
 func CoreRateLimiter() fiber.Handler {
 	return RateLimiter(RateLimiterConfig{
-		Max:        2,
+		Max:        20,
 		Expiration: time.Hour,
 	})
 }

@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"go-backend-template/ent"
 	"strconv"
+
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/ent/auditrecord"
 )
 
 // Auditor handles recording of structured logs.
@@ -16,6 +18,8 @@ type Auditor interface {
 type AuditRecordDto struct {
 	ProjectID      string
 	UserID         string
+	AgentID        int
+	ErrorType      string
 	Prompt         string
 	ProposedAction interface{}
 	Validated      bool
@@ -41,6 +45,14 @@ func (s *auditService) Record(ctx context.Context, record *AuditRecordDto) error
 		if id, err := strconv.Atoi(record.UserID); err == nil {
 			builder.SetUserID(id)
 		}
+	}
+
+	if record.AgentID > 0 {
+		builder.SetAgentID(record.AgentID)
+	}
+
+	if record.ErrorType != "" {
+		builder.SetErrorType(auditrecord.ErrorType(record.ErrorType))
 	}
 
 	if record.ProposedAction != nil {

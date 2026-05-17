@@ -6,12 +6,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-backend-template/ent/actionmodel"
-	"go-backend-template/ent/apikey"
-	"go-backend-template/ent/project"
-	"go-backend-template/ent/user"
-	"go-backend-template/ent/usermeta"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/agent"
+	"github.com/Emmanuel-Soempit/axiom/ent/apikey"
+	"github.com/Emmanuel-Soempit/axiom/ent/feature"
+	"github.com/Emmanuel-Soempit/axiom/ent/project"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
+	"github.com/Emmanuel-Soempit/axiom/ent/usermeta"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -84,6 +87,36 @@ func (_c *ProjectCreate) AddActions(v ...*ActionModel) *ProjectCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddActionIDs(ids...)
+}
+
+// AddAgentIDs adds the "agents" edge to the Agent entity by IDs.
+func (_c *ProjectCreate) AddAgentIDs(ids ...int) *ProjectCreate {
+	_c.mutation.AddAgentIDs(ids...)
+	return _c
+}
+
+// AddAgents adds the "agents" edges to the Agent entity.
+func (_c *ProjectCreate) AddAgents(v ...*Agent) *ProjectCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddAgentIDs(ids...)
+}
+
+// AddFeatureIDs adds the "features" edge to the Feature entity by IDs.
+func (_c *ProjectCreate) AddFeatureIDs(ids ...int) *ProjectCreate {
+	_c.mutation.AddFeatureIDs(ids...)
+	return _c
+}
+
+// AddFeatures adds the "features" edges to the Feature entity.
+func (_c *ProjectCreate) AddFeatures(v ...*Feature) *ProjectCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddFeatureIDs(ids...)
 }
 
 // AddAPIKeyIDs adds the "api_keys" edge to the ApiKey entity by IDs.
@@ -254,6 +287,38 @@ func (_c *ProjectCreate) createSpec() (*Project, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(actionmodel.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.AgentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.AgentsTable,
+			Columns: []string{project.AgentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.FeaturesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   project.FeaturesTable,
+			Columns: []string{project.FeaturesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feature.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

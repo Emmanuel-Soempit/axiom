@@ -1,7 +1,7 @@
 package dtos
 
 import (
-	"go-backend-template/ent"
+	"github.com/Emmanuel-Soempit/axiom/ent"
 )
 
 type LoginUserPayload struct {

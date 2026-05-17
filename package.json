@@ -1,5 +1,5 @@
 {
-  "name": "eac",
+  "name": "axiom",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Emmanuel-Soempit/embedded-agent-controller.git"
+    "url": "git+https://github.com/Emmanuel-Soempit/axiom.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/Emmanuel-Soempit/embedded-agent-controller/issues"
+    "url": "https://github.com/Emmanuel-Soempit/axiom/issues"
   },
-  "homepage": "https://github.com/Emmanuel-Soempit/embedded-agent-controller#readme"
+  "homepage": "https://github.com/Emmanuel-Soempit/axiom#readme"
 }

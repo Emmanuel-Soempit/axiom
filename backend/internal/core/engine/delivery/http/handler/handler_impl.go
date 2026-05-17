@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"go-backend-template/internal/core/engine"
-	"go-backend-template/internal/core/engine/dtos"
-	"go-backend-template/internal/utils"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/engine"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/engine/dtos"
+	"github.com/Emmanuel-Soempit/axiom/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 type engineHandler struct {
@@ -24,14 +25,35 @@ func (h *engineHandler) ProcessIntent(c *fiber.Ctx) error {
 		return utils.Failed(c, "Invalid request body", err.Error())
 	}
 
-	// In a real app, we might get ProjectID from context/auth
-	resp, err := h.engine.Process(c.Context(), payload.Prompt, c.Locals("project_id").(string))
+	// ProjectID + UserID come from the API key auth middleware
+	projectID, _ := c.Locals("project_id").(string)
+	userID, _ := c.Locals("user_id").(int)
+	agentSlug := c.Params("slug")
+
+	result, err := h.engine.Process(c.Context(), payload.SessionID, projectID, userID, agentSlug, payload.Prompt)
 	if err != nil {
 		return utils.InternalError(c, "Failed to process intent", err.Error())
 	}
 
 	return utils.Success(c, "Intent processed successfully", dtos.EngineProcessResponse{
-		Action: resp.Action,
-		Params: resp.Params,
+		SessionID: result.SessionID,
+		Messages:  result.Messages,
+	})
+}
+
+func (h *engineHandler) GetSessionHistory(c *fiber.Ctx) error {
+	sessionID, err := uuid.Parse(c.Params("sessionId"))
+	if err != nil {
+		return utils.Failed(c, "Invalid session id", err.Error())
+	}
+
+	messages, err := h.engine.History(c.Context(), sessionID)
+	if err != nil {
+		return utils.InternalError(c, "Failed to fetch history", err.Error())
+	}
+
+	return utils.Success(c, "Session history fetched", dtos.SessionHistoryResponse{
+		SessionID: sessionID,
+		Messages:  messages,
 	})
 }

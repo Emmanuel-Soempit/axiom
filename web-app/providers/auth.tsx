@@ -32,10 +32,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setUser(data.user);
             } else {
                 setUser(null);
+                const currentPath = window.location.pathname;
+                if (currentPath !== "/sign-in" && currentPath !== "/sign-up") {
+                    router.push("/sign-in");
+                }
             }
         } catch (error) {
             console.error("Auth check failed:", error);
             setUser(null);
+            const currentPath = window.location.pathname;
+            if (currentPath !== "/sign-in" && currentPath !== "/sign-up") {
+                router.push("/sign-in");
+            }
         } finally {
             setIsLoading(false);
         }

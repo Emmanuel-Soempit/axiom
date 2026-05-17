@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: eac-web-app
+  name: axiom-web-app
 spec:
   selector:
-    app: eac-web-app
+    app: axiom-web-app
   ports:
   - port: 3001
     targetPort: 3001

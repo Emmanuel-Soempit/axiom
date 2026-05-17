@@ -1,7 +1,7 @@
 # Project Folder Structure!
 
 ```text
-/Users/farmer/Documents/eac/
+/Users/farmer/Documents/axiom/
 ├── .DS_Store
 ├── backend/
 │   ├── .air.toml

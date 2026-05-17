@@ -6,9 +6,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-backend-template/ent/role"
-	"go-backend-template/ent/user"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/role"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"

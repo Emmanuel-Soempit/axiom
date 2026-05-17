@@ -1,10 +1,10 @@
 package api
 
 import (
-	"go-backend-template/ent"
-	authRoutes "go-backend-template/internal/api/auth/delivery/http"
-	credentialsRoutes "go-backend-template/internal/api/credentials/delivery/http"
-	projectRoutes "go-backend-template/internal/api/project/delivery/http"
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	authRoutes "github.com/Emmanuel-Soempit/axiom/internal/api/auth/delivery/http"
+	credentialsRoutes "github.com/Emmanuel-Soempit/axiom/internal/api/credentials/delivery/http"
+	projectRoutes "github.com/Emmanuel-Soempit/axiom/internal/api/project/delivery/http"
 
 	"github.com/gofiber/fiber/v2"
 )

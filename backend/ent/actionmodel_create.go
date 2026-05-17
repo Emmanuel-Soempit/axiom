@@ -6,11 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-backend-template/ent/actionmodel"
-	"go-backend-template/ent/auditrecord"
-	"go-backend-template/ent/project"
-	"go-backend-template/internal/core/registry/dtos"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/auditrecord"
+	"github.com/Emmanuel-Soempit/axiom/ent/feature"
+	"github.com/Emmanuel-Soempit/axiom/ent/project"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/registry/dtos"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -54,6 +56,20 @@ func (_c *ActionModelCreate) SetNillableUpdatedAt(v *time.Time) *ActionModelCrea
 // SetProjectID sets the "project_id" field.
 func (_c *ActionModelCreate) SetProjectID(v string) *ActionModelCreate {
 	_c.mutation.SetProjectID(v)
+	return _c
+}
+
+// SetFeatureID sets the "feature_id" field.
+func (_c *ActionModelCreate) SetFeatureID(v int) *ActionModelCreate {
+	_c.mutation.SetFeatureID(v)
+	return _c
+}
+
+// SetNillableFeatureID sets the "feature_id" field if the given value is not nil.
+func (_c *ActionModelCreate) SetNillableFeatureID(v *int) *ActionModelCreate {
+	if v != nil {
+		_c.SetFeatureID(*v)
+	}
 	return _c
 }
 
@@ -106,6 +122,11 @@ func (_c *ActionModelCreate) SetNillableVersion(v *int) *ActionModelCreate {
 // SetProject sets the "project" edge to the Project entity.
 func (_c *ActionModelCreate) SetProject(v *Project) *ActionModelCreate {
 	return _c.SetProjectID(v.ID)
+}
+
+// SetFeature sets the "feature" edge to the Feature entity.
+func (_c *ActionModelCreate) SetFeature(v *Feature) *ActionModelCreate {
+	return _c.SetFeatureID(v.ID)
 }
 
 // AddAuditRecordIDs adds the "audit_records" edge to the AuditRecord entity by IDs.
@@ -267,6 +288,23 @@ func (_c *ActionModelCreate) createSpec() (*ActionModel, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.ProjectID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.FeatureIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   actionmodel.FeatureTable,
+			Columns: []string{actionmodel.FeatureColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feature.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.FeatureID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.AuditRecordsIDs(); len(nodes) > 0 {

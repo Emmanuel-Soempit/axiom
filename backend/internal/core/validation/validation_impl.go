@@ -22,7 +22,7 @@ type validator struct {
 // New initializes and compiles the Rego file
 func New(ctx context.Context, regoFilePath string) (Validator, error) {
 	r := rego.New(
-		rego.Query("data.eac.action_engine.result"), // Path to the 'result' variable in your Rego
+		rego.Query("data.axiom.action_engine.result"), // Path to the 'result' variable in your Rego
 		rego.Load([]string{regoFilePath}, nil),
 	)
 

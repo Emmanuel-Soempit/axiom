@@ -21,13 +21,13 @@ fi
 
 case "$ENV" in
   dev)
-    NAMESPACE="eac-dev"
+    NAMESPACE="axiom-dev"
     ;;
   staging)
-    NAMESPACE="eac-staging"
+    NAMESPACE="axiom-staging"
     ;;
   production)
-    NAMESPACE="eac-prod"
+    NAMESPACE="axiom-prod"
     ;;
   *)
     echo "Unknown environment: $ENV. Use dev, staging, or production."
@@ -52,7 +52,7 @@ echo ""
 echo "Fetching cluster public key and sealing..."
 
 # Create a temp plaintext secret, pipe to kubeseal, write output
-kubectl create secret generic eac-secrets \
+kubectl create secret generic axiom-secrets \
   --namespace="$NAMESPACE" \
   --from-literal=database_url="$DATABASE_URL" \
   --from-literal=jwt_secret="$JWT_SECRET" \

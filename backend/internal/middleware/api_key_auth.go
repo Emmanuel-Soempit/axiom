@@ -4,10 +4,10 @@ import (
 	"log"
 	"strings"
 
-	"go-backend-template/ent"
-	"go-backend-template/ent/apikey"
-	"go-backend-template/ent/project"
-	"go-backend-template/internal/utils"
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/ent/apikey"
+	"github.com/Emmanuel-Soempit/axiom/ent/project"
+	"github.com/Emmanuel-Soempit/axiom/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -83,8 +83,9 @@ func (a *ApiKeyAuth) ApiKeyAuth(c *fiber.Ctx) error {
 		return utils.Unauthorized(c, "Associated project not found")
 	}
 
-	// Store project ID in context for downstream handlers
+	// Store project ID + the user who owns the API key for downstream handlers
 	c.Locals("project_id", apiKeyRecord.ProjectID)
+	c.Locals("user_id", apiKeyRecord.CreatedBy)
 
 	return c.Next()
 }

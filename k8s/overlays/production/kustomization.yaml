@@ -4,22 +4,22 @@ kind: Kustomization
 bases:
 - ../../base
 
-namespace: eac-prod
+namespace: axiom-prod
 
 replicas:
-- name: eac-backend
+- name: axiom-backend
   count: 3
-- name: eac-web-app
+- name: axiom-web-app
   count: 2
-- name: eac-frontend
+- name: axiom-frontend
   count: 2
 
 images:
-- name: ghcr.io/emmanuel-soempit/eac-backend
+- name: ghcr.io/emmanuel-soempit/axiom-backend
   newTag: latest
-- name: ghcr.io/emmanuel-soempit/eac-web-app
+- name: ghcr.io/emmanuel-soempit/axiom-web-app
   newTag: latest
-- name: ghcr.io/emmanuel-soempit/eac-frontend
+- name: ghcr.io/emmanuel-soempit/axiom-frontend
   newTag: latest
 
 resources:
@@ -34,13 +34,13 @@ patches:
     apiVersion: apps/v1
     kind: Deployment
     metadata:
-      name: eac-postgres
+      name: axiom-postgres
 - patch: |-
     $patch: delete
     apiVersion: v1
     kind: Service
     metadata:
-      name: eac-postgres
+      name: axiom-postgres
 - patch: |-
     $patch: delete
     apiVersion: v1

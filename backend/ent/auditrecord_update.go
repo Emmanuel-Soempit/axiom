@@ -6,11 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-backend-template/ent/actionmodel"
-	"go-backend-template/ent/auditrecord"
-	"go-backend-template/ent/predicate"
-	"go-backend-template/ent/user"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/agent"
+	"github.com/Emmanuel-Soempit/axiom/ent/auditrecord"
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -167,6 +169,46 @@ func (_u *AuditRecordUpdate) ClearFinalResponse() *AuditRecordUpdate {
 	return _u
 }
 
+// SetAgentID sets the "agent_id" field.
+func (_u *AuditRecordUpdate) SetAgentID(v int) *AuditRecordUpdate {
+	_u.mutation.SetAgentID(v)
+	return _u
+}
+
+// SetNillableAgentID sets the "agent_id" field if the given value is not nil.
+func (_u *AuditRecordUpdate) SetNillableAgentID(v *int) *AuditRecordUpdate {
+	if v != nil {
+		_u.SetAgentID(*v)
+	}
+	return _u
+}
+
+// ClearAgentID clears the value of the "agent_id" field.
+func (_u *AuditRecordUpdate) ClearAgentID() *AuditRecordUpdate {
+	_u.mutation.ClearAgentID()
+	return _u
+}
+
+// SetErrorType sets the "error_type" field.
+func (_u *AuditRecordUpdate) SetErrorType(v auditrecord.ErrorType) *AuditRecordUpdate {
+	_u.mutation.SetErrorType(v)
+	return _u
+}
+
+// SetNillableErrorType sets the "error_type" field if the given value is not nil.
+func (_u *AuditRecordUpdate) SetNillableErrorType(v *auditrecord.ErrorType) *AuditRecordUpdate {
+	if v != nil {
+		_u.SetErrorType(*v)
+	}
+	return _u
+}
+
+// ClearErrorType clears the value of the "error_type" field.
+func (_u *AuditRecordUpdate) ClearErrorType() *AuditRecordUpdate {
+	_u.mutation.ClearErrorType()
+	return _u
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_u *AuditRecordUpdate) SetUser(v *User) *AuditRecordUpdate {
 	return _u.SetUserID(v.ID)
@@ -175,6 +217,11 @@ func (_u *AuditRecordUpdate) SetUser(v *User) *AuditRecordUpdate {
 // SetAction sets the "action" edge to the ActionModel entity.
 func (_u *AuditRecordUpdate) SetAction(v *ActionModel) *AuditRecordUpdate {
 	return _u.SetActionID(v.ID)
+}
+
+// SetAgent sets the "agent" edge to the Agent entity.
+func (_u *AuditRecordUpdate) SetAgent(v *Agent) *AuditRecordUpdate {
+	return _u.SetAgentID(v.ID)
 }
 
 // Mutation returns the AuditRecordMutation object of the builder.
@@ -191,6 +238,12 @@ func (_u *AuditRecordUpdate) ClearUser() *AuditRecordUpdate {
 // ClearAction clears the "action" edge to the ActionModel entity.
 func (_u *AuditRecordUpdate) ClearAction() *AuditRecordUpdate {
 	_u.mutation.ClearAction()
+	return _u
+}
+
+// ClearAgent clears the "agent" edge to the Agent entity.
+func (_u *AuditRecordUpdate) ClearAgent() *AuditRecordUpdate {
+	_u.mutation.ClearAgent()
 	return _u
 }
 
@@ -230,7 +283,20 @@ func (_u *AuditRecordUpdate) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *AuditRecordUpdate) check() error {
+	if v, ok := _u.mutation.ErrorType(); ok {
+		if err := auditrecord.ErrorTypeValidator(v); err != nil {
+			return &ValidationError{Name: "error_type", err: fmt.Errorf(`ent: validator failed for field "AuditRecord.error_type": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *AuditRecordUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(auditrecord.Table, auditrecord.Columns, sqlgraph.NewFieldSpec(auditrecord.FieldID, field.TypeInt))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -276,6 +342,12 @@ func (_u *AuditRecordUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	}
 	if _u.mutation.FinalResponseCleared() {
 		_spec.ClearField(auditrecord.FieldFinalResponse, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ErrorType(); ok {
+		_spec.SetField(auditrecord.FieldErrorType, field.TypeEnum, value)
+	}
+	if _u.mutation.ErrorTypeCleared() {
+		_spec.ClearField(auditrecord.FieldErrorType, field.TypeEnum)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -328,6 +400,35 @@ func (_u *AuditRecordUpdate) sqlSave(ctx context.Context) (_node int, err error)
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(actionmodel.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AgentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.AgentTable,
+			Columns: []string{auditrecord.AgentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AgentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.AgentTable,
+			Columns: []string{auditrecord.AgentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -491,6 +592,46 @@ func (_u *AuditRecordUpdateOne) ClearFinalResponse() *AuditRecordUpdateOne {
 	return _u
 }
 
+// SetAgentID sets the "agent_id" field.
+func (_u *AuditRecordUpdateOne) SetAgentID(v int) *AuditRecordUpdateOne {
+	_u.mutation.SetAgentID(v)
+	return _u
+}
+
+// SetNillableAgentID sets the "agent_id" field if the given value is not nil.
+func (_u *AuditRecordUpdateOne) SetNillableAgentID(v *int) *AuditRecordUpdateOne {
+	if v != nil {
+		_u.SetAgentID(*v)
+	}
+	return _u
+}
+
+// ClearAgentID clears the value of the "agent_id" field.
+func (_u *AuditRecordUpdateOne) ClearAgentID() *AuditRecordUpdateOne {
+	_u.mutation.ClearAgentID()
+	return _u
+}
+
+// SetErrorType sets the "error_type" field.
+func (_u *AuditRecordUpdateOne) SetErrorType(v auditrecord.ErrorType) *AuditRecordUpdateOne {
+	_u.mutation.SetErrorType(v)
+	return _u
+}
+
+// SetNillableErrorType sets the "error_type" field if the given value is not nil.
+func (_u *AuditRecordUpdateOne) SetNillableErrorType(v *auditrecord.ErrorType) *AuditRecordUpdateOne {
+	if v != nil {
+		_u.SetErrorType(*v)
+	}
+	return _u
+}
+
+// ClearErrorType clears the value of the "error_type" field.
+func (_u *AuditRecordUpdateOne) ClearErrorType() *AuditRecordUpdateOne {
+	_u.mutation.ClearErrorType()
+	return _u
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_u *AuditRecordUpdateOne) SetUser(v *User) *AuditRecordUpdateOne {
 	return _u.SetUserID(v.ID)
@@ -499,6 +640,11 @@ func (_u *AuditRecordUpdateOne) SetUser(v *User) *AuditRecordUpdateOne {
 // SetAction sets the "action" edge to the ActionModel entity.
 func (_u *AuditRecordUpdateOne) SetAction(v *ActionModel) *AuditRecordUpdateOne {
 	return _u.SetActionID(v.ID)
+}
+
+// SetAgent sets the "agent" edge to the Agent entity.
+func (_u *AuditRecordUpdateOne) SetAgent(v *Agent) *AuditRecordUpdateOne {
+	return _u.SetAgentID(v.ID)
 }
 
 // Mutation returns the AuditRecordMutation object of the builder.
@@ -515,6 +661,12 @@ func (_u *AuditRecordUpdateOne) ClearUser() *AuditRecordUpdateOne {
 // ClearAction clears the "action" edge to the ActionModel entity.
 func (_u *AuditRecordUpdateOne) ClearAction() *AuditRecordUpdateOne {
 	_u.mutation.ClearAction()
+	return _u
+}
+
+// ClearAgent clears the "agent" edge to the Agent entity.
+func (_u *AuditRecordUpdateOne) ClearAgent() *AuditRecordUpdateOne {
+	_u.mutation.ClearAgent()
 	return _u
 }
 
@@ -567,7 +719,20 @@ func (_u *AuditRecordUpdateOne) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *AuditRecordUpdateOne) check() error {
+	if v, ok := _u.mutation.ErrorType(); ok {
+		if err := auditrecord.ErrorTypeValidator(v); err != nil {
+			return &ValidationError{Name: "error_type", err: fmt.Errorf(`ent: validator failed for field "AuditRecord.error_type": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *AuditRecordUpdateOne) sqlSave(ctx context.Context) (_node *AuditRecord, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(auditrecord.Table, auditrecord.Columns, sqlgraph.NewFieldSpec(auditrecord.FieldID, field.TypeInt))
 	id, ok := _u.mutation.ID()
 	if !ok {
@@ -631,6 +796,12 @@ func (_u *AuditRecordUpdateOne) sqlSave(ctx context.Context) (_node *AuditRecord
 	if _u.mutation.FinalResponseCleared() {
 		_spec.ClearField(auditrecord.FieldFinalResponse, field.TypeJSON)
 	}
+	if value, ok := _u.mutation.ErrorType(); ok {
+		_spec.SetField(auditrecord.FieldErrorType, field.TypeEnum, value)
+	}
+	if _u.mutation.ErrorTypeCleared() {
+		_spec.ClearField(auditrecord.FieldErrorType, field.TypeEnum)
+	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -682,6 +853,35 @@ func (_u *AuditRecordUpdateOne) sqlSave(ctx context.Context) (_node *AuditRecord
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(actionmodel.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AgentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.AgentTable,
+			Columns: []string{auditrecord.AgentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AgentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.AgentTable,
+			Columns: []string{auditrecord.AgentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

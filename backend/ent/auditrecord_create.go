@@ -6,10 +6,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-backend-template/ent/actionmodel"
-	"go-backend-template/ent/auditrecord"
-	"go-backend-template/ent/user"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/agent"
+	"github.com/Emmanuel-Soempit/axiom/ent/auditrecord"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -130,6 +132,34 @@ func (_c *AuditRecordCreate) SetFinalResponse(v map[string]interface{}) *AuditRe
 	return _c
 }
 
+// SetAgentID sets the "agent_id" field.
+func (_c *AuditRecordCreate) SetAgentID(v int) *AuditRecordCreate {
+	_c.mutation.SetAgentID(v)
+	return _c
+}
+
+// SetNillableAgentID sets the "agent_id" field if the given value is not nil.
+func (_c *AuditRecordCreate) SetNillableAgentID(v *int) *AuditRecordCreate {
+	if v != nil {
+		_c.SetAgentID(*v)
+	}
+	return _c
+}
+
+// SetErrorType sets the "error_type" field.
+func (_c *AuditRecordCreate) SetErrorType(v auditrecord.ErrorType) *AuditRecordCreate {
+	_c.mutation.SetErrorType(v)
+	return _c
+}
+
+// SetNillableErrorType sets the "error_type" field if the given value is not nil.
+func (_c *AuditRecordCreate) SetNillableErrorType(v *auditrecord.ErrorType) *AuditRecordCreate {
+	if v != nil {
+		_c.SetErrorType(*v)
+	}
+	return _c
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_c *AuditRecordCreate) SetUser(v *User) *AuditRecordCreate {
 	return _c.SetUserID(v.ID)
@@ -138,6 +168,11 @@ func (_c *AuditRecordCreate) SetUser(v *User) *AuditRecordCreate {
 // SetAction sets the "action" edge to the ActionModel entity.
 func (_c *AuditRecordCreate) SetAction(v *ActionModel) *AuditRecordCreate {
 	return _c.SetActionID(v.ID)
+}
+
+// SetAgent sets the "agent" edge to the Agent entity.
+func (_c *AuditRecordCreate) SetAgent(v *Agent) *AuditRecordCreate {
+	return _c.SetAgentID(v.ID)
 }
 
 // Mutation returns the AuditRecordMutation object of the builder.
@@ -203,6 +238,11 @@ func (_c *AuditRecordCreate) check() error {
 	if _, ok := _c.mutation.Validated(); !ok {
 		return &ValidationError{Name: "validated", err: errors.New(`ent: missing required field "AuditRecord.validated"`)}
 	}
+	if v, ok := _c.mutation.ErrorType(); ok {
+		if err := auditrecord.ErrorTypeValidator(v); err != nil {
+			return &ValidationError{Name: "error_type", err: fmt.Errorf(`ent: validator failed for field "AuditRecord.error_type": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -261,6 +301,10 @@ func (_c *AuditRecordCreate) createSpec() (*AuditRecord, *sqlgraph.CreateSpec) {
 		_spec.SetField(auditrecord.FieldFinalResponse, field.TypeJSON, value)
 		_node.FinalResponse = value
 	}
+	if value, ok := _c.mutation.ErrorType(); ok {
+		_spec.SetField(auditrecord.FieldErrorType, field.TypeEnum, value)
+		_node.ErrorType = value
+	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -293,6 +337,23 @@ func (_c *AuditRecordCreate) createSpec() (*AuditRecord, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.ActionID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.AgentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.AgentTable,
+			Columns: []string{auditrecord.AgentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.AgentID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

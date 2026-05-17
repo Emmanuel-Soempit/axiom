@@ -4,12 +4,13 @@ package ent
 
 import (
 	"fmt"
-	"go-backend-template/ent/role"
-	"go-backend-template/ent/user"
-	"go-backend-template/ent/usermeta"
-	"go-backend-template/ent/userpasswordsecret"
 	"strings"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/role"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
+	"github.com/Emmanuel-Soempit/axiom/ent/usermeta"
+	"github.com/Emmanuel-Soempit/axiom/ent/userpasswordsecret"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

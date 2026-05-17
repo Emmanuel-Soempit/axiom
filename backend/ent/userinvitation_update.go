@@ -6,10 +6,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-backend-template/ent/predicate"
-	"go-backend-template/ent/user"
-	"go-backend-template/ent/userinvitation"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
+	"github.com/Emmanuel-Soempit/axiom/ent/userinvitation"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

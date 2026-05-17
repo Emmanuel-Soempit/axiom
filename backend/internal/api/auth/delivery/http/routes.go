@@ -1,14 +1,14 @@
 package http
 
 import (
-	"go-backend-template/ent"
-	"go-backend-template/internal/api/auth/delivery/http/handler"
-	"go-backend-template/internal/api/auth/repository"
-	"go-backend-template/internal/api/auth/usecase"
-	repository_project "go-backend-template/internal/api/project/repository"
-	"go-backend-template/internal/middleware"
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/auth/delivery/http/handler"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/auth/repository"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/auth/usecase"
+	repository_project "github.com/Emmanuel-Soempit/axiom/internal/api/project/repository"
+	"github.com/Emmanuel-Soempit/axiom/internal/middleware"
 
-	// "go-backend-template/internal/middleware"
+	// "github.com/Emmanuel-Soempit/axiom/internal/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )

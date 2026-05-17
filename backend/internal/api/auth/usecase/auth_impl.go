@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-backend-template/ent"
-	"go-backend-template/internal/api/auth/dtos"
-	"go-backend-template/internal/api/auth/repository"
-	projectRepository "go-backend-template/internal/api/project/repository"
-	"go-backend-template/internal/utils"
 	"log"
+
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/auth/dtos"
+	"github.com/Emmanuel-Soempit/axiom/internal/api/auth/repository"
+	projectRepository "github.com/Emmanuel-Soempit/axiom/internal/api/project/repository"
+	"github.com/Emmanuel-Soempit/axiom/internal/utils"
 )
 
 type authUseCase struct {

@@ -31,15 +31,44 @@ const formatTime = (dateStr: string): string => {
     });
 };
 
+const errorTypeLabel: Record<string, string> = {
+    agent_not_found: 'Agent Not Found',
+    load_actions: 'Load Actions',
+    load_history: 'Load History',
+    build_system_prompt: 'Build Prompt',
+    llm_chat: 'LLM Chat',
+    action_not_found: 'Action Not Found',
+    validation_error: 'Validation Error',
+    validation_failed: 'Validation Failed',
+    persist_user_message: 'Persist User Msg',
+    persist_assistant_message: 'Persist Assistant Msg',
+    persist_tool_message: 'Persist Tool Msg',
+};
+
 interface AuditTableProps {
     data: AuditRecord[];
     isLoading?: boolean;
+    page?: number;
+    total?: number;
+    limit?: number;
+    onPageChange?: (page: number) => void;
+    emptyMessage?: string;
 }
 
-export const AuditTable: React.FC<AuditTableProps> = ({ data, isLoading }) => {
+export const AuditTable: React.FC<AuditTableProps> = ({
+    data,
+    isLoading,
+    page = 1,
+    total,
+    limit = 20,
+    onPageChange,
+    emptyMessage = 'No audit records found.',
+}) => {
     const router = useRouter();
     const params = useParams();
     const projectId = params?.projectId as string;
+
+    const totalPages = total !== undefined ? Math.ceil(total / limit) : 1;
 
     const handleInspect = (item: AuditRecord) => {
         const encoded = encodeURIComponent(JSON.stringify(item));
@@ -61,42 +90,51 @@ export const AuditTable: React.FC<AuditTableProps> = ({ data, isLoading }) => {
             header: 'Prompt',
             accessor: 'prompt',
             render: (item) => (
-                <Text variant="sm" className="max-w-[280px] truncate text-slate-600">
+                <Text variant="sm" className="max-w-[260px] truncate text-slate-600">
                     {item.prompt}
                 </Text>
             ),
         },
         {
-            header: 'Validation',
-            accessor: 'validated',
-            render: (item) =>
-                item.validated ? (
-                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-tight">
-                        <span className="size-1.5 bg-emerald-500 rounded-full" />
-                        Valid
-                    </span>
-                ) : (
-                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-100 text-red-700 text-[10px] font-bold uppercase tracking-tight">
-                        <span className="size-1.5 bg-red-500 rounded-full" />
-                        Failed
-                    </span>
-                ),
+            header: 'Agent / Action',
+            accessor: 'agent_id',
+            render: (item) => (
+                <div className="flex flex-col gap-0.5">
+                    {item.agent_id && (
+                        <span className="text-xs text-slate-500">Agent <span className="font-mono text-slate-700">#{item.agent_id}</span></span>
+                    )}
+                    {item.action_id && (
+                        <span className="text-xs text-slate-500">Action <span className="font-mono text-slate-700">#{item.action_id}</span></span>
+                    )}
+                    {!item.agent_id && !item.action_id && (
+                        <span className="text-xs text-slate-400">—</span>
+                    )}
+                </div>
+            ),
         },
         {
-            header: 'Status',
-            accessor: 'id',
-            render: (item) =>
-                item.validated ? (
-                    <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary text-base">check_circle</span>
-                        <span className="font-medium text-sm text-slate-700">Completed</span>
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-red-400 text-base">block</span>
-                        <span className="font-medium text-sm text-slate-700">Blocked</span>
-                    </div>
-                ),
+            header: 'Outcome',
+            accessor: 'validated',
+            render: (item) => (
+                <div className="flex flex-col gap-1">
+                    {item.validated ? (
+                        <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-tight w-fit">
+                            <span className="size-1.5 bg-emerald-500 rounded-full" />
+                            Valid
+                        </span>
+                    ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-100 text-red-700 text-[10px] font-bold uppercase tracking-tight w-fit">
+                            <span className="size-1.5 bg-red-500 rounded-full" />
+                            Failed
+                        </span>
+                    )}
+                    {item.error_type && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-semibold w-fit">
+                            {errorTypeLabel[item.error_type] ?? item.error_type}
+                        </span>
+                    )}
+                </div>
+            ),
         },
         {
             header: '',
@@ -115,11 +153,37 @@ export const AuditTable: React.FC<AuditTableProps> = ({ data, isLoading }) => {
     ];
 
     return (
-        <DataTable
-            data={data}
-            columns={columns}
-            isLoading={isLoading}
-            emptyMessage="No audit records found for this project."
-        />
+        <div className="space-y-0">
+            <DataTable
+                data={data}
+                columns={columns}
+                isLoading={isLoading}
+                emptyMessage={emptyMessage}
+            />
+            {onPageChange && (
+                <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-white rounded-b-xl">
+                    <p className="text-xs text-slate-500">
+                        {total !== undefined ? `${total} total records` : `${data.length} records`}
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => onPageChange(page - 1)}
+                            disabled={page <= 1}
+                            className="px-3 py-1.5 text-xs font-bold text-slate-500 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                            Previous
+                        </button>
+                        <span className="text-xs text-slate-500">Page {page} of {totalPages}</span>
+                        <button
+                            onClick={() => onPageChange(page + 1)}
+                            disabled={page >= totalPages}
+                            className="px-3 py-1.5 text-xs font-bold text-slate-500 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 };

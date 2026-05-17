@@ -2,7 +2,8 @@ package usecase
 
 import (
 	"context"
-	"go-backend-template/internal/api/project/dtos"
+
+	"github.com/Emmanuel-Soempit/axiom/internal/api/project/dtos"
 )
 
 type ProjectUsecase interface {

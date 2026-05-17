@@ -33,7 +33,7 @@ const CodeSection: React.FC = () => {
                 <div className="h-3 w-3 rounded-full bg-yellow-500/50"></div>
                 <div className="h-3 w-3 rounded-full bg-emerald-500/50"></div>
               </div>
-              <span className="ml-4 text-xs font-mono text-slate-500">eac-response.json</span>
+              <span className="ml-4 text-xs font-mono text-slate-500">axiom-response.json</span>
             </div>
             <div className="p-6 font-mono text-sm leading-relaxed">
               <div className="text-slate-500">// AI Proposal {"->"} EAC Validation Result</div>

@@ -2,7 +2,8 @@ package usecase
 
 import (
 	"context"
-	"go-backend-template/internal/api/credentials/dtos"
+
+	"github.com/Emmanuel-Soempit/axiom/internal/api/credentials/dtos"
 )
 
 type CredentialsUsecase interface {

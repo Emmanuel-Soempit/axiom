@@ -3,8 +3,9 @@
 package actionmodel
 
 import (
-	"go-backend-template/ent/predicate"
 	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -68,6 +69,11 @@ func UpdatedAt(v time.Time) predicate.ActionModel {
 // ProjectID applies equality check predicate on the "project_id" field. It's identical to ProjectIDEQ.
 func ProjectID(v string) predicate.ActionModel {
 	return predicate.ActionModel(sql.FieldEQ(FieldProjectID, v))
+}
+
+// FeatureID applies equality check predicate on the "feature_id" field. It's identical to FeatureIDEQ.
+func FeatureID(v int) predicate.ActionModel {
+	return predicate.ActionModel(sql.FieldEQ(FieldFeatureID, v))
 }
 
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
@@ -233,6 +239,36 @@ func ProjectIDEqualFold(v string) predicate.ActionModel {
 // ProjectIDContainsFold applies the ContainsFold predicate on the "project_id" field.
 func ProjectIDContainsFold(v string) predicate.ActionModel {
 	return predicate.ActionModel(sql.FieldContainsFold(FieldProjectID, v))
+}
+
+// FeatureIDEQ applies the EQ predicate on the "feature_id" field.
+func FeatureIDEQ(v int) predicate.ActionModel {
+	return predicate.ActionModel(sql.FieldEQ(FieldFeatureID, v))
+}
+
+// FeatureIDNEQ applies the NEQ predicate on the "feature_id" field.
+func FeatureIDNEQ(v int) predicate.ActionModel {
+	return predicate.ActionModel(sql.FieldNEQ(FieldFeatureID, v))
+}
+
+// FeatureIDIn applies the In predicate on the "feature_id" field.
+func FeatureIDIn(vs ...int) predicate.ActionModel {
+	return predicate.ActionModel(sql.FieldIn(FieldFeatureID, vs...))
+}
+
+// FeatureIDNotIn applies the NotIn predicate on the "feature_id" field.
+func FeatureIDNotIn(vs ...int) predicate.ActionModel {
+	return predicate.ActionModel(sql.FieldNotIn(FieldFeatureID, vs...))
+}
+
+// FeatureIDIsNil applies the IsNil predicate on the "feature_id" field.
+func FeatureIDIsNil() predicate.ActionModel {
+	return predicate.ActionModel(sql.FieldIsNull(FieldFeatureID))
+}
+
+// FeatureIDNotNil applies the NotNil predicate on the "feature_id" field.
+func FeatureIDNotNil() predicate.ActionModel {
+	return predicate.ActionModel(sql.FieldNotNull(FieldFeatureID))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.
@@ -495,6 +531,29 @@ func HasProject() predicate.ActionModel {
 func HasProjectWith(preds ...predicate.Project) predicate.ActionModel {
 	return predicate.ActionModel(func(s *sql.Selector) {
 		step := newProjectStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasFeature applies the HasEdge predicate on the "feature" edge.
+func HasFeature() predicate.ActionModel {
+	return predicate.ActionModel(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, FeatureTable, FeatureColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasFeatureWith applies the HasEdge predicate on the "feature" edge with a given conditions (other predicates).
+func HasFeatureWith(preds ...predicate.Feature) predicate.ActionModel {
+	return predicate.ActionModel(func(s *sql.Selector) {
+		step := newFeatureStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

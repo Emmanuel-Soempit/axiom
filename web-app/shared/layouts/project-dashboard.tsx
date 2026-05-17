@@ -243,7 +243,7 @@ function Sidebar({
             <div className={`h-16 flex items-center ${isCollapsed ? 'justify-center' : 'px-6'} border-b border-slate-200`}>
                 <Link href={`${basePath}/dashboard`}>
                     <img
-                        src={`/pngs/${isCollapsed ? 'main-icon.png' : 'main-logo.png'}`}
+                        src={`/${isCollapsed ? 'axiom-icon.svg' : 'axiom-logo.svg'}`}
                         alt="EAC"
                         className={`${isCollapsed ? 'h-8 w-8 object-contain' : 'h-10'} transition-all`}
                     />
@@ -252,7 +252,9 @@ function Sidebar({
             <nav className="flex-1 p-4 flex flex-col gap-1 overflow-y-auto">
                 <SidebarLink href={`${basePath}`} icon="home" label="Home" active={pathname === basePath || pathname === `${basePath}/dashboard`} isCollapsed={isCollapsed} />
                 <SidebarLink href={`${basePath}/audits`} icon="analytics" label="Audits" active={pathname.includes("/audits")} isCollapsed={isCollapsed} />
-                <SidebarLink href={`${basePath}/actions`} icon="auto_fix" label="Actions" active={pathname.includes("/actions")} isCollapsed={isCollapsed} />
+                {/* <SidebarLink href={`${basePath}/actions`} icon="auto_fix" label="Actions" active={pathname.includes("/actions")} isCollapsed={isCollapsed} /> */}
+                <SidebarLink href={`${basePath}/features`} icon="folder_managed" label="Features" active={pathname.includes("/features")} isCollapsed={isCollapsed} />
+                <SidebarLink href={`${basePath}/agents`} icon="smart_toy" label="Agents" active={pathname.includes("/agents")} isCollapsed={isCollapsed} />
                 {/* <SidebarLink onClick={() => {
                    comingSoonToast("Marketplace")
                 }} href={`#`} icon="storefront" label="Marketplace" active={pathname.includes("/marketplace")} isCollapsed={isCollapsed} /> */}

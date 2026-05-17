@@ -5,11 +5,11 @@ package enttest
 import (
 	"context"
 
-	"go-backend-template/ent"
+	"github.com/Emmanuel-Soempit/axiom/ent"
 	// required by schema hooks.
-	_ "go-backend-template/ent/runtime"
+	_ "github.com/Emmanuel-Soempit/axiom/ent/runtime"
 
-	"go-backend-template/ent/migrate"
+	"github.com/Emmanuel-Soempit/axiom/ent/migrate"
 
 	"entgo.io/ent/dialect/sql/schema"
 )

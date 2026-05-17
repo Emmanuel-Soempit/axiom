@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: eac-postgres
+  name: axiom-postgres
 spec:
   selector:
-    app: eac-postgres
+    app: axiom-postgres
   ports:
   - port: 5432
     targetPort: 5432

@@ -4,8 +4,9 @@ package ent
 
 import (
 	"context"
-	"go-backend-template/ent/apikey"
-	"go-backend-template/ent/predicate"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/apikey"
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

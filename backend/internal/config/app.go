@@ -2,9 +2,10 @@ package config
 
 import (
 	"context"
-	"go-backend-template/ent"
 	"log"
 	"os"
+
+	"github.com/Emmanuel-Soempit/axiom/ent"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
