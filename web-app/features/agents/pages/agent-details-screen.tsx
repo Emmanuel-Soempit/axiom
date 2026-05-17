@@ -160,7 +160,7 @@ export const AgentDetailsScreen: React.FC = () => {
             {/* Features Table */}
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100">
-                    <Heading as="h2" variant="subsection">Associated Features</Heading>
+                    <Heading as="h2" variant="section">Associated Features</Heading>
                     <Text variant="sm" className="text-slate-400 mt-0.5">
                         Features linked to this agent — their actions are available as tools.
                     </Text>
@@ -182,7 +182,7 @@ export const AgentDetailsScreen: React.FC = () => {
             {/* Audit Logs Table */}
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100">
-                    <Heading as="h2" variant="subsection">Audit Logs</Heading>
+                    <Heading as="h2" variant="section">Audit Logs</Heading>
                     <Text variant="sm" className="text-slate-400 mt-0.5">
                         All recorded events for this agent, including errors and validated actions.
                     </Text>
