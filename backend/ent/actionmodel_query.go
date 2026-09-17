@@ -4,10 +4,15 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
-	"go-backend-template/ent/actionmodel"
-	"go-backend-template/ent/predicate"
 	"math"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/auditrecord"
+	"github.com/Emmanuel-Soempit/axiom/ent/feature"
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
+	"github.com/Emmanuel-Soempit/axiom/ent/project"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -18,10 +23,13 @@ import (
 // ActionModelQuery is the builder for querying ActionModel entities.
 type ActionModelQuery struct {
 	config
-	ctx        *QueryContext
-	order      []actionmodel.OrderOption
-	inters     []Interceptor
-	predicates []predicate.ActionModel
+	ctx              *QueryContext
+	order            []actionmodel.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.ActionModel
+	withProject      *ProjectQuery
+	withFeature      *FeatureQuery
+	withAuditRecords *AuditRecordQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -56,6 +64,72 @@ func (_q *ActionModelQuery) Unique(unique bool) *ActionModelQuery {
 func (_q *ActionModelQuery) Order(o ...actionmodel.OrderOption) *ActionModelQuery {
 	_q.order = append(_q.order, o...)
 	return _q
+}
+
+// QueryProject chains the current query on the "project" edge.
+func (_q *ActionModelQuery) QueryProject() *ProjectQuery {
+	query := (&ProjectClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(actionmodel.Table, actionmodel.FieldID, selector),
+			sqlgraph.To(project.Table, project.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, actionmodel.ProjectTable, actionmodel.ProjectColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryFeature chains the current query on the "feature" edge.
+func (_q *ActionModelQuery) QueryFeature() *FeatureQuery {
+	query := (&FeatureClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(actionmodel.Table, actionmodel.FieldID, selector),
+			sqlgraph.To(feature.Table, feature.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, actionmodel.FeatureTable, actionmodel.FeatureColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAuditRecords chains the current query on the "audit_records" edge.
+func (_q *ActionModelQuery) QueryAuditRecords() *AuditRecordQuery {
+	query := (&AuditRecordClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(actionmodel.Table, actionmodel.FieldID, selector),
+			sqlgraph.To(auditrecord.Table, auditrecord.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, actionmodel.AuditRecordsTable, actionmodel.AuditRecordsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first ActionModel entity from the query.
@@ -245,15 +319,51 @@ func (_q *ActionModelQuery) Clone() *ActionModelQuery {
 		return nil
 	}
 	return &ActionModelQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]actionmodel.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.ActionModel{}, _q.predicates...),
+		config:           _q.config,
+		ctx:              _q.ctx.Clone(),
+		order:            append([]actionmodel.OrderOption{}, _q.order...),
+		inters:           append([]Interceptor{}, _q.inters...),
+		predicates:       append([]predicate.ActionModel{}, _q.predicates...),
+		withProject:      _q.withProject.Clone(),
+		withFeature:      _q.withFeature.Clone(),
+		withAuditRecords: _q.withAuditRecords.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
+}
+
+// WithProject tells the query-builder to eager-load the nodes that are connected to
+// the "project" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ActionModelQuery) WithProject(opts ...func(*ProjectQuery)) *ActionModelQuery {
+	query := (&ProjectClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withProject = query
+	return _q
+}
+
+// WithFeature tells the query-builder to eager-load the nodes that are connected to
+// the "feature" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ActionModelQuery) WithFeature(opts ...func(*FeatureQuery)) *ActionModelQuery {
+	query := (&FeatureClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withFeature = query
+	return _q
+}
+
+// WithAuditRecords tells the query-builder to eager-load the nodes that are connected to
+// the "audit_records" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ActionModelQuery) WithAuditRecords(opts ...func(*AuditRecordQuery)) *ActionModelQuery {
+	query := (&AuditRecordClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withAuditRecords = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -262,12 +372,12 @@ func (_q *ActionModelQuery) Clone() *ActionModelQuery {
 // Example:
 //
 //	var v []struct {
-//		ProjectID string `json:"project_id,omitempty"`
+//		CreatedAt time.Time `json:"created_at,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ActionModel.Query().
-//		GroupBy(actionmodel.FieldProjectID).
+//		GroupBy(actionmodel.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *ActionModelQuery) GroupBy(field string, fields ...string) *ActionModelGroupBy {
@@ -285,11 +395,11 @@ func (_q *ActionModelQuery) GroupBy(field string, fields ...string) *ActionModel
 // Example:
 //
 //	var v []struct {
-//		ProjectID string `json:"project_id,omitempty"`
+//		CreatedAt time.Time `json:"created_at,omitempty"`
 //	}
 //
 //	client.ActionModel.Query().
-//		Select(actionmodel.FieldProjectID).
+//		Select(actionmodel.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (_q *ActionModelQuery) Select(fields ...string) *ActionModelSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
@@ -332,8 +442,13 @@ func (_q *ActionModelQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *ActionModelQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ActionModel, error) {
 	var (
-		nodes = []*ActionModel{}
-		_spec = _q.querySpec()
+		nodes       = []*ActionModel{}
+		_spec       = _q.querySpec()
+		loadedTypes = [3]bool{
+			_q.withProject != nil,
+			_q.withFeature != nil,
+			_q.withAuditRecords != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*ActionModel).scanValues(nil, columns)
@@ -341,6 +456,7 @@ func (_q *ActionModelQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &ActionModel{config: _q.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -352,7 +468,115 @@ func (_q *ActionModelQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withProject; query != nil {
+		if err := _q.loadProject(ctx, query, nodes, nil,
+			func(n *ActionModel, e *Project) { n.Edges.Project = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withFeature; query != nil {
+		if err := _q.loadFeature(ctx, query, nodes, nil,
+			func(n *ActionModel, e *Feature) { n.Edges.Feature = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withAuditRecords; query != nil {
+		if err := _q.loadAuditRecords(ctx, query, nodes,
+			func(n *ActionModel) { n.Edges.AuditRecords = []*AuditRecord{} },
+			func(n *ActionModel, e *AuditRecord) { n.Edges.AuditRecords = append(n.Edges.AuditRecords, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (_q *ActionModelQuery) loadProject(ctx context.Context, query *ProjectQuery, nodes []*ActionModel, init func(*ActionModel), assign func(*ActionModel, *Project)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*ActionModel)
+	for i := range nodes {
+		fk := nodes[i].ProjectID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(project.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "project_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *ActionModelQuery) loadFeature(ctx context.Context, query *FeatureQuery, nodes []*ActionModel, init func(*ActionModel), assign func(*ActionModel, *Feature)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*ActionModel)
+	for i := range nodes {
+		fk := nodes[i].FeatureID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(feature.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "feature_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *ActionModelQuery) loadAuditRecords(ctx context.Context, query *AuditRecordQuery, nodes []*ActionModel, init func(*ActionModel), assign func(*ActionModel, *AuditRecord)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*ActionModel)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(auditrecord.FieldActionID)
+	}
+	query.Where(predicate.AuditRecord(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(actionmodel.AuditRecordsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ActionID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "action_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (_q *ActionModelQuery) sqlCount(ctx context.Context) (int, error) {
@@ -379,6 +603,12 @@ func (_q *ActionModelQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != actionmodel.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withProject != nil {
+			_spec.Node.AddColumnOnce(actionmodel.FieldProjectID)
+		}
+		if _q.withFeature != nil {
+			_spec.Node.AddColumnOnce(actionmodel.FieldFeatureID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

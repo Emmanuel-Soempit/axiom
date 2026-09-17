@@ -3,9 +3,10 @@ package registry
 import (
 	"context"
 	"fmt"
-	"go-backend-template/ent"
-	"go-backend-template/ent/actionmodel"
 	"sync"
+
+	"github.com/Emmanuel-Soempit/axiom/ent"
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
 )
 
 type actionRegistry struct {
@@ -40,6 +41,35 @@ func (r *actionRegistry) LoadActions(ctx context.Context, projectID string) erro
 	return nil
 }
 
+func (r *actionRegistry) LoadActionsByFeatureIDs(ctx context.Context, projectID string, featureIDs []int) error {
+	if len(featureIDs) == 0 {
+		r.mu.Lock()
+		defer r.mu.Unlock()
+		r.actions = make(map[string]*ent.ActionModel)
+		return nil
+	}
+
+	actions, err := r.client.ActionModel.
+		Query().
+		Where(
+			actionmodel.ProjectID(projectID),
+			actionmodel.FeatureIDIn(featureIDs...),
+		).
+		All(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to load actions by feature IDs: %w", err)
+	}
+
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	for _, action := range actions {
+		r.actions[action.Name] = action
+	}
+
+	return nil
+}
+
 func (r *actionRegistry) GetAction(name string) (*ent.ActionModel, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -58,24 +88,17 @@ func (r *actionRegistry) ListActions() []*ent.ActionModel {
 	return list
 }
 
-func (r *actionRegistry) CreateAction(ctx context.Context, action *ent.ActionModel) (*ent.ActionModel, error) {
-	newAction, err := r.client.ActionModel.
-		Create().
-		SetProjectID(action.ProjectID).
-		SetName(action.Name).
-		SetDescription(action.Description).
-		SetParameters(action.Parameters).
-		SetRules(action.Rules).
-		SetNillableRequiredFeature(&action.RequiredFeature).
-		SetVersion(action.Version).
-		Save(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create action: %w", err)
-	}
+// CRUD operations
 
+// CRUD operations handled by usecase now, Registry focuses on cache
+
+func (r *actionRegistry) SyncAction(action *ent.ActionModel, deleted bool) {
 	r.mu.Lock()
-	r.actions[newAction.Name] = newAction
-	r.mu.Unlock()
+	defer r.mu.Unlock()
 
-	return newAction, nil
+	if deleted {
+		delete(r.actions, action.Name)
+	} else {
+		r.actions[action.Name] = action
+	}
 }

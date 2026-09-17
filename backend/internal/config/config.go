@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"go-backend-template/internal/api"
-	coreApi "go-backend-template/internal/core/api"
+	"github.com/Emmanuel-Soempit/axiom/internal/api"
+	coreApi "github.com/Emmanuel-Soempit/axiom/internal/core/api"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -26,7 +26,7 @@ func InitApp() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3000"
+		port = "3333"
 	}
 	if err := app.Listen(":" + port); err != nil {
 		log.Fatal("Failed to start server:", err)

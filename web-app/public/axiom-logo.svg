@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 96" width="240" height="96">
+  <circle cx="48" cy="48" r="44" stroke="#1919e6" stroke-width="1.5" fill="none" opacity="0.25"/>
+  <circle cx="48" cy="48" r="32" stroke="#1919e6" stroke-width="2" fill="none" opacity="0.5"/>
+  <circle cx="48" cy="48" r="20" stroke="#1919e6" stroke-width="2.5" fill="none" opacity="0.8"/>
+  <circle cx="48" cy="48" r="6" fill="#1919e6"/>
+  <text x="112" y="62" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="42" font-weight="600" fill="#111121" letter-spacing="-1">Axiom</text>
+</svg>

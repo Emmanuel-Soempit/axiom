@@ -1,0 +1,198 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - develop
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: "Environment to deploy"
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - production
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ secrets.IMAGE_PREFIX || 'ghcr.io/emmanuel-soempit' }}
+
+jobs:
+  # ─────────────────────────────────────────────
+  # 1. Build & push all Docker images
+  # ─────────────────────────────────────────────
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.meta.outputs.sha }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set short SHA
+      id: meta
+      run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Create .env file
+      run: |
+        cd backend
+        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+        echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" >> .env
+        echo "GROQ_API_URL=${{ secrets.GROQ_API_URL }}" >> .env
+
+    - name: Build & push backend
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        push: true
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        tags: |
+          ${{ env.IMAGE_PREFIX }}/axiom-backend:${{ steps.meta.outputs.sha }}
+          ${{ env.IMAGE_PREFIX }}/axiom-backend:${{ github.ref_name }}
+
+    - name: Build & push web-app
+      uses: docker/build-push-action@v5
+      with:
+        context: ./web-app
+        push: true
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        tags: |
+          ${{ env.IMAGE_PREFIX }}/axiom-web-app:${{ steps.meta.outputs.sha }}
+          ${{ env.IMAGE_PREFIX }}/axiom-web-app:${{ github.ref_name }}
+
+    - name: Build & push frontend
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        push: true
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        tags: |
+          ${{ env.IMAGE_PREFIX }}/axiom-frontend:${{ steps.meta.outputs.sha }}
+          ${{ env.IMAGE_PREFIX }}/axiom-frontend:${{ github.ref_name }}
+
+  # ─────────────────────────────────────────────
+  # 2. Resolve target environment from branch
+  # ─────────────────────────────────────────────
+  set-env:
+    name: Resolve Environment
+    runs-on: ubuntu-latest
+    needs: build
+    outputs:
+      environment: ${{ steps.resolve.outputs.environment }}
+      overlay: ${{ steps.resolve.outputs.overlay }}
+      namespace: ${{ steps.resolve.outputs.namespace }}
+
+    steps:
+    - id: resolve
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          if [[ "${{ inputs.target_environment }}" == "production" ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "overlay=k8s/overlays/production" >> $GITHUB_OUTPUT
+            echo "namespace=axiom-prod" >> $GITHUB_OUTPUT
+          elif [[ "${{ inputs.target_environment }}" == "staging" ]]; then
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "overlay=k8s/overlays/staging" >> $GITHUB_OUTPUT
+            echo "namespace=axiom-staging" >> $GITHUB_OUTPUT
+          else
+            echo "environment=dev" >> $GITHUB_OUTPUT
+            echo "overlay=k8s/overlays/dev" >> $GITHUB_OUTPUT
+            echo "namespace=axiom-dev" >> $GITHUB_OUTPUT
+          fi
+        elif [[ "${{ github.ref_name }}" == "main" ]]; then
+          echo "environment=production" >> $GITHUB_OUTPUT
+          echo "overlay=k8s/overlays/production" >> $GITHUB_OUTPUT
+          echo "namespace=axiom-prod" >> $GITHUB_OUTPUT
+        elif [[ "${{ github.ref_name }}" == "staging" ]]; then
+          echo "environment=staging" >> $GITHUB_OUTPUT
+          echo "overlay=k8s/overlays/staging" >> $GITHUB_OUTPUT
+          echo "namespace=axiom-staging" >> $GITHUB_OUTPUT
+        else
+          echo "environment=dev" >> $GITHUB_OUTPUT
+          echo "overlay=k8s/overlays/dev" >> $GITHUB_OUTPUT
+          echo "namespace=axiom-dev" >> $GITHUB_OUTPUT
+        fi
+
+  # ─────────────────────────────────────────────
+  # 3. Deploy to Kubernetes
+  # ─────────────────────────────────────────────
+  deploy:
+    name: Deploy to ${{ needs.set-env.outputs.environment }}
+    runs-on: [self-hosted,axiom-deploy]
+    needs: [build, set-env]
+    environment: ${{ needs.set-env.outputs.environment }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+
+    - name: Setup kustomize
+      uses: imranismail/setup-kustomize@v2
+
+    - name: Configure kubeconfig
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+        chmod 600 $HOME/.kube/config
+
+    - name: Update image tags
+      run: |
+        cd ${{ needs.set-env.outputs.overlay }}
+        kustomize edit set image \
+          ghcr.io/emmanuel-soempit/axiom-backend=${{ env.IMAGE_PREFIX }}/axiom-backend:${{ needs.build.outputs.sha }} \
+          ghcr.io/emmanuel-soempit/axiom-web-app=${{ env.IMAGE_PREFIX }}/axiom-web-app:${{ needs.build.outputs.sha }} \
+          ghcr.io/emmanuel-soempit/axiom-frontend=${{ env.IMAGE_PREFIX }}/axiom-frontend:${{ needs.build.outputs.sha }}
+
+    - name: Ensure namespace exists
+      run: kubectl get namespace ${{ needs.set-env.outputs.namespace }} || kubectl create namespace ${{ needs.set-env.outputs.namespace }}
+
+    - name: Apply manifests
+      run: kubectl apply -k ${{ needs.set-env.outputs.overlay }}
+
+    - name: Wait for postgres rollout (if present)
+      run: |
+        if kubectl get deployment/axiom-postgres -n ${{ needs.set-env.outputs.namespace }} >/dev/null 2>&1; then
+          kubectl rollout status deployment/axiom-postgres -n ${{ needs.set-env.outputs.namespace }} --timeout=300s
+        else
+          echo "axiom-postgres deployment not found in this environment, skipping."
+        fi
+
+    - name: Wait for backend rollout
+      run: kubectl rollout status deployment/axiom-backend -n ${{ needs.set-env.outputs.namespace }} --timeout=180s
+
+    - name: Wait for web-app rollout
+      run: kubectl rollout status deployment/axiom-web-app -n ${{ needs.set-env.outputs.namespace }} --timeout=180s
+
+    - name: Wait for frontend rollout
+      run: kubectl rollout status deployment/axiom-frontend -n ${{ needs.set-env.outputs.namespace }} --timeout=180s
+
+    - name: Deployment summary
+      run: |
+        echo "### Deployed to ${{ needs.set-env.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **SHA**: ${{ needs.build.outputs.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Namespace**: ${{ needs.set-env.outputs.namespace }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        kubectl get pods -n ${{ needs.set-env.outputs.namespace }} >> $GITHUB_STEP_SUMMARY

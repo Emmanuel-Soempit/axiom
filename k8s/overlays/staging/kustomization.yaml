@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+bases:
+- ../../base
+
+namespace: axiom-staging
+
+replicas:
+- name: axiom-backend
+  count: 2
+- name: axiom-web-app
+  count: 2
+- name: axiom-frontend
+  count: 2
+- name: axiom-postgres
+  count: 1
+
+images:
+- name: ghcr.io/emmanuel-soempit/axiom-backend
+  newTag: staging
+- name: ghcr.io/emmanuel-soempit/axiom-web-app
+  newTag: staging
+- name: ghcr.io/emmanuel-soempit/axiom-frontend
+  newTag: staging
+
+resources:
+- secrets/sealed-secrets.yaml
+- secrets/configmap.yaml
+- ingress.yaml

@@ -7,4 +7,5 @@ import (
 type AuthHandler interface {
 	LoginHandler(*fiber.Ctx) error
 	RegisterHandler(*fiber.Ctx) error
+	SwitchProjectHandler(*fiber.Ctx) error
 }

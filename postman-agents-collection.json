@@ -1,0 +1,163 @@
+{
+  "info": {
+    "name": "EAC - Agents",
+    "description": "Agent CRUD endpoints for the EAC registry module",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Agent",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Email Assistant\",\n  \"description\": \"Auto reply and follow-up leads\",\n  \"system_prompt\": \"You are an email assistant...\",\n  \"features\": [1, 2]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/core/registry/agents",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "core", "registry", "agents"]
+        },
+        "description": "Create a new agent. Features array is optional. Slug is auto-generated from name."
+      },
+      "response": []
+    },
+    {
+      "name": "List Agents",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/core/registry/agents",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "core", "registry", "agents"]
+        },
+        "description": "List all agents for the active project (derived from session)."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Agent",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/core/registry/agents/:id",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "core", "registry", "agents", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1",
+              "description": "Agent ID"
+            }
+          ]
+        },
+        "description": "Get a single agent by ID, scoped to the active project."
+      },
+      "response": []
+    },
+    {
+      "name": "Update Agent",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Email Assistant Pro\",\n  \"description\": \"Updated description\",\n  \"system_prompt\": \"Updated prompt...\",\n  \"features\": [1, 3],\n  \"active\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/core/registry/agents/:id",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "core", "registry", "agents", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1",
+              "description": "Agent ID"
+            }
+          ]
+        },
+        "description": "Update an agent. All fields are optional. If features is provided, existing associations are cleared and replaced. If name is updated, slug is regenerated."
+      },
+      "response": []
+    },
+    {
+      "name": "Toggle Agent Active",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"active\": false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/core/registry/agents/:id/active",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "core", "registry", "agents", ":id", "active"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1",
+              "description": "Agent ID"
+            }
+          ]
+        },
+        "description": "Activate or deactivate an agent by toggling the active boolean."
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Agent",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/core/registry/agents/:id",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "core", "registry", "agents", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1",
+              "description": "Agent ID"
+            }
+          ]
+        },
+        "description": "Delete an agent by ID, scoped to the active project."
+      },
+      "response": []
+    }
+  ]
+}

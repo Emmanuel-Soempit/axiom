@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: axiom-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: axiom-backend
+  template:
+    metadata:
+      labels:
+        app: axiom-backend
+    spec:
+      containers:
+      - name: backend
+        image: ghcr.io/emmanuel-soempit/axiom-backend:latest  # set per overlay
+        ports:
+        - containerPort: 3333
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: axiom-secrets
+              key: database_url
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: axiom-config
+              key: port
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: axiom-secrets
+              key: jwt_secret
+        - name: GROQ_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: axiom-secrets
+              key: groq_api_key
+        - name: GROQ_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: axiom-config
+              key: groq_api_url
+        readinessProbe:
+          httpGet:
+            path: /health-check
+            port: 3333
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"

@@ -1,0 +1,6 @@
+# Ignore plaintext secret files — NEVER commit these
+overlays/*/secrets/secrets.yaml
+
+# Allow encrypted sealed secrets and non-sensitive configmaps (safe to commit)
+!overlays/*/secrets/sealed-secrets.yaml
+!overlays/*/secrets/configmap.yaml

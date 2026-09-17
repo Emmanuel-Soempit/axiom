@@ -14,10 +14,28 @@ type Tx struct {
 	config
 	// ActionModel is the client for interacting with the ActionModel builders.
 	ActionModel *ActionModelClient
+	// Agent is the client for interacting with the Agent builders.
+	Agent *AgentClient
+	// ApiKey is the client for interacting with the ApiKey builders.
+	ApiKey *ApiKeyClient
 	// AuditRecord is the client for interacting with the AuditRecord builders.
 	AuditRecord *AuditRecordClient
+	// Feature is the client for interacting with the Feature builders.
+	Feature *FeatureClient
+	// Message is the client for interacting with the Message builders.
+	Message *MessageClient
+	// Project is the client for interacting with the Project builders.
+	Project *ProjectClient
+	// Role is the client for interacting with the Role builders.
+	Role *RoleClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UserInvitation is the client for interacting with the UserInvitation builders.
+	UserInvitation *UserInvitationClient
+	// UserMeta is the client for interacting with the UserMeta builders.
+	UserMeta *UserMetaClient
+	// UserPasswordSecret is the client for interacting with the UserPasswordSecret builders.
+	UserPasswordSecret *UserPasswordSecretClient
 
 	// lazily loaded.
 	client     *Client
@@ -150,8 +168,17 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.ActionModel = NewActionModelClient(tx.config)
+	tx.Agent = NewAgentClient(tx.config)
+	tx.ApiKey = NewApiKeyClient(tx.config)
 	tx.AuditRecord = NewAuditRecordClient(tx.config)
+	tx.Feature = NewFeatureClient(tx.config)
+	tx.Message = NewMessageClient(tx.config)
+	tx.Project = NewProjectClient(tx.config)
+	tx.Role = NewRoleClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.UserInvitation = NewUserInvitationClient(tx.config)
+	tx.UserMeta = NewUserMetaClient(tx.config)
+	tx.UserPasswordSecret = NewUserPasswordSecretClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

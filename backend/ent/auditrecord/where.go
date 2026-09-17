@@ -3,9 +3,12 @@
 package auditrecord
 
 import (
-	"go-backend-template/ent/predicate"
+	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -53,14 +56,29 @@ func IDLTE(id int) predicate.AuditRecord {
 	return predicate.AuditRecord(sql.FieldLTE(FieldID, id))
 }
 
-// ProjectID applies equality check predicate on the "project_id" field. It's identical to ProjectIDEQ.
-func ProjectID(v string) predicate.AuditRecord {
-	return predicate.AuditRecord(sql.FieldEQ(FieldProjectID, v))
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v string) predicate.AuditRecord {
+func UserID(v int) predicate.AuditRecord {
 	return predicate.AuditRecord(sql.FieldEQ(FieldUserID, v))
+}
+
+// ActionID applies equality check predicate on the "action_id" field. It's identical to ActionIDEQ.
+func ActionID(v int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldEQ(FieldActionID, v))
+}
+
+// ProjectID applies equality check predicate on the "project_id" field. It's identical to ProjectIDEQ.
+func ProjectID(v string) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldEQ(FieldProjectID, v))
 }
 
 // Prompt applies equality check predicate on the "prompt" field. It's identical to PromptEQ.
@@ -71,6 +89,151 @@ func Prompt(v string) predicate.AuditRecord {
 // Validated applies equality check predicate on the "validated" field. It's identical to ValidatedEQ.
 func Validated(v bool) predicate.AuditRecord {
 	return predicate.AuditRecord(sql.FieldEQ(FieldValidated, v))
+}
+
+// AgentID applies equality check predicate on the "agent_id" field. It's identical to AgentIDEQ.
+func AgentID(v int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldEQ(FieldAgentID, v))
+}
+
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldGT(FieldCreatedAt, v))
+}
+
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldGTE(FieldCreatedAt, v))
+}
+
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldLT(FieldCreatedAt, v))
+}
+
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// UserIDEQ applies the EQ predicate on the "user_id" field.
+func UserIDEQ(v int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldEQ(FieldUserID, v))
+}
+
+// UserIDNEQ applies the NEQ predicate on the "user_id" field.
+func UserIDNEQ(v int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNEQ(FieldUserID, v))
+}
+
+// UserIDIn applies the In predicate on the "user_id" field.
+func UserIDIn(vs ...int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIn(FieldUserID, vs...))
+}
+
+// UserIDNotIn applies the NotIn predicate on the "user_id" field.
+func UserIDNotIn(vs ...int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotIn(FieldUserID, vs...))
+}
+
+// UserIDIsNil applies the IsNil predicate on the "user_id" field.
+func UserIDIsNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIsNull(FieldUserID))
+}
+
+// UserIDNotNil applies the NotNil predicate on the "user_id" field.
+func UserIDNotNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotNull(FieldUserID))
+}
+
+// ActionIDEQ applies the EQ predicate on the "action_id" field.
+func ActionIDEQ(v int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldEQ(FieldActionID, v))
+}
+
+// ActionIDNEQ applies the NEQ predicate on the "action_id" field.
+func ActionIDNEQ(v int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNEQ(FieldActionID, v))
+}
+
+// ActionIDIn applies the In predicate on the "action_id" field.
+func ActionIDIn(vs ...int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIn(FieldActionID, vs...))
+}
+
+// ActionIDNotIn applies the NotIn predicate on the "action_id" field.
+func ActionIDNotIn(vs ...int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotIn(FieldActionID, vs...))
+}
+
+// ActionIDIsNil applies the IsNil predicate on the "action_id" field.
+func ActionIDIsNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIsNull(FieldActionID))
+}
+
+// ActionIDNotNil applies the NotNil predicate on the "action_id" field.
+func ActionIDNotNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotNull(FieldActionID))
 }
 
 // ProjectIDEQ applies the EQ predicate on the "project_id" field.
@@ -128,6 +291,16 @@ func ProjectIDHasSuffix(v string) predicate.AuditRecord {
 	return predicate.AuditRecord(sql.FieldHasSuffix(FieldProjectID, v))
 }
 
+// ProjectIDIsNil applies the IsNil predicate on the "project_id" field.
+func ProjectIDIsNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIsNull(FieldProjectID))
+}
+
+// ProjectIDNotNil applies the NotNil predicate on the "project_id" field.
+func ProjectIDNotNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotNull(FieldProjectID))
+}
+
 // ProjectIDEqualFold applies the EqualFold predicate on the "project_id" field.
 func ProjectIDEqualFold(v string) predicate.AuditRecord {
 	return predicate.AuditRecord(sql.FieldEqualFold(FieldProjectID, v))
@@ -136,71 +309,6 @@ func ProjectIDEqualFold(v string) predicate.AuditRecord {
 // ProjectIDContainsFold applies the ContainsFold predicate on the "project_id" field.
 func ProjectIDContainsFold(v string) predicate.AuditRecord {
 	return predicate.AuditRecord(sql.FieldContainsFold(FieldProjectID, v))
-}
-
-// UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v string) predicate.AuditRecord {
-	return predicate.AuditRecord(sql.FieldEQ(FieldUserID, v))
-}
-
-// UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v string) predicate.AuditRecord {
-	return predicate.AuditRecord(sql.FieldNEQ(FieldUserID, v))
-}
-
-// UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...string) predicate.AuditRecord {
-	return predicate.AuditRecord(sql.FieldIn(FieldUserID, vs...))
-}
-
-// UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...string) predicate.AuditRecord {
-	return predicate.AuditRecord(sql.FieldNotIn(FieldUserID, vs...))
-}
-
-// UserIDGT applies the GT predicate on the "user_id" field.
-func UserIDGT(v string) predicate.AuditRecord {
-	return predicate.AuditRecord(sql.FieldGT(FieldUserID, v))
-}
-
-// UserIDGTE applies the GTE predicate on the "user_id" field.
-func UserIDGTE(v string) predicate.AuditRecord {
-	return predicate.AuditRecord(sql.FieldGTE(FieldUserID, v))
-}
-
-// UserIDLT applies the LT predicate on the "user_id" field.
-func UserIDLT(v string) predicate.AuditRecord {
-	return predicate.AuditRecord(sql.FieldLT(FieldUserID, v))
-}
-
-// UserIDLTE applies the LTE predicate on the "user_id" field.
-func UserIDLTE(v string) predicate.AuditRecord {
-	return predicate.AuditRecord(sql.FieldLTE(FieldUserID, v))
-}
-
-// UserIDContains applies the Contains predicate on the "user_id" field.
-func UserIDContains(v string) predicate.AuditRecord {
-	return predicate.AuditRecord(sql.FieldContains(FieldUserID, v))
-}
-
-// UserIDHasPrefix applies the HasPrefix predicate on the "user_id" field.
-func UserIDHasPrefix(v string) predicate.AuditRecord {
-	return predicate.AuditRecord(sql.FieldHasPrefix(FieldUserID, v))
-}
-
-// UserIDHasSuffix applies the HasSuffix predicate on the "user_id" field.
-func UserIDHasSuffix(v string) predicate.AuditRecord {
-	return predicate.AuditRecord(sql.FieldHasSuffix(FieldUserID, v))
-}
-
-// UserIDEqualFold applies the EqualFold predicate on the "user_id" field.
-func UserIDEqualFold(v string) predicate.AuditRecord {
-	return predicate.AuditRecord(sql.FieldEqualFold(FieldUserID, v))
-}
-
-// UserIDContainsFold applies the ContainsFold predicate on the "user_id" field.
-func UserIDContainsFold(v string) predicate.AuditRecord {
-	return predicate.AuditRecord(sql.FieldContainsFold(FieldUserID, v))
 }
 
 // PromptEQ applies the EQ predicate on the "prompt" field.
@@ -288,6 +396,16 @@ func ValidatedNEQ(v bool) predicate.AuditRecord {
 	return predicate.AuditRecord(sql.FieldNEQ(FieldValidated, v))
 }
 
+// ValidationErrorsIsNil applies the IsNil predicate on the "validation_errors" field.
+func ValidationErrorsIsNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIsNull(FieldValidationErrors))
+}
+
+// ValidationErrorsNotNil applies the NotNil predicate on the "validation_errors" field.
+func ValidationErrorsNotNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotNull(FieldValidationErrors))
+}
+
 // FinalResponseIsNil applies the IsNil predicate on the "final_response" field.
 func FinalResponseIsNil() predicate.AuditRecord {
 	return predicate.AuditRecord(sql.FieldIsNull(FieldFinalResponse))
@@ -296,6 +414,135 @@ func FinalResponseIsNil() predicate.AuditRecord {
 // FinalResponseNotNil applies the NotNil predicate on the "final_response" field.
 func FinalResponseNotNil() predicate.AuditRecord {
 	return predicate.AuditRecord(sql.FieldNotNull(FieldFinalResponse))
+}
+
+// AgentIDEQ applies the EQ predicate on the "agent_id" field.
+func AgentIDEQ(v int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldEQ(FieldAgentID, v))
+}
+
+// AgentIDNEQ applies the NEQ predicate on the "agent_id" field.
+func AgentIDNEQ(v int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNEQ(FieldAgentID, v))
+}
+
+// AgentIDIn applies the In predicate on the "agent_id" field.
+func AgentIDIn(vs ...int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIn(FieldAgentID, vs...))
+}
+
+// AgentIDNotIn applies the NotIn predicate on the "agent_id" field.
+func AgentIDNotIn(vs ...int) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotIn(FieldAgentID, vs...))
+}
+
+// AgentIDIsNil applies the IsNil predicate on the "agent_id" field.
+func AgentIDIsNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIsNull(FieldAgentID))
+}
+
+// AgentIDNotNil applies the NotNil predicate on the "agent_id" field.
+func AgentIDNotNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotNull(FieldAgentID))
+}
+
+// ErrorTypeEQ applies the EQ predicate on the "error_type" field.
+func ErrorTypeEQ(v ErrorType) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldEQ(FieldErrorType, v))
+}
+
+// ErrorTypeNEQ applies the NEQ predicate on the "error_type" field.
+func ErrorTypeNEQ(v ErrorType) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNEQ(FieldErrorType, v))
+}
+
+// ErrorTypeIn applies the In predicate on the "error_type" field.
+func ErrorTypeIn(vs ...ErrorType) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIn(FieldErrorType, vs...))
+}
+
+// ErrorTypeNotIn applies the NotIn predicate on the "error_type" field.
+func ErrorTypeNotIn(vs ...ErrorType) predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotIn(FieldErrorType, vs...))
+}
+
+// ErrorTypeIsNil applies the IsNil predicate on the "error_type" field.
+func ErrorTypeIsNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldIsNull(FieldErrorType))
+}
+
+// ErrorTypeNotNil applies the NotNil predicate on the "error_type" field.
+func ErrorTypeNotNil() predicate.AuditRecord {
+	return predicate.AuditRecord(sql.FieldNotNull(FieldErrorType))
+}
+
+// HasUser applies the HasEdge predicate on the "user" edge.
+func HasUser() predicate.AuditRecord {
+	return predicate.AuditRecord(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
+func HasUserWith(preds ...predicate.User) predicate.AuditRecord {
+	return predicate.AuditRecord(func(s *sql.Selector) {
+		step := newUserStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasAction applies the HasEdge predicate on the "action" edge.
+func HasAction() predicate.AuditRecord {
+	return predicate.AuditRecord(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ActionTable, ActionColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasActionWith applies the HasEdge predicate on the "action" edge with a given conditions (other predicates).
+func HasActionWith(preds ...predicate.ActionModel) predicate.AuditRecord {
+	return predicate.AuditRecord(func(s *sql.Selector) {
+		step := newActionStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasAgent applies the HasEdge predicate on the "agent" edge.
+func HasAgent() predicate.AuditRecord {
+	return predicate.AuditRecord(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, AgentTable, AgentColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAgentWith applies the HasEdge predicate on the "agent" edge with a given conditions (other predicates).
+func HasAgentWith(preds ...predicate.Agent) predicate.AuditRecord {
+	return predicate.AuditRecord(func(s *sql.Selector) {
+		step := newAgentStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

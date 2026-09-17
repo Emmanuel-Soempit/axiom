@@ -6,4 +6,5 @@ import (
 
 type EngineHandler interface {
 	ProcessIntent(c *fiber.Ctx) error
+	GetSessionHistory(c *fiber.Ctx) error
 }

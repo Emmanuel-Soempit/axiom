@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: axiom-ingress
+  namespace: axiom-dev
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - dev.axiom.soempit.com
+    - portal.dev.axiom.soempit.com
+    - api.dev.axiom.soempit.com
+    secretName: axiom-dev-tls
+  rules:
+  - host: dev.axiom.soempit.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: axiom-frontend
+            port:
+              number: 3000
+  - host: portal.dev.axiom.soempit.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: axiom-web-app
+            port:
+              number: 3001
+  - host: api.dev.axiom.soempit.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: axiom-backend
+            port:
+              number: 3333

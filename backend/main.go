@@ -1,6 +1,6 @@
 package main
 
-import "go-backend-template/internal/config"
+import "github.com/Emmanuel-Soempit/axiom/internal/config"
 
 func main() {
 	config.InitApp()

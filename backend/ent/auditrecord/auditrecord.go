@@ -3,7 +3,11 @@
 package auditrecord
 
 import (
+	"fmt"
+	"time"
+
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -11,31 +15,76 @@ const (
 	Label = "audit_record"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldProjectID holds the string denoting the project_id field in the database.
-	FieldProjectID = "project_id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
+	// FieldActionID holds the string denoting the action_id field in the database.
+	FieldActionID = "action_id"
+	// FieldProjectID holds the string denoting the project_id field in the database.
+	FieldProjectID = "project_id"
 	// FieldPrompt holds the string denoting the prompt field in the database.
 	FieldPrompt = "prompt"
 	// FieldProposedAction holds the string denoting the proposed_action field in the database.
 	FieldProposedAction = "proposed_action"
 	// FieldValidated holds the string denoting the validated field in the database.
 	FieldValidated = "validated"
+	// FieldValidationErrors holds the string denoting the validation_errors field in the database.
+	FieldValidationErrors = "validation_errors"
 	// FieldFinalResponse holds the string denoting the final_response field in the database.
 	FieldFinalResponse = "final_response"
+	// FieldAgentID holds the string denoting the agent_id field in the database.
+	FieldAgentID = "agent_id"
+	// FieldErrorType holds the string denoting the error_type field in the database.
+	FieldErrorType = "error_type"
+	// EdgeUser holds the string denoting the user edge name in mutations.
+	EdgeUser = "user"
+	// EdgeAction holds the string denoting the action edge name in mutations.
+	EdgeAction = "action"
+	// EdgeAgent holds the string denoting the agent edge name in mutations.
+	EdgeAgent = "agent"
 	// Table holds the table name of the auditrecord in the database.
 	Table = "audit_records"
+	// UserTable is the table that holds the user relation/edge.
+	UserTable = "audit_records"
+	// UserInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	UserInverseTable = "users"
+	// UserColumn is the table column denoting the user relation/edge.
+	UserColumn = "user_id"
+	// ActionTable is the table that holds the action relation/edge.
+	ActionTable = "audit_records"
+	// ActionInverseTable is the table name for the ActionModel entity.
+	// It exists in this package in order to avoid circular dependency with the "actionmodel" package.
+	ActionInverseTable = "action_models"
+	// ActionColumn is the table column denoting the action relation/edge.
+	ActionColumn = "action_id"
+	// AgentTable is the table that holds the agent relation/edge.
+	AgentTable = "audit_records"
+	// AgentInverseTable is the table name for the Agent entity.
+	// It exists in this package in order to avoid circular dependency with the "agent" package.
+	AgentInverseTable = "agents"
+	// AgentColumn is the table column denoting the agent relation/edge.
+	AgentColumn = "agent_id"
 )
 
 // Columns holds all SQL columns for auditrecord fields.
 var Columns = []string{
 	FieldID,
-	FieldProjectID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
 	FieldUserID,
+	FieldActionID,
+	FieldProjectID,
 	FieldPrompt,
 	FieldProposedAction,
 	FieldValidated,
+	FieldValidationErrors,
 	FieldFinalResponse,
+	FieldAgentID,
+	FieldErrorType,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -49,9 +98,47 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultValidated holds the default value on creation for the "validated" field.
 	DefaultValidated bool
 )
+
+// ErrorType defines the type for the "error_type" enum field.
+type ErrorType string
+
+// ErrorType values.
+const (
+	ErrorTypeAgentNotFound           ErrorType = "agent_not_found"
+	ErrorTypeLoadActions             ErrorType = "load_actions"
+	ErrorTypeLoadHistory             ErrorType = "load_history"
+	ErrorTypeBuildSystemPrompt       ErrorType = "build_system_prompt"
+	ErrorTypeLlmChat                 ErrorType = "llm_chat"
+	ErrorTypeActionNotFound          ErrorType = "action_not_found"
+	ErrorTypeValidationError         ErrorType = "validation_error"
+	ErrorTypeValidationFailed        ErrorType = "validation_failed"
+	ErrorTypePersistUserMessage      ErrorType = "persist_user_message"
+	ErrorTypePersistAssistantMessage ErrorType = "persist_assistant_message"
+	ErrorTypePersistToolMessage      ErrorType = "persist_tool_message"
+)
+
+func (et ErrorType) String() string {
+	return string(et)
+}
+
+// ErrorTypeValidator is a validator for the "error_type" field enum values. It is called by the builders before save.
+func ErrorTypeValidator(et ErrorType) error {
+	switch et {
+	case ErrorTypeAgentNotFound, ErrorTypeLoadActions, ErrorTypeLoadHistory, ErrorTypeBuildSystemPrompt, ErrorTypeLlmChat, ErrorTypeActionNotFound, ErrorTypeValidationError, ErrorTypeValidationFailed, ErrorTypePersistUserMessage, ErrorTypePersistAssistantMessage, ErrorTypePersistToolMessage:
+		return nil
+	default:
+		return fmt.Errorf("auditrecord: invalid enum value for error_type field: %q", et)
+	}
+}
 
 // OrderOption defines the ordering options for the AuditRecord queries.
 type OrderOption func(*sql.Selector)
@@ -61,14 +148,29 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByProjectID orders the results by the project_id field.
-func ByProjectID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldProjectID, opts...).ToFunc()
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
 // ByUserID orders the results by the user_id field.
 func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
+}
+
+// ByActionID orders the results by the action_id field.
+func ByActionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldActionID, opts...).ToFunc()
+}
+
+// ByProjectID orders the results by the project_id field.
+func ByProjectID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProjectID, opts...).ToFunc()
 }
 
 // ByPrompt orders the results by the prompt field.
@@ -79,4 +181,56 @@ func ByPrompt(opts ...sql.OrderTermOption) OrderOption {
 // ByValidated orders the results by the validated field.
 func ByValidated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldValidated, opts...).ToFunc()
+}
+
+// ByAgentID orders the results by the agent_id field.
+func ByAgentID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAgentID, opts...).ToFunc()
+}
+
+// ByErrorType orders the results by the error_type field.
+func ByErrorType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldErrorType, opts...).ToFunc()
+}
+
+// ByUserField orders the results by user field.
+func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByActionField orders the results by action field.
+func ByActionField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newActionStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByAgentField orders the results by agent field.
+func ByAgentField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAgentStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newUserStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UserInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+	)
+}
+func newActionStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ActionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ActionTable, ActionColumn),
+	)
+}
+func newAgentStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AgentInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, AgentTable, AgentColumn),
+	)
 }

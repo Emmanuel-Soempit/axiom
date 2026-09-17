@@ -6,11 +6,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-backend-template/ent/auditrecord"
-	"go-backend-template/ent/predicate"
+	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/agent"
+	"github.com/Emmanuel-Soempit/axiom/ent/auditrecord"
+	"github.com/Emmanuel-Soempit/axiom/ent/predicate"
+	"github.com/Emmanuel-Soempit/axiom/ent/user"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 )
 
@@ -24,6 +30,52 @@ type AuditRecordUpdate struct {
 // Where appends a list predicates to the AuditRecordUpdate builder.
 func (_u *AuditRecordUpdate) Where(ps ...predicate.AuditRecord) *AuditRecordUpdate {
 	_u.mutation.Where(ps...)
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *AuditRecordUpdate) SetUpdatedAt(v time.Time) *AuditRecordUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetUserID sets the "user_id" field.
+func (_u *AuditRecordUpdate) SetUserID(v int) *AuditRecordUpdate {
+	_u.mutation.SetUserID(v)
+	return _u
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (_u *AuditRecordUpdate) SetNillableUserID(v *int) *AuditRecordUpdate {
+	if v != nil {
+		_u.SetUserID(*v)
+	}
+	return _u
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (_u *AuditRecordUpdate) ClearUserID() *AuditRecordUpdate {
+	_u.mutation.ClearUserID()
+	return _u
+}
+
+// SetActionID sets the "action_id" field.
+func (_u *AuditRecordUpdate) SetActionID(v int) *AuditRecordUpdate {
+	_u.mutation.SetActionID(v)
+	return _u
+}
+
+// SetNillableActionID sets the "action_id" field if the given value is not nil.
+func (_u *AuditRecordUpdate) SetNillableActionID(v *int) *AuditRecordUpdate {
+	if v != nil {
+		_u.SetActionID(*v)
+	}
+	return _u
+}
+
+// ClearActionID clears the value of the "action_id" field.
+func (_u *AuditRecordUpdate) ClearActionID() *AuditRecordUpdate {
+	_u.mutation.ClearActionID()
 	return _u
 }
 
@@ -41,17 +93,9 @@ func (_u *AuditRecordUpdate) SetNillableProjectID(v *string) *AuditRecordUpdate 
 	return _u
 }
 
-// SetUserID sets the "user_id" field.
-func (_u *AuditRecordUpdate) SetUserID(v string) *AuditRecordUpdate {
-	_u.mutation.SetUserID(v)
-	return _u
-}
-
-// SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *AuditRecordUpdate) SetNillableUserID(v *string) *AuditRecordUpdate {
-	if v != nil {
-		_u.SetUserID(*v)
-	}
+// ClearProjectID clears the value of the "project_id" field.
+func (_u *AuditRecordUpdate) ClearProjectID() *AuditRecordUpdate {
+	_u.mutation.ClearProjectID()
 	return _u
 }
 
@@ -95,6 +139,24 @@ func (_u *AuditRecordUpdate) SetNillableValidated(v *bool) *AuditRecordUpdate {
 	return _u
 }
 
+// SetValidationErrors sets the "validation_errors" field.
+func (_u *AuditRecordUpdate) SetValidationErrors(v []string) *AuditRecordUpdate {
+	_u.mutation.SetValidationErrors(v)
+	return _u
+}
+
+// AppendValidationErrors appends value to the "validation_errors" field.
+func (_u *AuditRecordUpdate) AppendValidationErrors(v []string) *AuditRecordUpdate {
+	_u.mutation.AppendValidationErrors(v)
+	return _u
+}
+
+// ClearValidationErrors clears the value of the "validation_errors" field.
+func (_u *AuditRecordUpdate) ClearValidationErrors() *AuditRecordUpdate {
+	_u.mutation.ClearValidationErrors()
+	return _u
+}
+
 // SetFinalResponse sets the "final_response" field.
 func (_u *AuditRecordUpdate) SetFinalResponse(v map[string]interface{}) *AuditRecordUpdate {
 	_u.mutation.SetFinalResponse(v)
@@ -107,13 +169,87 @@ func (_u *AuditRecordUpdate) ClearFinalResponse() *AuditRecordUpdate {
 	return _u
 }
 
+// SetAgentID sets the "agent_id" field.
+func (_u *AuditRecordUpdate) SetAgentID(v int) *AuditRecordUpdate {
+	_u.mutation.SetAgentID(v)
+	return _u
+}
+
+// SetNillableAgentID sets the "agent_id" field if the given value is not nil.
+func (_u *AuditRecordUpdate) SetNillableAgentID(v *int) *AuditRecordUpdate {
+	if v != nil {
+		_u.SetAgentID(*v)
+	}
+	return _u
+}
+
+// ClearAgentID clears the value of the "agent_id" field.
+func (_u *AuditRecordUpdate) ClearAgentID() *AuditRecordUpdate {
+	_u.mutation.ClearAgentID()
+	return _u
+}
+
+// SetErrorType sets the "error_type" field.
+func (_u *AuditRecordUpdate) SetErrorType(v auditrecord.ErrorType) *AuditRecordUpdate {
+	_u.mutation.SetErrorType(v)
+	return _u
+}
+
+// SetNillableErrorType sets the "error_type" field if the given value is not nil.
+func (_u *AuditRecordUpdate) SetNillableErrorType(v *auditrecord.ErrorType) *AuditRecordUpdate {
+	if v != nil {
+		_u.SetErrorType(*v)
+	}
+	return _u
+}
+
+// ClearErrorType clears the value of the "error_type" field.
+func (_u *AuditRecordUpdate) ClearErrorType() *AuditRecordUpdate {
+	_u.mutation.ClearErrorType()
+	return _u
+}
+
+// SetUser sets the "user" edge to the User entity.
+func (_u *AuditRecordUpdate) SetUser(v *User) *AuditRecordUpdate {
+	return _u.SetUserID(v.ID)
+}
+
+// SetAction sets the "action" edge to the ActionModel entity.
+func (_u *AuditRecordUpdate) SetAction(v *ActionModel) *AuditRecordUpdate {
+	return _u.SetActionID(v.ID)
+}
+
+// SetAgent sets the "agent" edge to the Agent entity.
+func (_u *AuditRecordUpdate) SetAgent(v *Agent) *AuditRecordUpdate {
+	return _u.SetAgentID(v.ID)
+}
+
 // Mutation returns the AuditRecordMutation object of the builder.
 func (_u *AuditRecordUpdate) Mutation() *AuditRecordMutation {
 	return _u.mutation
 }
 
+// ClearUser clears the "user" edge to the User entity.
+func (_u *AuditRecordUpdate) ClearUser() *AuditRecordUpdate {
+	_u.mutation.ClearUser()
+	return _u
+}
+
+// ClearAction clears the "action" edge to the ActionModel entity.
+func (_u *AuditRecordUpdate) ClearAction() *AuditRecordUpdate {
+	_u.mutation.ClearAction()
+	return _u
+}
+
+// ClearAgent clears the "agent" edge to the Agent entity.
+func (_u *AuditRecordUpdate) ClearAgent() *AuditRecordUpdate {
+	_u.mutation.ClearAgent()
+	return _u
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *AuditRecordUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -139,7 +275,28 @@ func (_u *AuditRecordUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *AuditRecordUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := auditrecord.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *AuditRecordUpdate) check() error {
+	if v, ok := _u.mutation.ErrorType(); ok {
+		if err := auditrecord.ErrorTypeValidator(v); err != nil {
+			return &ValidationError{Name: "error_type", err: fmt.Errorf(`ent: validator failed for field "AuditRecord.error_type": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *AuditRecordUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(auditrecord.Table, auditrecord.Columns, sqlgraph.NewFieldSpec(auditrecord.FieldID, field.TypeInt))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -148,11 +305,14 @@ func (_u *AuditRecordUpdate) sqlSave(ctx context.Context) (_node int, err error)
 			}
 		}
 	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(auditrecord.FieldUpdatedAt, field.TypeTime, value)
+	}
 	if value, ok := _u.mutation.ProjectID(); ok {
 		_spec.SetField(auditrecord.FieldProjectID, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.UserID(); ok {
-		_spec.SetField(auditrecord.FieldUserID, field.TypeString, value)
+	if _u.mutation.ProjectIDCleared() {
+		_spec.ClearField(auditrecord.FieldProjectID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Prompt(); ok {
 		_spec.SetField(auditrecord.FieldPrompt, field.TypeString, value)
@@ -166,11 +326,115 @@ func (_u *AuditRecordUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.Validated(); ok {
 		_spec.SetField(auditrecord.FieldValidated, field.TypeBool, value)
 	}
+	if value, ok := _u.mutation.ValidationErrors(); ok {
+		_spec.SetField(auditrecord.FieldValidationErrors, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedValidationErrors(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, auditrecord.FieldValidationErrors, value)
+		})
+	}
+	if _u.mutation.ValidationErrorsCleared() {
+		_spec.ClearField(auditrecord.FieldValidationErrors, field.TypeJSON)
+	}
 	if value, ok := _u.mutation.FinalResponse(); ok {
 		_spec.SetField(auditrecord.FieldFinalResponse, field.TypeJSON, value)
 	}
 	if _u.mutation.FinalResponseCleared() {
 		_spec.ClearField(auditrecord.FieldFinalResponse, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ErrorType(); ok {
+		_spec.SetField(auditrecord.FieldErrorType, field.TypeEnum, value)
+	}
+	if _u.mutation.ErrorTypeCleared() {
+		_spec.ClearField(auditrecord.FieldErrorType, field.TypeEnum)
+	}
+	if _u.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.UserTable,
+			Columns: []string{auditrecord.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.UserTable,
+			Columns: []string{auditrecord.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ActionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.ActionTable,
+			Columns: []string{auditrecord.ActionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(actionmodel.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ActionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.ActionTable,
+			Columns: []string{auditrecord.ActionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(actionmodel.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AgentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.AgentTable,
+			Columns: []string{auditrecord.AgentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AgentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.AgentTable,
+			Columns: []string{auditrecord.AgentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -192,6 +456,52 @@ type AuditRecordUpdateOne struct {
 	mutation *AuditRecordMutation
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *AuditRecordUpdateOne) SetUpdatedAt(v time.Time) *AuditRecordUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetUserID sets the "user_id" field.
+func (_u *AuditRecordUpdateOne) SetUserID(v int) *AuditRecordUpdateOne {
+	_u.mutation.SetUserID(v)
+	return _u
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (_u *AuditRecordUpdateOne) SetNillableUserID(v *int) *AuditRecordUpdateOne {
+	if v != nil {
+		_u.SetUserID(*v)
+	}
+	return _u
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (_u *AuditRecordUpdateOne) ClearUserID() *AuditRecordUpdateOne {
+	_u.mutation.ClearUserID()
+	return _u
+}
+
+// SetActionID sets the "action_id" field.
+func (_u *AuditRecordUpdateOne) SetActionID(v int) *AuditRecordUpdateOne {
+	_u.mutation.SetActionID(v)
+	return _u
+}
+
+// SetNillableActionID sets the "action_id" field if the given value is not nil.
+func (_u *AuditRecordUpdateOne) SetNillableActionID(v *int) *AuditRecordUpdateOne {
+	if v != nil {
+		_u.SetActionID(*v)
+	}
+	return _u
+}
+
+// ClearActionID clears the value of the "action_id" field.
+func (_u *AuditRecordUpdateOne) ClearActionID() *AuditRecordUpdateOne {
+	_u.mutation.ClearActionID()
+	return _u
+}
+
 // SetProjectID sets the "project_id" field.
 func (_u *AuditRecordUpdateOne) SetProjectID(v string) *AuditRecordUpdateOne {
 	_u.mutation.SetProjectID(v)
@@ -206,17 +516,9 @@ func (_u *AuditRecordUpdateOne) SetNillableProjectID(v *string) *AuditRecordUpda
 	return _u
 }
 
-// SetUserID sets the "user_id" field.
-func (_u *AuditRecordUpdateOne) SetUserID(v string) *AuditRecordUpdateOne {
-	_u.mutation.SetUserID(v)
-	return _u
-}
-
-// SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *AuditRecordUpdateOne) SetNillableUserID(v *string) *AuditRecordUpdateOne {
-	if v != nil {
-		_u.SetUserID(*v)
-	}
+// ClearProjectID clears the value of the "project_id" field.
+func (_u *AuditRecordUpdateOne) ClearProjectID() *AuditRecordUpdateOne {
+	_u.mutation.ClearProjectID()
 	return _u
 }
 
@@ -260,6 +562,24 @@ func (_u *AuditRecordUpdateOne) SetNillableValidated(v *bool) *AuditRecordUpdate
 	return _u
 }
 
+// SetValidationErrors sets the "validation_errors" field.
+func (_u *AuditRecordUpdateOne) SetValidationErrors(v []string) *AuditRecordUpdateOne {
+	_u.mutation.SetValidationErrors(v)
+	return _u
+}
+
+// AppendValidationErrors appends value to the "validation_errors" field.
+func (_u *AuditRecordUpdateOne) AppendValidationErrors(v []string) *AuditRecordUpdateOne {
+	_u.mutation.AppendValidationErrors(v)
+	return _u
+}
+
+// ClearValidationErrors clears the value of the "validation_errors" field.
+func (_u *AuditRecordUpdateOne) ClearValidationErrors() *AuditRecordUpdateOne {
+	_u.mutation.ClearValidationErrors()
+	return _u
+}
+
 // SetFinalResponse sets the "final_response" field.
 func (_u *AuditRecordUpdateOne) SetFinalResponse(v map[string]interface{}) *AuditRecordUpdateOne {
 	_u.mutation.SetFinalResponse(v)
@@ -272,9 +592,82 @@ func (_u *AuditRecordUpdateOne) ClearFinalResponse() *AuditRecordUpdateOne {
 	return _u
 }
 
+// SetAgentID sets the "agent_id" field.
+func (_u *AuditRecordUpdateOne) SetAgentID(v int) *AuditRecordUpdateOne {
+	_u.mutation.SetAgentID(v)
+	return _u
+}
+
+// SetNillableAgentID sets the "agent_id" field if the given value is not nil.
+func (_u *AuditRecordUpdateOne) SetNillableAgentID(v *int) *AuditRecordUpdateOne {
+	if v != nil {
+		_u.SetAgentID(*v)
+	}
+	return _u
+}
+
+// ClearAgentID clears the value of the "agent_id" field.
+func (_u *AuditRecordUpdateOne) ClearAgentID() *AuditRecordUpdateOne {
+	_u.mutation.ClearAgentID()
+	return _u
+}
+
+// SetErrorType sets the "error_type" field.
+func (_u *AuditRecordUpdateOne) SetErrorType(v auditrecord.ErrorType) *AuditRecordUpdateOne {
+	_u.mutation.SetErrorType(v)
+	return _u
+}
+
+// SetNillableErrorType sets the "error_type" field if the given value is not nil.
+func (_u *AuditRecordUpdateOne) SetNillableErrorType(v *auditrecord.ErrorType) *AuditRecordUpdateOne {
+	if v != nil {
+		_u.SetErrorType(*v)
+	}
+	return _u
+}
+
+// ClearErrorType clears the value of the "error_type" field.
+func (_u *AuditRecordUpdateOne) ClearErrorType() *AuditRecordUpdateOne {
+	_u.mutation.ClearErrorType()
+	return _u
+}
+
+// SetUser sets the "user" edge to the User entity.
+func (_u *AuditRecordUpdateOne) SetUser(v *User) *AuditRecordUpdateOne {
+	return _u.SetUserID(v.ID)
+}
+
+// SetAction sets the "action" edge to the ActionModel entity.
+func (_u *AuditRecordUpdateOne) SetAction(v *ActionModel) *AuditRecordUpdateOne {
+	return _u.SetActionID(v.ID)
+}
+
+// SetAgent sets the "agent" edge to the Agent entity.
+func (_u *AuditRecordUpdateOne) SetAgent(v *Agent) *AuditRecordUpdateOne {
+	return _u.SetAgentID(v.ID)
+}
+
 // Mutation returns the AuditRecordMutation object of the builder.
 func (_u *AuditRecordUpdateOne) Mutation() *AuditRecordMutation {
 	return _u.mutation
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (_u *AuditRecordUpdateOne) ClearUser() *AuditRecordUpdateOne {
+	_u.mutation.ClearUser()
+	return _u
+}
+
+// ClearAction clears the "action" edge to the ActionModel entity.
+func (_u *AuditRecordUpdateOne) ClearAction() *AuditRecordUpdateOne {
+	_u.mutation.ClearAction()
+	return _u
+}
+
+// ClearAgent clears the "agent" edge to the Agent entity.
+func (_u *AuditRecordUpdateOne) ClearAgent() *AuditRecordUpdateOne {
+	_u.mutation.ClearAgent()
+	return _u
 }
 
 // Where appends a list predicates to the AuditRecordUpdate builder.
@@ -292,6 +685,7 @@ func (_u *AuditRecordUpdateOne) Select(field string, fields ...string) *AuditRec
 
 // Save executes the query and returns the updated AuditRecord entity.
 func (_u *AuditRecordUpdateOne) Save(ctx context.Context) (*AuditRecord, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -317,7 +711,28 @@ func (_u *AuditRecordUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *AuditRecordUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := auditrecord.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (_u *AuditRecordUpdateOne) check() error {
+	if v, ok := _u.mutation.ErrorType(); ok {
+		if err := auditrecord.ErrorTypeValidator(v); err != nil {
+			return &ValidationError{Name: "error_type", err: fmt.Errorf(`ent: validator failed for field "AuditRecord.error_type": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *AuditRecordUpdateOne) sqlSave(ctx context.Context) (_node *AuditRecord, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(auditrecord.Table, auditrecord.Columns, sqlgraph.NewFieldSpec(auditrecord.FieldID, field.TypeInt))
 	id, ok := _u.mutation.ID()
 	if !ok {
@@ -343,11 +758,14 @@ func (_u *AuditRecordUpdateOne) sqlSave(ctx context.Context) (_node *AuditRecord
 			}
 		}
 	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(auditrecord.FieldUpdatedAt, field.TypeTime, value)
+	}
 	if value, ok := _u.mutation.ProjectID(); ok {
 		_spec.SetField(auditrecord.FieldProjectID, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.UserID(); ok {
-		_spec.SetField(auditrecord.FieldUserID, field.TypeString, value)
+	if _u.mutation.ProjectIDCleared() {
+		_spec.ClearField(auditrecord.FieldProjectID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Prompt(); ok {
 		_spec.SetField(auditrecord.FieldPrompt, field.TypeString, value)
@@ -361,11 +779,115 @@ func (_u *AuditRecordUpdateOne) sqlSave(ctx context.Context) (_node *AuditRecord
 	if value, ok := _u.mutation.Validated(); ok {
 		_spec.SetField(auditrecord.FieldValidated, field.TypeBool, value)
 	}
+	if value, ok := _u.mutation.ValidationErrors(); ok {
+		_spec.SetField(auditrecord.FieldValidationErrors, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedValidationErrors(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, auditrecord.FieldValidationErrors, value)
+		})
+	}
+	if _u.mutation.ValidationErrorsCleared() {
+		_spec.ClearField(auditrecord.FieldValidationErrors, field.TypeJSON)
+	}
 	if value, ok := _u.mutation.FinalResponse(); ok {
 		_spec.SetField(auditrecord.FieldFinalResponse, field.TypeJSON, value)
 	}
 	if _u.mutation.FinalResponseCleared() {
 		_spec.ClearField(auditrecord.FieldFinalResponse, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ErrorType(); ok {
+		_spec.SetField(auditrecord.FieldErrorType, field.TypeEnum, value)
+	}
+	if _u.mutation.ErrorTypeCleared() {
+		_spec.ClearField(auditrecord.FieldErrorType, field.TypeEnum)
+	}
+	if _u.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.UserTable,
+			Columns: []string{auditrecord.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.UserTable,
+			Columns: []string{auditrecord.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ActionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.ActionTable,
+			Columns: []string{auditrecord.ActionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(actionmodel.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ActionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.ActionTable,
+			Columns: []string{auditrecord.ActionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(actionmodel.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.AgentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.AgentTable,
+			Columns: []string{auditrecord.AgentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.AgentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   auditrecord.AgentTable,
+			Columns: []string{auditrecord.AgentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(agent.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &AuditRecord{config: _u.config}
 	_spec.Assign = _node.assignValues

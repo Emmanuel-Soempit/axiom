@@ -2,9 +2,10 @@ package config
 
 import (
 	"context"
-	"go-backend-template/ent"
 	"log"
 	"os"
+
+	"github.com/Emmanuel-Soempit/axiom/ent"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -14,7 +15,7 @@ import (
 
 func appConfigurations(app *fiber.App) {
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "https://whatsapp-vendor-frontend.vercel.app",
+		AllowOrigins:     "https://whatsapp-vendor-frontend.vercel.app,http://localhost:3333,http://localhost:3001",
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true,

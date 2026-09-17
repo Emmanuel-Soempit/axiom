@@ -5,8 +5,13 @@ package ent
 import (
 	"encoding/json"
 	"fmt"
-	"go-backend-template/ent/actionmodel"
 	"strings"
+	"time"
+
+	"github.com/Emmanuel-Soempit/axiom/ent/actionmodel"
+	"github.com/Emmanuel-Soempit/axiom/ent/feature"
+	"github.com/Emmanuel-Soempit/axiom/ent/project"
+	"github.com/Emmanuel-Soempit/axiom/internal/core/registry/dtos"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -17,21 +22,72 @@ type ActionModel struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// ProjectID holds the value of the "project_id" field.
 	ProjectID string `json:"project_id,omitempty"`
+	// FeatureID holds the value of the "feature_id" field.
+	FeatureID int `json:"feature_id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
 	// Parameters holds the value of the "parameters" field.
-	Parameters map[string]interface{} `json:"parameters,omitempty"`
-	// Rules holds the value of the "rules" field.
-	Rules map[string]interface{} `json:"rules,omitempty"`
+	Parameters map[string]*dtos.ParameterSchema `json:"parameters,omitempty"`
 	// RequiredFeature holds the value of the "required_feature" field.
 	RequiredFeature string `json:"required_feature,omitempty"`
 	// Version holds the value of the "version" field.
-	Version      int `json:"version,omitempty"`
+	Version int `json:"version,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ActionModelQuery when eager-loading is set.
+	Edges        ActionModelEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// ActionModelEdges holds the relations/edges for other nodes in the graph.
+type ActionModelEdges struct {
+	// Project holds the value of the project edge.
+	Project *Project `json:"project,omitempty"`
+	// Feature holds the value of the feature edge.
+	Feature *Feature `json:"feature,omitempty"`
+	// AuditRecords holds the value of the audit_records edge.
+	AuditRecords []*AuditRecord `json:"audit_records,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [3]bool
+}
+
+// ProjectOrErr returns the Project value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ActionModelEdges) ProjectOrErr() (*Project, error) {
+	if e.Project != nil {
+		return e.Project, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: project.Label}
+	}
+	return nil, &NotLoadedError{edge: "project"}
+}
+
+// FeatureOrErr returns the Feature value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ActionModelEdges) FeatureOrErr() (*Feature, error) {
+	if e.Feature != nil {
+		return e.Feature, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: feature.Label}
+	}
+	return nil, &NotLoadedError{edge: "feature"}
+}
+
+// AuditRecordsOrErr returns the AuditRecords value or an error if the edge
+// was not loaded in eager-loading.
+func (e ActionModelEdges) AuditRecordsOrErr() ([]*AuditRecord, error) {
+	if e.loadedTypes[2] {
+		return e.AuditRecords, nil
+	}
+	return nil, &NotLoadedError{edge: "audit_records"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -39,12 +95,14 @@ func (*ActionModel) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case actionmodel.FieldParameters, actionmodel.FieldRules:
+		case actionmodel.FieldParameters:
 			values[i] = new([]byte)
-		case actionmodel.FieldID, actionmodel.FieldVersion:
+		case actionmodel.FieldID, actionmodel.FieldFeatureID, actionmodel.FieldVersion:
 			values[i] = new(sql.NullInt64)
 		case actionmodel.FieldProjectID, actionmodel.FieldName, actionmodel.FieldDescription, actionmodel.FieldRequiredFeature:
 			values[i] = new(sql.NullString)
+		case actionmodel.FieldCreatedAt, actionmodel.FieldUpdatedAt:
+			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -66,11 +124,29 @@ func (_m *ActionModel) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
+		case actionmodel.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case actionmodel.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
 		case actionmodel.FieldProjectID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field project_id", values[i])
 			} else if value.Valid {
 				_m.ProjectID = value.String
+			}
+		case actionmodel.FieldFeatureID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field feature_id", values[i])
+			} else if value.Valid {
+				_m.FeatureID = int(value.Int64)
 			}
 		case actionmodel.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -90,14 +166,6 @@ func (_m *ActionModel) assignValues(columns []string, values []any) error {
 			} else if value != nil && len(*value) > 0 {
 				if err := json.Unmarshal(*value, &_m.Parameters); err != nil {
 					return fmt.Errorf("unmarshal field parameters: %w", err)
-				}
-			}
-		case actionmodel.FieldRules:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field rules", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.Rules); err != nil {
-					return fmt.Errorf("unmarshal field rules: %w", err)
 				}
 			}
 		case actionmodel.FieldRequiredFeature:
@@ -125,6 +193,21 @@ func (_m *ActionModel) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
+// QueryProject queries the "project" edge of the ActionModel entity.
+func (_m *ActionModel) QueryProject() *ProjectQuery {
+	return NewActionModelClient(_m.config).QueryProject(_m)
+}
+
+// QueryFeature queries the "feature" edge of the ActionModel entity.
+func (_m *ActionModel) QueryFeature() *FeatureQuery {
+	return NewActionModelClient(_m.config).QueryFeature(_m)
+}
+
+// QueryAuditRecords queries the "audit_records" edge of the ActionModel entity.
+func (_m *ActionModel) QueryAuditRecords() *AuditRecordQuery {
+	return NewActionModelClient(_m.config).QueryAuditRecords(_m)
+}
+
 // Update returns a builder for updating this ActionModel.
 // Note that you need to call ActionModel.Unwrap() before calling this method if this ActionModel
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -148,8 +231,17 @@ func (_m *ActionModel) String() string {
 	var builder strings.Builder
 	builder.WriteString("ActionModel(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("project_id=")
 	builder.WriteString(_m.ProjectID)
+	builder.WriteString(", ")
+	builder.WriteString("feature_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FeatureID))
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
@@ -159,9 +251,6 @@ func (_m *ActionModel) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("parameters=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Parameters))
-	builder.WriteString(", ")
-	builder.WriteString("rules=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Rules))
 	builder.WriteString(", ")
 	builder.WriteString("required_feature=")
 	builder.WriteString(_m.RequiredFeature)
